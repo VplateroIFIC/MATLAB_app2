@@ -41,7 +41,7 @@ classdef ALIO
         %% Connect function. Original name A3200Connect. Used to open comunication with Gantry%%
         % Arguments: object ASCS %
         % Returns: pointer to the gantry %
-        function  Connect(this)
+        function  ASCSConnect(this)
             Port = 701;
             Address=("10.0.0.100");
             OpenCommEthernetTCP(this.gantry,Address,Port); 
@@ -56,7 +56,7 @@ classdef ALIO
         %% Disconnect function. Original name A3200Disconnect. close the communication %%
         % Arguments: none %
         % Returns: none %
-        function  Disconnect(this)
+        function  ASCSDisconnect(this)
             CloseComm(this.gantry); 
 %             if(gantry.debug)
 %             sprintf('gantry pointer:\n');
@@ -68,7 +68,7 @@ classdef ALIO
         %% StatusGetItem. Original name A3200StatusGetItem. Get different proterties of the gantry%%
         % Arguments: object ALIO (this),axis int, property, int (unused)%
         % Returns: double %
-           function  value = StatusGetItem(this,axis,property,~) 
+           function  value = ASCSStatusGetItem(this,axis,property) 
             switch property
                 case this.PositionFeedback
                    switch axis
@@ -109,7 +109,7 @@ classdef ALIO
           %% MotionAdvancedHomeAsync. Original name A3200MotionAdvancedHomeAsync. Home the selected axis%%
         % Arguments: object ALIO (this),task int (unused), axis int,%
         % Returns: none % 
-        function  MotionAdvancedHomeAsync(this,~,axis)
+        function  ASCSMotionAdvancedHomeAsync(this,axis)
            SetVelocity(this.gantry,this.xAxis,this.homeVelocity);
            SetVelocity(this.gantry,this.yAxis,this.homeVelocity);
            SetVelocity(this.gantry,this.z1Axis,this.homeVelocity);
@@ -139,7 +139,7 @@ classdef ALIO
           %% MotionMoveAbs. Original name A3200MotionMoveAbs. Absolute movement%%
         % Arguments: object ALIO (this),task int (unused), axis int, target double, velocity double%
         % Returns: none % 
-        function  MotionMoveAbs(this,~,axis,target,velocity)
+        function  ASCSMotionMoveAbs(this,axis,target,velocity)
             switch axis
                case 2
                  SetVelocity(this.gantry,this.xAxis,velocity); 
@@ -160,7 +160,7 @@ classdef ALIO
            %% MotionMoveInc. Original name A3200MotionMoveInc. Relative movement%%
         % Arguments: object ALIO (this),task int (unused), axis int, delta double, velocity double%
         % Returns: none % 
-        function  MotionMoveInc(this,~,axis,delta,velocity)
+        function  ASCSMotionMoveInc(this,axis,delta,velocity)
             switch axis
                case 2
                  SetVelocity(this.gantry,this.xAxis,velocity); 
@@ -180,7 +180,7 @@ classdef ALIO
           %% MotionSetupRampTimeAxis. Original name A3200MotionSetupRampTimeAxis. Set acceleration of the movement ramp%%
         % Arguments: object ALIO (this),task int (unused), axis int, acceleration double%
         % Returns: none % 
-        function  MotionSetupRampTimeAxis(this,~,axis,acceleration)
+        function  ASCSMotionSetupRampTimeAxis(this,axis,acceleration)
             switch axis
                case 2
                  SetAcceleration(this.gantry,this.xAxis,acceleration); 
@@ -197,7 +197,7 @@ classdef ALIO
           %% MotionEnable. Original name A3200MotionEnable. Enable motor axis%%
         % Arguments: object ALIO (this),task int (unused), axis int,%
         % Returns: none % 
-        function  MotionEnable(this,~,axis)
+        function  ASCSMotionEnable(this,axis)
             n=length(axis);
             for i=1:n
             switch axis(i)
@@ -217,7 +217,7 @@ classdef ALIO
         % Arguments: object ALIO (this),task int (unused), axis int,%
         % Returns: none % 
         
-        function  MotionDisable(this,~,axis)
+        function  ASCSMotionDisable(this,axis)
             switch axis
                case 2
                  Disable(this.gantry,this.xAxis);
@@ -230,18 +230,13 @@ classdef ALIO
             end  
         end
         
-               %% IOBrake. Original name A3200IOBrake. Active brake to the axis (unexisted in ALIO)%%
-        % Arguments: object ALIO (this),task int (unused), axis int, int (unused)%
-        % Returns: none % 
-        function  IOBrake(~,~,~)
-            
-        end
+
         
                  %% MotionWaitForMotionDone. Original name A3200MotionWaitForMotionDone. wait until movement is complete%%
         % Arguments: object ALIO (this), axis int,inposition label(unused),time inn (if -1, wait infinite)%
         % Returns: none % 
         
-        function  MotionWaitForMotionDone(this,axis,~,time)
+        function  ASCSMotionWaitForMotionDone(this,axis,time)
             n=length(axis);
             for i=1:n
             switch axis(i)
@@ -260,7 +255,7 @@ classdef ALIO
                %% MotionAbort. Original name A3200MotionAbort. Kill all the current movements of the system%%
         % Arguments: object ALIO (this),array int Axes%
         % Returns: none %
-        function  MotionAbort(this,axis)
+        function  ASCSMotionAbort(this,axis)
             n=length(axis);
             if n>1
             KillAll(this.gantry);
