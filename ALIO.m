@@ -8,7 +8,7 @@
 
 classdef ALIO
     
-    properties (Access=public)
+    properties (Access=private)
      
      debug=0;
      IsConnected;   
