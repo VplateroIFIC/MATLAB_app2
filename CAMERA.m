@@ -13,11 +13,34 @@ classdef CAMERA
             obj.Property1 = inputArg1 + inputArg2;
         end
         
-        function outputArg = method1(obj,inputArg)
-            %METHOD1 Summary of this method goes here
+        function value = Connect(obj,inputArg)
+            %METHOD1 Camera connection
             %   Detailed explanation goes here
             outputArg = obj.Property1 + inputArg;
         end
-    end
+        function value = Disconnect(obj,inputArg)
+            %METHOD1 Camera connection
+            %   Detailed explanation goes here
+            outputArg = obj.Property1 + inputArg;
+        end
+        function value = OneFrame(obj,inputArg)
+            %METHOD1 return current frame of the camera
+            %   Detailed explanation goes here
+            outputArg = obj.Property1 + inputArg;
+        end
+        function value = DispFrame(obj,inputArg)
+            %METHOD1 Camera connection
+            %   Detailed explanation goes here
+            outputArg = obj.Property1 + inputArg;
+        end
+        function value = DispCam(obj,inputArg)
+            %METHOD1 display camera video in a independent windows
+            %   Detailed explanation goes here
+            outputArg = obj.Property1 + inputArg;
+        end
+
+        end
+        end
+    
 end
 
