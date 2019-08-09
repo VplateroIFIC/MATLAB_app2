@@ -7,13 +7,13 @@ addpath(F:\Gantry_code\Matlab_app\ASCS.m);
 crear objeto de la clase ALIO, meter objeto en app.handle y conectar con el gantry:
 
 ASCS=ALIO; %% VALENCIA
-app.handle=ASCS;
-ASCS.Connect(ASCS);
+app.handle=ALIO;
+Connect(app.handle);
 
 
 
 2. 
-Replace all "A3200StatusItem"->"ASCS" along the full code of the app
+Replace all "A3200StatusItem"->"app.handle" along the full code of the app
 Replace all "A3200"->"ASCS." along the full code of the app
    
 
