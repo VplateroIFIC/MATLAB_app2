@@ -11,7 +11,7 @@ ASCS=ALIO; %OBJETO ascs
 
 %% TEST:1 PRUEBA CONEXIÓN %%
 
-Connect(ASCS); %%connecting
+ASCSConnect(ASCS); %%connecting
 ASCS.gantry
 
 
@@ -32,17 +32,17 @@ disp('x axis disabled')
 
 %% enable all motors %%
 
-ASCS.MotionEnable(ASCS,xAxis)
-ASCS.MotionEnable(ASCS,yAxis)
-ASCS.MotionEnable(ASCS,z1Axis)
-ASCS.MotionEnable(ASCS,uAxis)
+ASCSMotionEnable(ASCS,xAxis)
+ASCSMotionEnable(ASCS,yAxis)
+ASCSMotionEnable(ASCS,z1Axis)
+ASCSMotionEnable(ASCS,uAxis)
 
 %% Disable all motors %%
 
-ASCS.MotionDisable(ASCS,xAxis)
-ASCS.MotionDisable(ASCS,yAxis)
-ASCS.MotionDisable(ASCS,z1Axis)
-ASCS.MotionDisable(ASCS,uAxis)
+ASCSMotionDisable(ASCS,xAxis)
+ASCSMotionDisable(ASCS,yAxis)
+ASCSMotionDisable(ASCS,z1Axis)
+ASCSMotionDisable(ASCS,uAxis)
 
 %% TEST 3: PRUEBA HOME + wait until movement is done%%
 
@@ -87,7 +87,7 @@ MotionAbort(ASCS,xAxis);
 
 %% TEST 6: DESCONECTAR GANTRY %%
 
-Disconnect(ASCS); %%disconnecting
+ASCSDisconnect(ASCS); %%disconnecting
 ASCS.gantry
 
 
