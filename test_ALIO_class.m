@@ -5,55 +5,60 @@ clear all
 
 %% ADDING THE LIB TO THE PATH, CREATING OBJECT %%
 
-addpath('D:\Code\MATLAB_app\ALIO.m');
-ASCS=ALIO; %OBJETO ascs
+% addpath('D:\Code\MATLAB_app\STAGES');
+ASCS=STAGES(2); %OBJETO ascs
  %methodsview('ACS.SPiiPlusNET.Api'); % sacar por pantalla la información de los métodos
 
 %% TEST:1 PRUEBA CONEXIÓN %%
 
-ASCSConnect(ASCS); %%connecting
-ASCS.gantry
+ASCS=Connect(ASCS); %%connecting
+% ASCS.gantry
 
+
+%% test:1 B PRUEBA DESCONEXION %%
+
+Disconnect(ASCS); %%disconnecting
 
 
 %% TEST 2: PRUEBA ENABLE/DISABLE AXES %%
 
-xAxis=2;
-yAxis=0;
-z1Axis=3;
-uAxis=4;
+xAxis=0;
+yAxis=1;
+z1Axis=4;
+z2Axis=5;
+uAxis=6;
 
-ASCS.MotionEnable(ASCS,xAxis)
+MotorEnable(ASCS,xAxis)
 disp('x axis enabled')
 
-ASCS.MotionDisable(ASCS,xAxis)
+MotorEnable(ASCS,xAxis)
 disp('x axis disabled')
 
 
 %% enable all motors %%
 
-ASCSMotionEnable(ASCS,xAxis)
-ASCSMotionEnable(ASCS,yAxis)
-ASCSMotionEnable(ASCS,z1Axis)
-ASCSMotionEnable(ASCS,uAxis)
+MotorEnable(ASCS,xAxis)
+MotorEnable(ASCS,yAxis)
+MotorEnable(ASCS,z1Axis)
+MotorEnable(ASCS,uAxis)
 
 %% Disable all motors %%
 
-ASCSMotionDisable(ASCS,xAxis)
-ASCSMotionDisable(ASCS,yAxis)
-ASCSMotionDisable(ASCS,z1Axis)
-ASCSMotionDisable(ASCS,uAxis)
+MotorDisable(ASCS,xAxis)
+MotorDisable(ASCS,yAxis)
+MotorDisable(ASCS,z1Axis)
+MotorDisable(ASCS,uAxis)
 
 %% TEST 3: PRUEBA HOME + wait until movement is done%%
 
-xpos=StatusGetItem(ASCS,xAxis,1,0);
+xpos=GetPosition(ASCS,xAxis);
 disp('X pos before homing is');
 disp(xpos);
 
-MotionAdvancedHomeAsync(ASCS,0,xAxis);
-MotionWaitForMotionDone(ASCS,xAxis,0,-1);
+Home(ASCS,xAxis);
+WaitForMotion(ASCS,xAxis,-1);
 
-xpos=StatusGetItem(ASCS,xAxis,1,0);
+xpos=GetPosition(ASCS,xAxis);
 disp('X pos after homing is');
 disp(xpos);
 
@@ -62,14 +67,14 @@ disp(xpos);
 delta=-100;
 velocity=15;
 
-xpos=StatusGetItem(ASCS,xAxis,1,0);
+xpos=GetPosition(ASCS,xAxis);
 disp('x pos before relative movement is');
 disp(xpos);
 
-MotionMoveInc(ASCS,0,xAxis,delta,velocity);
-MotionWaitForMotionDone(ASCS,xAxis,0,-1);
+MoveBy(ASCS,xAxis,delta,velocity);
+WaitForMotion(ASCS,xAxis,-1);
 
-xpos=StatusGetItem(ASCS,xAxis,1,0);
+xpos=GetPosition(ASCS,xAxis);
 disp('x pos after relative movement is');
 disp(xpos);
 
