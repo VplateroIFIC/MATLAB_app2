@@ -5,7 +5,7 @@ clear all
 
 %% LOADING THE LIBRARY %%
 
-gantry = NET.addAssembly('C:\Users\Pablo\Desktop\prueba matlab\ACS.SPiiPlusNET.dll');
+gantry = NET.addAssembly('F:\Gantry_code\Matlab_app\ACS.SPiiPlusNET.dll');
 %methodsview('ACS.SPiiPlusNET.Api')
 
 %% CONNECTING TO GANTRY %%
