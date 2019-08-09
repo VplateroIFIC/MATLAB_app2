@@ -2,16 +2,45 @@
 clc
 clear all
 
+% creating camera object %
 imaqreset;
+dev_info = imaqhwinfo('winvideo',1);
 cam = videoinput('winvideo',1);
-triggerconfig(cam, 'manual');
-cam.FramesPerTrigger = inf;
-cam.FrameGrabInterval = 1;
+
+% previsualización de la cámara %
+preview(cam)
+% closepreview(vid)
+
+% propiedades del objeto camara %
+
+get(cam);
+set(cam); % what I can change
 src = getselectedsource(cam);
+
+% setting the properties of the object %
+
+cam.ReturnedColorSpace='grayscale';
+cam.ROIPosition=[0 0 3856 2764];
+cam.ReturnedColorSpace=grayscale;
 src.ExposureMode = 'manual';
 % src.Exposure = exp;
-start(cam);
-trigger(cam);
-preview(cam);
-% pause(0.25);
-% Collect(app,1);
+
+% setting properties of the logging to take 1 frame %%
+
+triggerconfig(cam, 'manual');
+cam.FramesPerTrigger = Inf;
+cam.FrameGrabInterval = 1;
+
+% getting 1 frame! %
+
+
+frame=getsnapshot(cam);
+
+%% sacar por pantalla frame %%
+
+imshow(frame);
+
+
+% start(cam);
+% frame=trigger(cam);
+% preview(cam);
