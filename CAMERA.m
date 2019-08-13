@@ -11,9 +11,8 @@ CamStatus;
     end
     
     methods
-        
+ %% Connect Camera connection, setting all properties %%      
         function this=Connect(this)
-            %METHOD1 Camera connection, setting all properties
            % creating camera object, opening preview % 
            imaqreset
            this.cam = videoinput('winvideo',1);
@@ -24,22 +23,30 @@ CamStatus;
            src.ExposureMode = this.ExposureM; 
            disp('connection done')
         end
+        
+ %%  Disconnect Camera  %%   
+        
         function Disconnect(this)
-           % deleting camera object%
             delete(this.cam);
             imaqreset
         end
+        
+%%  OneFrame return current frame of the camera (image)   %%   
+        
         function Image = OneFrame(this)
-            %OneFrame return current frame of the camera (image)%
             Image=getsnapshot(this.cam);
         end
+        
+%%  DispFrame Display current frame in a figure   %%  
+
         function DispFrame(this)
-            % DispFrame Display current frame in a figure %
             pic=getsnapshot(this.cam);
             imshow(pic);
         end
+       
+%%  DispCam display camera video in a independent windows   %%          
+        
         function DispCam(this)
-            %DispCam display camera video in a independent windows
         figure('Name', 'Camera Display'); 
         uicontrol('String', 'Close', 'Callback', 'close(gcf)'); 
         vidRes = this.cam.VideoResolution; 
@@ -47,13 +54,16 @@ CamStatus;
         hImage = image( zeros(vidRes(2), vidRes(1), nBands) ); 
         preview(this.cam, hImage); 
         end
+ 
+%%  DispCamOff close the display of the camera   %%          
         
         function DispCamOff(this)
-            % DispCamOff close the display of the camera
         close;
         end
+        
+%%  SaveFrame Save one frame in the ImagePath folder in the specified format   %%   
+
         function SaveFrame(this,name,format)
-            %SaveFrame Save one frame in the ImagePath folder in the specified format%
             switch format
                 case 1
                     extension='.tif';
@@ -65,7 +75,7 @@ CamStatus;
             pic=getsnapshot(this.cam);
             fullname=strcat(this.ImageOutput,name,extension);
             imwrite(pic,fullname);
-            disp('done')
+            disp('frame saved')
         end
         end
 end
