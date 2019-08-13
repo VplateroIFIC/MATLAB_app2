@@ -20,13 +20,13 @@ gantry.MotorEnableAll;
 cam.DispCam
 
 %%%%%%%%%%% performing autofocus %%%%%%%%%%
-tic
+total=tic;
 
 % Initial values %
 
 zAxis=4;
 
-R=0.2;   %Rango de enfoque
+R=0.4;   %Rango de enfoque
 div=5;   %divisiones iniciales del rango
 velocity=1.5;   %1.5 mm/s velocidad
 Z0=gantry.GetPosition(zAxis);
@@ -56,15 +56,21 @@ for i=1:iterations
 z=P0;
 while (z<=Pn)
     % setting gantry at new position %
+   GantryMov=tic;
    gantry.MoveTo(zAxis,z,velocity);
    gantry.WaitForMotion(zAxis,-1);
+   timeMov=toc(GantryMov);
+   disp('time consumed in 1 movement operation is %4.4',timeMov)
    Z(zCont)=gantry.GetPosition(zAxis);
    zCont=zCont+1;
    % taking picture, appling ROI %
    image=cam.OneFrame;
    ROI=image(RoiCoordX,RoiCoordY);
    % Asking focus parameter %
+   Fvalue=tic;
    FocusValue(fCont)=fmeasure(ROI,FocusType);
+   timeFvalue=toc(Fvalue);
+   disp('time consumed getting focus parameter is %4.4',timeFvalue)
    fCont=fCont+1;
    z=z+delta;
 end
@@ -94,10 +100,12 @@ Zfinal=-p(2)/p(1);
 gantry.MoveTo(zAxis,Zfinal,velocity);
 gantry.WaitForMotion(zAxis,-1);
 
-time=toc;
+TotalTime=toc(total);
 
-disp('focus optimal values is %4.4',Zfinal);
-disp('total tima consumed is %4.4',time)
+disp('focus optimal values is %4.4',Zfinal)
+disp('Number of iterations is %',i)
+disp('total number of measures is %',length(FocusValue))
+disp('total tima consumed is %4.4',TotalTime)
 
 
 
