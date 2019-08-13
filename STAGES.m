@@ -323,12 +323,7 @@ classdef STAGES
             end
            end
         end
-        
-        
-        
-        
-        
-        
+
                  %% MotorEnableS %% Enable all motors
         % Arguments: object ALIO (this), axis int array%
         % Returns: none % 
@@ -343,9 +338,7 @@ classdef STAGES
                  Enable(this.GantryObj,this.z2Axis);   
                  Enable(this.GantryObj,this.uAxis);
             end
-           end
         end
-
            %% MotorDisable %% Disable 1 motor
         % Arguments: object ALIO (this), axis int,%
         % Returns: none % 
@@ -449,8 +442,6 @@ classdef STAGES
             end
 
         end
-        end
-
 end
         
         
