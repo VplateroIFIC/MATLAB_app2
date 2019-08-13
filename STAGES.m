@@ -53,7 +53,7 @@ classdef STAGES
   %% CONSTRUCTOR %%
         % Arguments: site Number %
         % Returns: object %
-        function this =  STAGES(Nsite)
+        function this = STAGES(Nsite)
             switch Nsite
                 case 0 || 1 || 3
                 this.GantryType=0;
@@ -324,24 +324,23 @@ classdef STAGES
            end
         end
         
-                 %% MotorEnableS %% Enable several motors
+        
+        
+        
+        
+        
+                 %% MotorEnableS %% Enable all motors
         % Arguments: object ALIO (this), axis int array%
         % Returns: none % 
-        function  MotorEnableS(this,axis)
+        function  MotorEnableAll(this)
            switch this.GantryType
                 case 0
                    %insert here MotorEnableS with AEROTECH gantry % 
                 case 1
-            switch axis
-               case 0
                  Enable(this.GantryObj,this.xAxis);
-               case 1
                  Enable(this.GantryObj,this.yAxis);
-               case 4
                  Enable(this.GantryObj,this.z1Axis); 
-               case 5
                  Enable(this.GantryObj,this.z2Axis);   
-               case 6
                  Enable(this.GantryObj,this.uAxis);
             end
            end
