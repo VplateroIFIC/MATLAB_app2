@@ -20,13 +20,17 @@ CamStatus;
            src = getselectedsource(this.cam);
            this.cam.ReturnedColorSpace=this.ReturnedColor;
            this.cam.ROIPosition=this.ROIPos;
-           src.ExposureMode = this.ExposureM; 
+           src.ExposureMode = this.ExposureM;
+           % seting manual trigger (better performance %)
+           triggerconfig(this.cam, 'manual');
+           start(this.cam)
            disp('connection done')
         end
         
  %%  Disconnect Camera  %%   
         
         function Disconnect(this)
+            stop(this.cam)
             delete(this.cam);
             imaqreset
         end
