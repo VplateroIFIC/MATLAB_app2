@@ -60,7 +60,9 @@ classdef STAGES
                 %insert here properties setting foe AEROTECH gantry %
                 case 2
                  this.GantryType=1;   
-                    
+                NET.addAssembly('D:\Code\MATLAB_app\ACS.SPiiPlusNET.dll'); %loading .NET assembly
+                this.GantryObj=ACS.SPiiPlusNET.Api;
+                
                  this.xAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_0;
                  this.yAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_1;
                  this.z1Axis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_4;
@@ -71,8 +73,7 @@ classdef STAGES
                  this.Relative=ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_RELATIVE;
                  this.Absolute=ACS.SPiiPlusNET.MotionFlags.ACSC_NONE;
                  
-                NET.addAssembly('D:\Code\MATLAB_app\ACS.SPiiPlusNET.dll'); %loading .NET assembly
-                this.GantryObj=ACS.SPiiPlusNET.Api;
+                
             end
         end
 
@@ -368,23 +369,12 @@ classdef STAGES
         % Arguments: object ALIO (this), axis int,%
         % Returns: none % 
         
-        function  MotorDisableAll(this,axis)
+        function  MotorDisableAll(this)
             switch this.GantryType
                 case 0
                    %insert here MotorDisableAll with AEROTECH gantry % 
                 case 1
-             switch axis
-               case 0
-                 DisableAll(this.GantryObj,this.xAxis);
-               case 1
-                 DisableAll(this.GantryObj,this.yAxis);
-               case 4
-                 DisableAll(this.GantryObj,this.z1Axis); 
-               case 5
-                 DisableAll(this.GantryObj,this.z2Axis);   
-               case 6
-                 DisableAll(this.GantryObj,this.uAxis);
-             end  
+                 DisableAll(this.GantryObj);
             end
         end
 
@@ -442,6 +432,7 @@ classdef STAGES
             end
 
         end
+    end
 end
         
         
