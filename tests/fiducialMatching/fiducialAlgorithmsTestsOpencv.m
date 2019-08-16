@@ -15,7 +15,7 @@ addpath('F:\mexopencv\opencv_contrib')
 
 % loading original figure and template %
 
-image0=imread('Image_0_1_3.jpg');
+image0=imread('Image_30_1_7.jpg');
 template=imread('ATLAS_F.jpg');
 
 template2=imread('F_outline.bmp');
@@ -59,7 +59,7 @@ ROI=I1(ver1(2):ver3(2),ver1(1):ver3(1));
 
 %% median blur (median filter): clean the image %%
 
-kernel=5;
+kernel=9;
 ROI_median=cv.medianBlur(ROI,'KSize',kernel);
 temp_median=cv.medianBlur(temp,'KSize',kernel);
 
@@ -89,29 +89,37 @@ temp_clean=temp_inv;
 %% Find the SURF features. %%
 
 detector=cv.SURF;
+detector.clear();
 
 [keypointsImage, descriptorsImage] = detector.detectAndCompute(ROI_final);
 [keypointsTemp, descriptorsTemp] = detector.detectAndCompute(temp_final);
 
+detector.delete();
 
 %% match features in both images %%
 
 matcher=cv.DescriptorMatcher;
 matches=matcher.knnMatch(descriptorsTemp,descriptorsImage,2);
-
+[indexPairs,matchmetric] = matchFeatures(descriptorsTemp,descriptorsImage);
 
 %% select good quality matches %%
 n=length(matches);
-lowRatio=0.5;
+lowRatio=0.6;
 cont=1;
 for i=1:n
-if (matches{i}(1).distance < matches{i}(2).distance*lowRatio)
+if (matches{i}(1).distance < matches{i}(2).distance*lowRatio  &&  (matches{i}(1).distance<0.05)) 
     SortedMatches(cont).queryIdx=matches{cont}(1).queryIdx;
     SortedMatches(cont).trainIdx=matches{cont}(1).trainIdx;
     SortedMatches(cont).imgIdx=matches{cont}(1).imgIdx;
     SortedMatches(cont).distance=matches{cont}(1).distance;
     cont=cont+1;
 end
+end
+
+for i=1:length(matchmetric)
+   if matchmetric(i)<(0.001)
+       matchesMatlab(i,:)=indexPairs(i,:);
+   end
 end
 
 %% checking we have enough matches %%
@@ -149,8 +157,8 @@ end
 
 %% transformation fiducial to image %%
 
-H = cv.estimateAffinePartial2D(objeto,scene,'Method','LMedS');
-
+H = cv.estimateAffinePartial2D(objeto,scene,'Method','Ransac');
+H2 = fitgeotrans(vec2mat(cell2mat(objeto),2),vec2mat(cell2mat(scene),2),'NonreflectiveSimilarity');
 
 %% PLOTING %%
 
@@ -183,13 +191,30 @@ H = cv.estimateAffinePartial2D(objeto,scene,'Method','LMedS');
 % s(17)=subplot(2,9,17); imshow(tempFeatures);  s(17).Position=s(17).Position+[-0.016 0 0.04 0.04];
 % saveas(map, 'FiducialsPictures\fullProcess.fig');
 
+%% plotting matlab matches %%
+% 
+% figure(7)
+% for i=1:length(matchmetric)
+% hold on
+% indx=(indexPairs(i,1));
+% indy=(indexPairs(i,2));
+% plot(keypointsTemp(indx).pt(1),keypointsTemp(indy).pt(2),'*','color','b')
+% hold on
+% plot(keypointsImage(indx).pt(1),keypointsImage(indy).pt(2),'*','color','r')
+% end
+% 
+% hold on
+% for i=1:length(matchmetric)
+% line([objeto{i}(1),scene{i}(1)],[objeto{i}(2),scene{i}(2)]);
+% end
+
 
 %% plotting again %%
-% ScaRot=H(1:2,1:2);
+ScaRot=H(1:2,1:2);
 xDelta=H(1,3);
 yDelta=H(2,3);
 angle=asin(H(2,1));
-ScaRot=[cos(angle) H(1,2);H(2,1) cos(angle)];
+% ScaRot=[cos(angle) H(1,2);H(2,1) cos(angle)];
 % objeto_vec=cell2mat(objeto);
 % objeto_mat=vec2mat(objeto_vec);
 % objeto_transformed=H*objeto_mat;
@@ -198,7 +223,7 @@ figure(1)
 for i=1:length(objeto)
 hold on
 obj=ScaRot*[objeto{i}(1),objeto{i}(2)]'+[xDelta,yDelta];
-plot(obj(1),obj(2),'*','color','b')
+plot(objeto{i}(1),objeto{i}(2),'*','color','b')
 end
 
 hold on
@@ -207,6 +232,18 @@ hold on
 plot(scene{i}(1),scene{i}(2),'*','color','r')
 end
 
+% for i=1:length(scene)
+% hold on
+% [xpoint,ypoint]=transformPointsForward(H2,objeto{i}(1),objeto{i}(2));
+% plot(xpoint,ypoint,'*','color','g')
+% end
+
+for i=1:length(objeto)
+    children = get(gca, 'children');
+delete(children(1));
+line([objeto{i}(1),scene{i}(1)],[objeto{i}(2),scene{i}(2)]);
+SortedMatches(i).distance
+end
 
 
 %%  plotting template over original image %%
