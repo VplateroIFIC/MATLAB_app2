@@ -76,7 +76,7 @@ ImCont=1;
 for i=1:iterations
 FocusValue=zeros(1,20);   
 Z=zeros(1,20);
- z=P0;
+z=P0;
 for j=1:div+1
     % setting gantry at new position %
    GantryMov=tic;
