@@ -1,6 +1,6 @@
 classdef CAMERA
     %UNTITLED Summary of this class goes here
-    properties   
+    properties (Access=private)  
 % setting the properties of the object %        
 ReturnedColor='grayscale';
 ROIPos=[0 0 3856 2764];
@@ -8,6 +8,7 @@ ExposureM = 'manual';
 ImageOutput='tests\images\';
 cam;
 CamStatus;
+IsConnected=0;
     end
     
     methods
@@ -24,14 +25,17 @@ CamStatus;
            % seting manual trigger (better performance %)
            triggerconfig(this.cam, 'manual');
            start(this.cam)
+           this.IsConnected=1;
            disp('connection done')
+           
         end
         
  %%  Disconnect Camera  %%   
         
-        function Disconnect(this)
+        function this=Disconnect(this)
             stop(this.cam)
             delete(this.cam);
+            this.IsConnected=0;
             imaqreset
         end
         
