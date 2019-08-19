@@ -1,42 +1,42 @@
 %% TESTING AUTOFOCUS ROUTINE %%
 
 %% clearing all %%
-
-clc
-clear all
-imaqreset;
-
-%% declaring objects to talk to dtages and cameras %%
-nSite=2;  %Valencia
-gantry=STAGES(nSite);
-cam=CAMERA;
-
-%% conecting to both devices %%
-
-gantry=gantry.Connect;
-cam=cam.Connect;
-
-%% enable all stages %%
-
-gantry.MotorEnableAll;
-
-
-%% display preview window %%
-
-cam.DispCam
+% 
+% clc
+% clear all
+% imaqreset;
+% 
+% %% declaring objects to talk to dtages and cameras %%
+% nSite=2;  %Valencia
+% gantry=STAGES(nSite);
+% cam=CAMERA;
+% 
+% %% conecting to both devices %%
+% 
+% gantry=gantry.Connect;
+% cam=cam.Connect;
+% 
+% %% enable all stages %%
+% 
+% gantry.MotorEnableAll;
+% 
+% 
+% %% display preview window %%
+% 
+% cam.DispCam
 
 %%%%%%%%%%% performing autofocus %%%%%%%%%%
  %% AUTOCOUS %%
 clearvars -except keepVariables cam gantry nSite
  % Initial values %
- total=tic;
 
 
 
+cam.DispCam
 zAxis=4;
-Pini=21.1;
-Rini=0.5;   %Rango de enfoque
-div=3;   %divisiones iniciales del rango
+Pini=gantry.GetPosition(zAxis);
+Rini=0.4;   %Rango de enfoque
+div=4;   %divisiones iniciales del rango
 velocity=2;   %1.5 mm/s velocidad
 
 R=Rini;
@@ -50,7 +50,7 @@ threshold=0.05;
 delta=R/div;
 P0=Z0-R/2;
 Pn=Z0+R/2;
-s=1000;   % size of the roi
+s=300;   % size of the roi
 ImageTest=cam.OneFrame;
 [n,m]=size(ImageTest);
 RoiSize=[s,s];
@@ -61,23 +61,23 @@ FocusType='BREN';
 
 
 %% Performing global search %%
-
+ total=tic;
 zCont=1;
 fCont=1;
-iterations=50;
+iterations=5;
 Fopt=zeros(1,100);
 ImCont=1;
 
-fprintf('initial P0 is %4.4f\n',P0);
-fprintf('initial Pn is %4.4f\n',Pn);
-fprintf('initial R is %4.4f\n',R);
-fprintf('initial delta is %4.4f\n',delta);
+% fprintf('initial P0 is %4.4f\n',P0);
+% fprintf('initial Pn is %4.4f\n',Pn);
+% fprintf('initial R is %4.4f\n',R);
+% fprintf('initial delta is %4.4f\n',delta);
 
 for i=1:iterations
 FocusValue=zeros(1,20);   
 Z=zeros(1,20);
  z=P0;
-while (z<=Pn)
+for j=1:div+1
     % setting gantry at new position %
    GantryMov=tic;
    gantry.MoveTo(zAxis,z,velocity);
@@ -86,8 +86,13 @@ while (z<=Pn)
    Z(zCont)=Zref;
    timeMov=toc(GantryMov);
    % taking picture, appling ROI %
+   takeImage=tic;
+   if (i==1 && j==1)
    image=cam.OneFrame;
+   end
    image=cam.OneFrame;
+   timeImage=toc(takeImage);
+   
    ROI=image(RoiCoordX,RoiCoordY);
    imwrite(image,strcat('D:\Code\MATLAB_app\tests\focus\images\image_',num2str(ImCont),'_F_',num2str(Zref),'.jpg'));
    imwrite(ROI,strcat('D:\Code\MATLAB_app\tests\focus\images\imageROI_',num2str(ImCont),'.jpg'));
@@ -97,7 +102,7 @@ while (z<=Pn)
    FocusValue(fCont)=fmeasure(ROI,FocusType);
    timeFvalue=toc(Fvalue);
    z=z+delta;
-   fprintf('Time movement: %4.4f time focus: %4.4f  Z: %4.4f   Focus Value: %4.4f \n',timeMov,timeFvalue,Z(zCont),FocusValue(fCont))
+   fprintf('Time movement: %4.4f  Time image: %4.4f time focus: %4.4f  Z: %4.4f   Focus Value: %4.4f \n',timeMov,timeImage,timeFvalue,Z(zCont),FocusValue(fCont))
    fCont=fCont+1;
    zCont=zCont+1;
 end
@@ -118,7 +123,7 @@ fprintf('optimal focus was %4.4f\n',Fopt(i));
 fprintf('optimal Z was %4.4f\n',Zopt(i));
 % defining new range %
 
-
+div=3;
 newR=max([abs(Zopt(i)-P0),abs(Zopt(i)-Pn)]);
 P0=Zopt(i)-newR/2;
 Pn=Zopt(i)+newR/2;
