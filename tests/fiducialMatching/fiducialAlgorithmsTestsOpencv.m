@@ -15,7 +15,7 @@ addpath('F:\mexopencv\opencv_contrib')
 
 % loading original figure and template %
 
-image0=imread('Image_30_1_7.jpg');
+image0=imread('Image_11_1_1.jpg');
 template=imread('ATLAS_F.jpg');
 
 template2=imread('F_outline.bmp');
@@ -59,7 +59,7 @@ ROI=I1(ver1(2):ver3(2),ver1(1):ver3(1));
 
 %% median blur (median filter): clean the image %%
 
-kernel=9;
+kernel=5;
 ROI_median=cv.medianBlur(ROI,'KSize',kernel);
 temp_median=cv.medianBlur(temp,'KSize',kernel);
 
@@ -104,10 +104,10 @@ matches=matcher.knnMatch(descriptorsTemp,descriptorsImage,2);
 
 %% select good quality matches %%
 n=length(matches);
-lowRatio=0.6;
+lowRatio=0.7;
 cont=1;
 for i=1:n
-if (matches{i}(1).distance < matches{i}(2).distance*lowRatio  &&  (matches{i}(1).distance<0.05)) 
+if (matches{i}(1).distance < matches{i}(2).distance*lowRatio) 
     SortedMatches(cont).queryIdx=matches{cont}(1).queryIdx;
     SortedMatches(cont).trainIdx=matches{cont}(1).trainIdx;
     SortedMatches(cont).imgIdx=matches{cont}(1).imgIdx;
@@ -142,6 +142,31 @@ for i=1:length(SortedMatches)
    scene{i}=[keypointsImage(indxScene+1).pt(1), keypointsImage(indxScene+1).pt(2)];
 end
 
+
+
+%% filtering for high quality matches %%
+
+[distCentObj,distSimPointObjX,distSimPointObjY]=filterPoints(objeto);
+[distCentSce,distSimPointSceX,distSimPointSceY]=filterPoints(scene);
+newcont=1;
+for i=1:length(distCentObj)
+    threshold_1=0.2;
+    threshold_2=0.2;
+    if (abs(distCentObj(i)-distCentSce(i))<threshold_1)  &&  abs((distSimPointObjX(i)-distSimPointSceX(i))<threshold_2)...
+            abs((distSimPointObjY(i)-distSimPointSceY(i))<threshold_2)
+       
+     newobjeto{newcont}=objeto{i};
+     newscene{newcont}=scene{i};
+       newcont=newcont+1 ;
+    end
+        
+end
+
+clearvars objeto scene
+objeto=newobjeto;
+scene=newscene;
+
+
 %% plotting %%
 % figure(1)
 % for i=1:length(objeto)
@@ -157,7 +182,7 @@ end
 
 %% transformation fiducial to image %%
 
-H = cv.estimateAffinePartial2D(objeto,scene,'Method','Ransac');
+H = cv.estimateAffinePartial2D(objeto',scene','Method','Ransac');
 H2 = fitgeotrans(vec2mat(cell2mat(objeto),2),vec2mat(cell2mat(scene),2),'NonreflectiveSimilarity');
 
 %% PLOTING %%
@@ -242,7 +267,7 @@ for i=1:length(objeto)
     children = get(gca, 'children');
 delete(children(1));
 line([objeto{i}(1),scene{i}(1)],[objeto{i}(2),scene{i}(2)]);
-SortedMatches(i).distance
+% SortedMatches(i).distance
 end
 
 
