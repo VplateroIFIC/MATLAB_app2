@@ -1,6 +1,6 @@
 classdef CAMERA
     %UNTITLED Summary of this class goes here
-    properties (Access=private)  
+properties (Access=private)  
 % setting the properties of the object %        
 ReturnedColor='grayscale';
 ROIPos=[0 0 3856 2764];
@@ -8,8 +8,10 @@ ExposureM = 'manual';
 ImageOutput='tests\images\';
 cam;
 CamStatus;
-IsConnected=0;
-    end
+end
+properties (Access=public)
+IsConnected=0; 
+end
     
     methods
  %% Connect Camera connection, setting all properties %%      
