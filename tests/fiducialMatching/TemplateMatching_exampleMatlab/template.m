@@ -3,14 +3,14 @@
 %object in template and in image  need to be same size
 clc;
 clear;
-ig1=imread('img7.jpg');%main image
+ig1=imread('Original_F.jpg');%main image
 [xi,yi,zi]=size(ig1);
 if zi==1
     img1=ig1;
 else
 img1=rgb2gray(ig1);
 end;
-tp1=imread('temp7.jpg');%part of image
+tp1=imread('ATLAS_F.jpg');%part of image
 [xt,yt,zt]=size(tp1);
 if zt==1
     temp1=tp1;
