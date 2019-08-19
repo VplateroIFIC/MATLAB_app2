@@ -84,6 +84,7 @@ classdef STAGES
                 Address=("10.0.0.100");  
                 OpenCommEthernetTCP(this.GantryObj,Address,Port);
                 this.IsConnected=1;
+                disp('Stages conections done');
             end
         end
         
