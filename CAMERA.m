@@ -26,7 +26,7 @@ IsConnected=0;
            triggerconfig(this.cam, 'manual');
            start(this.cam)
            this.IsConnected=1;
-           disp('connection done')
+           disp('Camera connection done');
            
         end
         
