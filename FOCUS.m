@@ -2,8 +2,12 @@ classdef FOCUS
     %FOCUS focusing tools
   
     
-    properties
-        Property1
+    properties (Access=private)
+       maxIter=5;
+       FocusRange=0.5;
+       velocity=2;
+       threshold=0.05;
+       
     end
     
     methods
