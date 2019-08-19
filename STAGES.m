@@ -21,7 +21,7 @@ classdef STAGES
 % This class in under development, in case of bug or other question, please contact to Pablo León (pablo.leon@cern.ch)
 
 
-    properties (Access=public)
+    properties (Access=private)
      
      
      GantryType;
@@ -41,11 +41,7 @@ classdef STAGES
      Acceleration;
      Absolute;
      Relative;
-     
-    end
-    
-    properties (Access=public)
-     IsConnected;
+     IsConnected=0;
      GantryObj;
     end
     
@@ -72,8 +68,7 @@ classdef STAGES
                  this.Acceleration=20;
                  this.Relative=ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_RELATIVE;
                  this.Absolute=ACS.SPiiPlusNET.MotionFlags.ACSC_NONE;
-                 
-                
+
             end
         end
 
