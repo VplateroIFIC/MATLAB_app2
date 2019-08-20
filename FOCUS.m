@@ -7,11 +7,12 @@ classdef FOCUS
        FocusRange=0.4;
        velocity=2;
        threshold=0.05;
-       splits=4;
+       splits=3;
        RoiSize=300;
        ReadyToFocus=0;
        FocusType='BREN';
        ImageSize=[2764 3856];
+       zAxis=4;
        gantry;
        cam;
     end
@@ -21,11 +22,12 @@ classdef FOCUS
 function this = FOCUS(gantry_obj,camera_obj)
     %FOCUS Construct an instance of this class
     %   Inputs: STAGES and CAMERA objects
-    if (gantry.IsConnected==1) && (cam.IsConnected==1)
+    this.gantry=gantry_obj;
+    this.cam=camera_obj;
+    if (this.gantry.IsConnected==1) && (this.cam.IsConnected==1)
         this.ReadyToFocus=1;
         disp('System is ready to perform autofocus')
-        this.gantry=gantry_obj;
-        this.cam=camera_obj;
+        
     else
         if (gantry.IsConnected==0)
             disp('Autofocus can not be performed: gantry is not connected')
@@ -51,7 +53,7 @@ end
 
 total=tic;
 
-Zini=this.gantry.GetPosition(zAxis);
+Zini=this.gantry.GetPosition(this.zAxis);
 R=this.FocusRange;
 div=this.splits;
 x0=this.ImageSize(1)/2;
@@ -77,9 +79,9 @@ delta=R/div;
 samples=1;
 while (samples<=div+1)
 % moving gantry at new position %
-this.gantry.MoveTo(zAxis,z,this.velocity);
-this.gantry.WaitForMotion(zAxis,-1);
-Z(zCont)=this.gantry.GetPosition(zAxis);
+this.gantry.MoveTo(this.zAxis,z,this.velocity);
+this.gantry.WaitForMotion(this.zAxis,-1);
+Z(zCont)=this.gantry.GetPosition(this.zAxis);
 % taking picture %
 if (iteration==1 && samples==1)
 image{ImCont}=this.cam.OneFrame;
@@ -107,7 +109,7 @@ if iteration>1 && abs(Zopt(iteration)-Zopt(iteration-1))<this.threshold
 end
 div=3;
 R=max([abs(Zopt(iteration)-P0),abs(Zopt(iteration)-Pn)]);
-Z0=Zopt;
+Z0=Zopt(iteration);
 iteration=iteration+1;
 end
 
@@ -119,10 +121,10 @@ X=Z;
 Y=FocusValue;
 p=polyfit(X,Y,2);
 Zfinal=-(p(2)/(2*p(1)));
-if (Zfinal>=Pini-Rini/2 || Zfinal<=Pini+Rini/2)
+if (Zfinal>=Zini-this.FocusRange/2 || Zfinal<=Zini+FocusRange/2)
 % Moving to Zfinal  %
-this.gantry.MoveTo(zAxis,Zfinal,this.velocity);
-this.gantry.WaitForMotion(zAxis,-1);
+this.gantry.MoveTo(this.zAxis,Zfinal,this.velocity);
+this.gantry.WaitForMotion(this.zAxis,-1);
 else
 disp('Optimal focus point is out of range');
 end
@@ -133,12 +135,13 @@ end
 TotalTime=toc(total);
 disp('Optimal focus point reached');
 % returning info %
+image=image(~cellfun('isempty',image));
 info.Zoptim=Zfinal;
 info.Foptim=max(FocusAll);
 info.Zvalues=zAll;
 info.Fvalues=FocusAll;
 info.time=TotalTime;
-
+info.Images=image;
 end
         
 function FM = fmeasure(Image, Measure, ROI)

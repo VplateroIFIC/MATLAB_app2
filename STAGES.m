@@ -27,7 +27,6 @@ classdef STAGES
      GantryType;
    
      % valencia properties %
-     
      xAxis;
      yAxis;
      z1Axis;
@@ -41,11 +40,14 @@ classdef STAGES
      Acceleration;
      Absolute;
      Relative;
-     IsConnected=0;
      GantryObj;
      jogVFlag;
      
     end
+  properties (Access=public)
+     IsConnected=0; 
+  end
+    
     
     methods
   %% CONSTRUCTOR %%
@@ -398,6 +400,7 @@ classdef STAGES
                    %insert here MotorDisableAll with AEROTECH gantry % 
                 case 1
                  DisableAll(this.GantryObj);
+                 disp('Motors have been disabled')
             end
         end
 
