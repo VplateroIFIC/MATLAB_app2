@@ -43,13 +43,17 @@ classdef STAGES
      Relative;
      IsConnected=0;
      GantryObj;
+     jogVFlag;
+     
     end
     
     methods
   %% CONSTRUCTOR %%
+        
+        function this = STAGES(Nsite)
+        %function this = STAGES(Nsite)
         % Arguments: site Number %
         % Returns: object %
-        function this = STAGES(Nsite)
             switch Nsite
                 case 0 || 1 || 3
                 this.GantryType=0;
@@ -68,14 +72,17 @@ classdef STAGES
                  this.Acceleration=20;
                  this.Relative=ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_RELATIVE;
                  this.Absolute=ACS.SPiiPlusNET.MotionFlags.ACSC_NONE;
+                 this.jogVFlag=ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_VELOCITY;
 
             end
         end
 
         %% Connect  %%
+       
+        function  this = Connect(this)
+        % function  this = Connect(this)   
         % Arguments: object STAGES %
         % Returns: none %
-        function  this = Connect(this)
             switch this.GantryType
                 case 0
                 %insert here connection con AEROTECH gantry %
@@ -89,9 +96,11 @@ classdef STAGES
         end
         
         %% Disconnect  %%
+        
+        function  this = Disconnect(this)
+        % function  this = Disconnect(this)
         % Arguments: object STAGES %
         % Returns: none %
-        function  this = Disconnect(this)
             switch this.GantryType
                 case 0
                 %insert here disconnection with AEROTECH gantry %
@@ -103,9 +112,11 @@ classdef STAGES
         
         
          %% GetPosition. %%
+        
+        function  value = GetPosition(this,axis) 
+        % function  value = GetPosition(this,axis)   
         % Arguments: object ALIO (this),axis int%
         % Returns: double %
-        function  value = GetPosition(this,axis) 
             switch this.GantryType
                 case 0
                 %insert here getPosition with AEROTECH gantry %
@@ -127,9 +138,11 @@ classdef STAGES
 
          
          %% GetVelocity %%
+        
+        function  value = GetVelocity(this,axis)
+        % function  value = GetVelocity(this,axis)    
         % Arguments: object ALIO (this),axis int%
         % Returns: double %
-        function  value = GetVelocity(this,axis) 
             switch this.GantryType
                 case 0
                 %insert here getVelocity with AEROTECH gantry %
@@ -151,9 +164,11 @@ classdef STAGES
         
         
           %% GetCurrentFeedback %%
+        
+        function  value = GetCurrentFeedback(this,axis) 
+        % function  value = GetCurrentFeedback(this,axis) 
         % Arguments: object ALIO (this),axis int%
         % Returns: double %
-        function  value = GetCurrentFeedback(this,axis) 
             switch this.GantryType
                 case 0
                 %insert here GetCurrentFeedback with AEROTECH gantry %
@@ -177,9 +192,11 @@ classdef STAGES
         
         
           %% Home %%
+        
+        function  Home(this,axis)
+        % function  Home(this,axis)   
         % Arguments: object ALIO (this), axis int,%
         % Returns: none % 
-        function  Home(this,axis)
             switch this.GantryType
                 case 0
                    %insert here Home with AEROTECH gantry %
@@ -218,9 +235,10 @@ classdef STAGES
             
         
           %% MoveTo %% Absolute movements %%
+        function  MoveTo(this,axis,target,velocity)
+        % function  MoveTo(this,axis,target,velocity)
         % Arguments: object ALIO (this), axis int, target double, velocity double%
         % Returns: none % 
-        function  MoveTo(this,axis,target,velocity)
            switch this.GantryType
                 case 0
                    %insert here MoveTo with AEROTECH gantry % 
@@ -247,9 +265,11 @@ classdef STAGES
         
         
            %% MoveBy %% Relative movement %%
+       
+        function  MoveBy(this,axis,delta,velocity)
+        % function  MoveBy(this,axis,delta,velocity)
         % Arguments: object ALIO (this), axis int, delta double, velocity double%
         % Returns: none % 
-        function  MoveBy(this,axis,delta,velocity)
              switch this.GantryType
                 case 0
                    %insert here MoveBy with AEROTECH gantry % 
@@ -275,9 +295,10 @@ classdef STAGES
         end
         
           %% SetAcc%%
+        function  SetAcc(this,axis,acceleration)
+        % function  SetAcc(this,axis,acceleration)  
         % Arguments: object ALIO (this),axis int, acceleration double%
         % Returns: none % 
-        function  SetAcc(this,axis,acceleration)
             switch this.GantryType
                 case 0
                    %insert here SetAcc with AEROTECH gantry % 
@@ -299,9 +320,11 @@ classdef STAGES
         
         
           %% MotorEnable %% Enable 1 motor %%
+        
+        function  MotorEnable(this,axis)
+        % function  MotorEnable(this,axis)
         % Arguments: object ALIO (this), axis int%
         % Returns: none % 
-        function  MotorEnable(this,axis)
            switch this.GantryType
                 case 0
                    %insert here MotorEnable with AEROTECH gantry % 
@@ -322,9 +345,11 @@ classdef STAGES
         end
 
                  %% MotorEnableS %% Enable all motors
+        
+        function  MotorEnableAll(this)
+        % function  MotorEnableAll(this)    
         % Arguments: object ALIO (this), axis int array%
         % Returns: none % 
-        function  MotorEnableAll(this)
            switch this.GantryType
                 case 0
                    %insert here MotorEnableS with AEROTECH gantry % 
@@ -337,10 +362,11 @@ classdef STAGES
             end
         end
            %% MotorDisable %% Disable 1 motor
-        % Arguments: object ALIO (this), axis int,%
-        % Returns: none % 
-        
+           
         function  MotorDisable(this,axis)
+        %function  MotorDisable(this,axis)   
+        % Arguments: object ALIO (this), axis int,%
+        % Returns: none %
            switch this.GantryType
                 case 0
                    %insert here MotorDisable with AEROTECH gantry % 
@@ -361,11 +387,12 @@ classdef STAGES
         end
         
         
-              %% MotorDisableAll %% Disable all motor
-        % Arguments: object ALIO (this), axis int,%
-        % Returns: none % 
+        %% MotorDisableAll %% Disable all motor
         
         function  MotorDisableAll(this)
+        %function  MotorDisableAll(this)   
+        % Arguments: object ALIO (this), axis int,%
+        % Returns: none % 
             switch this.GantryType
                 case 0
                    %insert here MotorDisableAll with AEROTECH gantry % 
@@ -376,10 +403,11 @@ classdef STAGES
 
         
         %% WaitForMotion %% wait until movement is complete%%
+
+        function  WaitForMotion(this,axis,time)
+        %function  WaitForMotion(this,axis,time) 
         % Arguments: object ALIO (this), axis int,time inn (if -1, wait infinite)%
         % Returns: none % 
-        
-        function  WaitForMotion(this,axis,time)
             switch this.GantryType
                 case 0
                    %insert here WaitForMotion with AEROTECH gantry % 
@@ -399,10 +427,40 @@ classdef STAGES
             end 
         end  
 
+        
+        %% MotionStop %%
+        function  MotionStop(this,axis)
+        %function  MotionAbort(this,axis) 
+        % stop motion with full decceleration profile
+        % Arguments: object ALIO (this),int Axis%
+        % Returns: none %
+           switch this.GantryType
+                case 0
+                   %insert here MotionAbort with AEROTECH gantry % 
+                case 1
+              switch axis
+               case 0
+                 Halt(this.GantryObj,this.xAxis);
+               case 1
+                 Halt(this.GantryObj,this.yAxis);
+               case 4
+                 Halt(this.GantryObj,this.z1Axis);  
+               case 5
+                 Halt(this.GantryObj,this.z2Axis);  
+               case 6
+                 Halt(this.GantryObj,this.uAxis);
+              
+               end
+            end
+
+        end
+        
        %% MotionAbort %%
+        function  MotionAbort(this,axis)
+        %function  MotionAbort(this,axis) 
+        % stop motion with reduced decceleration profile
         % Arguments: object ALIO (this),array int Axes%
         % Returns: none %
-        function  MotionAbort(this,axis)
            switch this.GantryType
                 case 0
                    %insert here MotionAbort with AEROTECH gantry % 
@@ -425,9 +483,52 @@ classdef STAGES
                  Kill(this.GantryObj,this.uAxis);
               end 
             end
-            end
-
+           end
         end
+         %% FreeRunX %%
+         
+        function  FreeRunX(this,velocity)
+        %function  FreeRunX(this,velocity)    
+        % Arguments: object ALIO (this),double velocity%
+        % Returns: none % 
+        Jog(this.GantryObj,this.JogVFlag,this.xAxis,velocity);
+        end
+        
+        %% FreeRunY %%
+         
+        function  FreeRunY(this,velocity)
+        %function  FreeRunY(this,velocity)    
+        % Arguments: object ALIO (this),double velocity%
+        % Returns: none % 
+        Jog(this.GantryObj,this.JogVFlag,this.yAxis,velocity);
+        end
+        
+        %% FreeRunZ1 %%
+         
+        function  FreeRunZ1(this,velocity)
+        %function  FreeRunZ1(this,velocity)    
+        % Arguments: object ALIO (this),double velocity%
+        % Returns: none % 
+        Jog(this.GantryObj,this.JogVFlag,this.z1Axis,velocity);
+        end
+        
+        %% FreeRunZ2 %%
+         
+        function  FreeRunZ2(this,velocity)
+        %function  FreeRunZ2(this,velocity)    
+        % Arguments: object ALIO (this),double velocity%
+        % Returns: none % 
+        Jog(this.GantryObj,this.JogVFlag,this.z2Axis,velocity);
+        end
+        
+        %% FreeRunU %%
+         
+        function  FreeRunU(this,velocity)
+        %function  FreeRunU(this,velocity)    
+        % Arguments: object ALIO (this),double velocity%
+        % Returns: none % 
+        Jog(this.GantryObj,this.JogVFlag,this.uAxis,velocity);
+        end  
     end
 end
         
