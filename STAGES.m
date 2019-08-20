@@ -45,7 +45,7 @@ classdef STAGES
      
     end
   properties (Access=public)
-     IsConnected=0; 
+     IsConnected; 
   end
     
     
