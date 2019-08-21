@@ -36,10 +36,13 @@ classdef JOYSTICK
             %Connect Connecting joystick
             % starting timer to manage the joystick input
         this.gantry.MotorEnableAll;     
-        this.t = timer('Name','JoyTimer','ExecutionMode','fixedSpacing','StartDelay', 0);
-        this.t.UserData = struct('FlagAxes',zeros(5,1),'FlagBut',zeros(16,1),'MaxVelocity',this.maxVel,'minVelocity',this.minVel,'Velocity',this.CurrentVel);
+        this.t = timer('Name','JoyTimer','ExecutionMode','fixedSpacing','StartDelay', 0,'Period',0.001);
+        this.t.UserData = struct('FlagAxes',zeros(5,1),'FlagBut',zeros(16,1),'maxVelocity',this.maxVel,'minVelocity',this.minVel,'Velocity',this.CurrentVel);
         this.t.BusyMode='queue';
+        
         this.t.TimerFcn = {@this.joyControl};
+        this.t.ErrorFcn = {@this.stopAll};
+        this.t.StopFcn = {@this.stopAll};
         start(this.t);
         disp('Joystick is ready to be used')
         this.JoystickIsReady=1;
@@ -53,69 +56,63 @@ classdef JOYSTICK
         
         function joyControl(this,tobj,event)
             % calling the joystick inpput %
-           [pos, but] = mat_joy(0); 
-           
+
            % Controling of the axes: moving %
            
             if (abs(pos(1))> this.threshold)
-             vel=tobj.UserData.Velocity*pos(1);
-             this.gantry.FreeRunX(this,vel);
+             vel=-tobj.UserData.Velocity*pos(1);
+             this.gantry.FreeRunX(vel);
              tobj.UserData.FlagAxes(1)=1;
-%              fprintf('X axis is moving %0.4f\n',pos(1));
             end
             
             if (abs(pos(2))> this.threshold)
-             vel=tobj.UserData.Velocity*pos(2);
-             this.gantry.FreeRunY(this,vel);
+             vel=-tobj.UserData.Velocity*pos(2);
+             this.gantry.FreeRunY(vel);
              tobj.UserData.FlagAxes(2)=1;
-%               fprintf('Y axis is moving %0.4f\n',pos(2));
             end
             
             if (abs(pos(3))> this.threshold) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==0)
-            vel=tobj.UserData.Velocity*pos(3);
-            this.gantry.FreeRunZ1(this,vel);
+            vel=-tobj.UserData.Velocity*pos(3);
+            this.gantry.FreeRunZ1(vel);
             tobj.UserData.FlagAxes(3)=1;
-%              fprintf('Z axis is moving %0.4f\n',pos(3));
             end
             
             if (abs(pos(3))> this.threshold) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==1)
-            vel=tobj.UserData.Velocity*pos(3);
-            this.gantry.FreeRunZ2(this,vel);
+            vel=-tobj.UserData.Velocity*pos(3);
+            this.gantry.FreeRunZ2(vel);
             tobj.UserData.FlagAxes(3)=1;
-%              fprintf('Z axis is moving %0.4f\n',pos(3));
             end
             
              if (abs(pos(3))> this.threshold) && (tobj.UserData.FlagAxes(5)==1)
-            vel=tobj.UserData.Velocity*pos(3);
-            this.gantry.FreeRunU(this,vel);
+            vel=-tobj.UserData.Velocity*pos(3);
+            this.gantry.FreeRunU(vel);
             tobj.UserData.FlagAxes(3)=1;
-%              fprintf('Z axis is moving %0.4f\n',pos(3));
             end
             
             % Controling of the axes: stopping %
 
             if (abs(pos(1))<this.threshold) && (tobj.UserData.FlagAxes(1)==1)
-            this.gantry.MotionStop(this,this.xAxis);
+            this.gantry.MotionStop(this.xAxis);
             tobj.UserData.FlagAxes(1)=0;
             end
             
             if (abs(pos(2))<this.threshold) && (tobj.UserData.FlagAxes(2)==1)
-            this.gantry.MotionStop(this,this.yAxis);
+            this.gantry.MotionStop(this.yAxis);
             tobj.UserData.FlagAxes(2)=0;
             end
             
             if (abs(pos(3))<this.threshold) && (tobj.UserData.FlagAxes(3)==1) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==0)
-            this.gantry.MotionStop(this,this.z1Axis);
+            this.gantry.MotionStop(this.z1Axis);
             tobj.UserData.FlagAxes(3)=0;
             end
             
              if (abs(pos(3))<this.threshold) && (tobj.UserData.FlagAxes(3)==1) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==1)
-            this.gantry.MotionStop(this,this.z2Axis);
+            this.gantry.MotionStop(this.z2Axis);
             tobj.UserData.FlagAxes(3)=0;
              end
             
              if (abs(pos(3))<this.threshold) && (tobj.UserData.FlagAxes(3)==1) && (tobj.UserData.FlagAxes(5)==1)
-            this.gantry.MotionStop(this,this.uAxis);
+            this.gantry.MotionStop(this.uAxis);
             tobj.UserData.FlagAxes(3)=0;
              end
             
@@ -155,7 +152,7 @@ classdef JOYSTICK
               % Button 1: decrease velocity %
               
              if (but(1)==1) && (tobj.UserData.FlagBut(1)==0)
-             tobj.UserData.Velocity=max(tobj.UserData.minVelocity,tobj.UserData.Velocity-0.05*tobj.UserData.MaxVelocity);
+             tobj.UserData.Velocity=max(tobj.UserData.minVelocity,tobj.UserData.Velocity-0.05*tobj.UserData.maxVelocity);
              tobj.UserData.FlagBut(1)=1; 
              fprintf('Velocity Value: %2.4f\n',tobj.UserData.Velocity);
              end    
@@ -166,7 +163,7 @@ classdef JOYSTICK
              % Button 2: Increase Velocity %
              
               if (but(2)==1) && (tobj.UserData.FlagBut(2)==0)
-             tobj.UserData.Velocity=min(tobj.UserData.maxVelocity,tobj.UserData.Velocity+0.5*tobj.UserData.MaxVelocity);
+             tobj.UserData.Velocity=min(tobj.UserData.maxVelocity,tobj.UserData.Velocity+0.05*tobj.UserData.maxVelocity);
              tobj.UserData.FlagBut(2)=1;    
              fprintf('Velocity Value: %2.4f\n',tobj.UserData.Velocity);
              end    
@@ -174,6 +171,16 @@ classdef JOYSTICK
              tobj.UserData.FlagBut(2)=0;
              end
         end
+        
+        
+          function stopAll(this,tobj,event)
+              % safe stop in case timer stopped %
+            this.gantry.MotionStop(this.xAxis);
+            this.gantry.MotionStop(this.yAxis); 
+            this.gantry.MotionStop(this.z1Axis); 
+            this.gantry.MotionStop(this.z2Axis); 
+            this.gantry.MotionStop(this.uAxis); 
+          end
 
 end
-
+end
