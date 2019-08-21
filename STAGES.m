@@ -41,7 +41,7 @@ classdef STAGES
      Absolute;
      Relative;
      GantryObj;
-     jogVFlag;
+     JogVFlag;
      
     end
   properties (Access=public)
@@ -74,7 +74,7 @@ classdef STAGES
                  this.Acceleration=20;
                  this.Relative=ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_RELATIVE;
                  this.Absolute=ACS.SPiiPlusNET.MotionFlags.ACSC_NONE;
-                 this.jogVFlag=ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_VELOCITY;
+                 this.JogVFlag=ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_VELOCITY;
 
             end
         end
@@ -111,6 +111,16 @@ classdef STAGES
                 this.IsConnected=0;
             end
         end
+        
+          %% getting assembly info in display  %%
+        
+          function  AssemblyMethodsInfo(this)
+        % function  this = Disconnect(this)
+        % Arguments: object STAGES %
+        % Returns: none %
+           methodsview('ACS.SPiiPlusNET.Api');
+        end   
+        
         
         
          %% GetPosition. %%
