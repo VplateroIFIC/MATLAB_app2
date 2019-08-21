@@ -532,6 +532,64 @@ classdef STAGES
         % Returns: none % 
         Jog(this.GantryObj,this.JogVFlag,this.uAxis,velocity);
         end  
+        
+        %% MotorState %%
+        
+         function  State=MotorState(this,axis)
+        %The method retrieves the current motor state.     
+        %function  MotorState(this,axis)    
+        % Arguments: object ALIO (this),int Axis%
+        % Returns: array with the current state of the motor %
+        %ACSC_MST_ENABLE 0x00000001 - a motor is enabled
+        %ACSC_MST_INPOS 0x00000010 - a motor has reached a target position
+        %ACSC_MST_MOVE 0x00000020 - a motor is moving
+        %ACSC_MST_ACC 0x00000040 - a motor is accelerating
+         switch axis
+               case 0
+                 State=GetMotorState(this.GantryObj,this.xAxis);
+               case 1
+                 State=GetMotorState(this.GantryObj,this.yAxis);
+               case 4
+                 State=GetMotorState(this.GantryObj,this.z1Axis);
+               case 5
+                 State=GetMotorState(this.GantryObj,this.z2Axis);  
+               case 6
+                 State=GetMotorState(this.GantryObj,this.uAxis);
+          end 
+         end  
+        
+        %% AxisState %%
+        
+         function  State=AxisState(this,axis)
+        %The method retrieves the current axis state.     
+        %function  MotorState(this,axis)    
+        % Arguments: object ALIO (this),int Axis%
+        % Returns: array with the current state of the motor %
+%         ACSC_NONE 0 Disables all axis state flags
+%         ACSC_ALL -1 Enables all axis state flags
+%         ACSC_AST_LEAD 0x00000001 Axis is leading in a group.
+%         ACSC_AST_DC 0x00000002 Axis data collection is in progress.
+%         ACSC_AST_PEG 0x00000004 PEG for the specified axis is in progress.
+%         ACSC_AST_MOVE 0x00000020 Axis is moving.
+%         ACSC_AST_ACC 0x00000040 Axis is accelerating.
+%         ACSC_AST_VELLOCK 0x00000100Slave motion for the specified axis is synchronized tomaster in velocity lock mode.
+%         ACSC_AST_POSLOCK 0x00000200Slave motion for the specified axis is synchronized tomaster in position lock mode.
+
+         switch axis
+               case 0
+                 State=GetAxisState(this.GantryObj,this.xAxis);
+               case 1
+                 State=GetAxisState(this.GantryObj,this.yAxis);
+               case 4
+                 State=GetAxisState(this.GantryObj,this.z1Axis);
+               case 5
+                 State=GetAxisState(this.GantryObj,this.z2Axis);  
+               case 6
+                 State=GetAxisState(this.GantryObj,this.uAxis);
+          end 
+        end
+        
+         
     end
 end
         
