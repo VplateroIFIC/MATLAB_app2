@@ -8,11 +8,16 @@ function joyControl(obj,event)
 Nbut=length(but);
 threshold = 0.01;
 
+% obj.UserData.Flag=obj.UserData.counter+1;
+% obj.UserData.counter_2=obj.UserData.counter_2+1;
+
+obj.UserData.Flag
 % fprintf('Posicion de eje x es %0.4f\n',pos(1));
 
 
 if (abs(pos(1))>threshold)
 fprintf('X axis is moving %0.4f\n',pos(1));
+
 end
 if (abs(pos(2))>threshold)
 fprintf('Y axis is moving %0.4f\n',pos(2));
