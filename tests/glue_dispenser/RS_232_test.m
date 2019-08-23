@@ -41,43 +41,49 @@
 % 
 % 
 
+    %% PRELIMINARY TESTS TO CLARIFY HOW TO PROCEED WITH RS 232 COM SYSTEM FROM MATLAB %%
 
 clear all
 clc
 delete(instrfindall);   %closing all ports
 
+ENQ=5;
+STX=2;
+ETX=3;
+EOT=4;
+ACK=6;
 
-s1 = serial('COM1','BaudRate',115200,'DataBits',8,'Terminator','CR','BytesAvailableFcnMode','byte'); %creating serial port object
+s1 = serial('COM4','BaudRate',115200,'DataBits',8,'Terminator','CR','BytesAvailableFcnMode','byte'); %creating serial port object
 set(s1, 'BaudRate', 115200);          % set BaudRate to 115200
 set(s1, 'Parity','none');             % set Parity Bit to None
 set(s1, 'DataBits', 8);               % set DataBits to 8
 set(s1, 'StopBit', 1);                % set StopBit to 1
-out1 = instrfind('Port','COM1');
+out1 = instrfind('Port','COM4');
 
-fopen (s1);     % Opening COM 1
-pause(0.1);
+fopen (s1);     % Opening COM 4
+% pause(0.1);
 
 fwrite(s1,5)    % ENQ (CONSULTING, ASCII VALUE 5)
-pause(0.1)      % Wait in order to leave Ultimus send the acknowledge order (ACK, 6 in ASCII)
+% pause(0.1)      % Wait in order to leave Ultimus send the acknowledge order (ACK, 6 in ASCII)
+serialbreak(s1)
+input1=fread(s1,1);
 
-fwrite(s1,2)    % STX, ASCII VALUE 2 (Starting data package)
-fwrite(s1,48)   % 0
-fwrite(s1,56)   % 8
-fwrite(s1,80)   % P
-fwrite(s1,83)   % S
-fwrite(s1,32)   % - 
-fwrite(s1,32)   % -
-fwrite(s1,48)   % 0 
-fwrite(s1,49)   % 5
-fwrite(s1,48)   % 0
-fwrite(s1,48)   % 0
-fwrite(s1,70)   % F
-fwrite(s1,48)   % 0
-fwrite(s1,3)    % ETX, ASCII VALUE 3 (Ending data package)
-pause(0.1)      % Wait in order to leave Ultimus send the confirmation order A0
+code=['08PS  0500F0'];
+v=[STX double(code) ETX];
+for i=1:length(v)
+    fwrite(s1,v(i));
+end
+
+inSTX = fread(s1,1);
+inNumberBytes= fread(s1,2);
+
+charNumberBytes=char(inNumberBytes);
+charVector=strcat(charNumberBytes(1),charNumberBytes(2));
+numberBytes=str2double(charVector);
+
+inMessage=fread(s1,numberBytes);
+inETX=fread(s1,1);
+
 
 fwrite(s1,4) % EOT (END COMMUNICATION, ASCII VALUE 4)
-
-out = fread(s1);
-
 fclose (s1);    % Closing COM 1
