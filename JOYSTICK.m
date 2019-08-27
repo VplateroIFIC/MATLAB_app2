@@ -57,6 +57,8 @@ classdef JOYSTICK
         function joyControl(this,tobj,event)
             % calling the joystick inpput %
 
+            [pos, but] = mat_joy(0);
+            
            % Controling of the axes: moving %
            
             if (abs(pos(1))> this.threshold)
