@@ -21,7 +21,8 @@ classdef FOCUS
         
 function this = FOCUS(gantry_obj,camera_obj)
     %FOCUS Construct an instance of this class
-    %   Inputs: STAGES and CAMERA objects
+    % Inputs 1: STAGES object. Object has to be connected and the axis enabled
+    % Input 2: CAMERA obj. Camera has to be connected.
     this.gantry=gantry_obj;
     this.cam=camera_obj;
     if (this.gantry.IsConnected==1) && (this.cam.IsConnected==1)
@@ -41,10 +42,9 @@ end
 
 
  function info=AutoFocus(this)
-%This function launch the autofocus procedure. It may be invoked as:
+%This function launch the autofocus procedure.
 %
 %   info=AutoFocus(this)
-%
 %Where 
 %   this,  instance of the class
 %   info,   struct array with the focus information
