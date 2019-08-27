@@ -50,4 +50,8 @@ Examples_matlab/MemoryMonitorAppExample.mlapp
 Examples
 resources
 Gantry
+<<<<<<< HEAD
 opencvCompiler
+=======
+owis_lib
+>>>>>>> da64db2488bca8d2fd5addf802396fd5625973c8
