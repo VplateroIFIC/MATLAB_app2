@@ -504,7 +504,12 @@ classdef STAGES
         %function  FreeRunX(this,velocity)    
         % Arguments: object ALIO (this),double velocity%
         % Returns: none % 
+       switch this.GantryType
+        case 0
+           %insert here MotionAbort with AEROTECH gantry % 
+        case 1
         Jog(this.GantryObj,this.JogVFlag,this.xAxis,velocity);
+        end
         end
         
         %% FreeRunY %%
@@ -513,7 +518,12 @@ classdef STAGES
         %function  FreeRunY(this,velocity)    
         % Arguments: object ALIO (this),double velocity%
         % Returns: none % 
+         switch this.GantryType
+        case 0
+           %insert here MotionAbort with AEROTECH gantry % 
+        case 1
         Jog(this.GantryObj,this.JogVFlag,this.yAxis,velocity);
+        end
         end
         
         %% FreeRunZ1 %%
@@ -522,7 +532,12 @@ classdef STAGES
         %function  FreeRunZ1(this,velocity)    
         % Arguments: object ALIO (this),double velocity%
         % Returns: none % 
+        switch this.GantryType
+        case 0
+           %insert here MotionAbort with AEROTECH gantry % 
+        case 1
         Jog(this.GantryObj,this.JogVFlag,this.z1Axis,velocity);
+        end
         end
         
         %% FreeRunZ2 %%
@@ -531,7 +546,12 @@ classdef STAGES
         %function  FreeRunZ2(this,velocity)    
         % Arguments: object ALIO (this),double velocity%
         % Returns: none % 
+        switch this.GantryType
+        case 0
+           %insert here MotionAbort with AEROTECH gantry % 
+        case 1
         Jog(this.GantryObj,this.JogVFlag,this.z2Axis,velocity);
+        end
         end
         
         %% FreeRunU %%
@@ -540,7 +560,12 @@ classdef STAGES
         %function  FreeRunU(this,velocity)    
         % Arguments: object ALIO (this),double velocity%
         % Returns: none % 
+        switch this.GantryType
+        case 0
+           %insert here MotionAbort with AEROTECH gantry % 
+        case 1
         Jog(this.GantryObj,this.JogVFlag,this.uAxis,velocity);
+        end
         end  
         
         %% MotorState %%
@@ -554,6 +579,10 @@ classdef STAGES
         %ACSC_MST_INPOS 0x00000010 - a motor has reached a target position
         %ACSC_MST_MOVE 0x00000020 - a motor is moving
         %ACSC_MST_ACC 0x00000040 - a motor is accelerating
+        switch this.GantryType
+        case 0
+           %insert here MotionAbort with AEROTECH gantry % 
+        case 1
          switch axis
                case 0
                  State=GetMotorState(this.GantryObj,this.xAxis);
@@ -565,7 +594,8 @@ classdef STAGES
                  State=GetMotorState(this.GantryObj,this.z2Axis);  
                case 6
                  State=GetMotorState(this.GantryObj,this.uAxis);
-          end 
+         end
+         end 
          end  
         
         %% AxisState %%
@@ -584,7 +614,10 @@ classdef STAGES
 %         ACSC_AST_ACC 0x00000040 Axis is accelerating.
 %         ACSC_AST_VELLOCK 0x00000100Slave motion for the specified axis is synchronized tomaster in velocity lock mode.
 %         ACSC_AST_POSLOCK 0x00000200Slave motion for the specified axis is synchronized tomaster in position lock mode.
-
+        switch this.GantryType
+        case 0
+           %insert here MotionAbort with AEROTECH gantry % 
+        case 1
          switch axis
                case 0
                  State=GetAxisState(this.GantryObj,this.xAxis);
@@ -596,7 +629,8 @@ classdef STAGES
                  State=GetAxisState(this.GantryObj,this.z2Axis);  
                case 6
                  State=GetAxisState(this.GantryObj,this.uAxis);
-          end 
+         end
+         end 
         end
         
          
