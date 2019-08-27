@@ -267,7 +267,6 @@ for i=1:length(objeto)
     children = get(gca, 'children');
 delete(children(1));
 line([objeto{i}(1),scene{i}(1)],[objeto{i}(2),scene{i}(2)]);
-% SortedMatches(i).distance
 end
 
 
@@ -275,7 +274,7 @@ end
 
 % angle=asin(H(2,1));
 % ScaRot=[cos(angle) H(1,2);H(2,1) cos(angle)];
-% ScaRot=H(1:2,1:2);
+ScaRot=H(1:2,1:2);
 xDelta=H(1,3);
 yDelta=H(2,3);
 trans=[xDelta,yDelta];
