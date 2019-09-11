@@ -80,7 +80,7 @@ classdef STAGES
                 case 2
                     
                  this.GantryType=1;   
-                 NET.addAssembly('D:\Code\MATLAB_app\ACS.SPiiPlusNET.dll'); %loading .NET assembly
+                 NET.addAssembly('F:\Gantry_code\Matlab_app\ACS.SPiiPlusNET.dll'); %loading .NET assembly
                  this.xAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_0;
                  this.yAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_1;
                  this.z1Axis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_4;
