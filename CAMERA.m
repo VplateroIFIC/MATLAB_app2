@@ -8,6 +8,7 @@ ExposureM = 'manual';
 ImageOutput='tests\images\';
 cam;
 CamStatus;
+calibration=3.62483; %um/pixel
 end
 properties (Access=public)
 IsConnected=0; 
