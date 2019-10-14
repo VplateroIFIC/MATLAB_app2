@@ -26,7 +26,7 @@ ROI=fid.ROIbuilder(image,center);
 
 %% testing FROIBuilder %%
 
-image=imread('original_F.jpg');
+image=imread('Image_3_1_2.jpg');
 ROI=fid.FROIbuilder(image);
 
 % figure(2)
