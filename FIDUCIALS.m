@@ -37,6 +37,11 @@ FtemplatePath=('F:\Gantry_code\Matlab_app\tests\fiducialMatching\FiducialsPictur
     end
     
     methods
+        
+        function fid=FIDUCIALS
+            addpath('F:\mexopencv');
+            addpath('F:\mexopencv\opencv_contrib');
+        end
      
         function match = matchSURF(this,imageIn,tempIn)
 % matchSURF match template on given image using SURF method
@@ -137,7 +142,7 @@ images{3} = this.plotTempMatched (preparedROI,preparedTemp,H);
 
 images{4} = this.plotFinalMatches (scene,objeto,preparedROI,preparedTemp,H);
 
-match.center=H(1:2,1:2)*centerTemp'+[H(1,3),H(2,3)]';
+match.Center=H(1:2,1:2)*centerTemp'+[H(1,3),H(2,3)]';
 timeElapsed=toc(totalTime);
 
 match.time=timeElapsed;
@@ -327,7 +332,7 @@ plotImage=fig2image.cdata;
 end
 
 
-function ROI = FROIbuilder(this,image)
+function [ROI,vertex] = FROIbuilder(this,image)
 % 
 % FROIbuilder  generate square ROI of size N around F of the image. It locate the F centroid by reading the pixel area of the F High res camera!.
 %    inputs: 
@@ -352,13 +357,20 @@ rangePerimeter=[perimeter-this.deltaPerimeter,perimeter+this.deltaPerimeter];
 
 imageF1 = bwpropfilt(BynaryInv,'area',rangeArea);   %filter by area
 imageF2 = bwpropfilt(imageF1,'perimeter',rangePerimeter);   %filter by perimeter
-prop = regionprops(imageF2,'centroid');
+CC=bwconncomp(imageF2);
+if CC.NumObjects>1
+    imageF3=bwpropfilt(BynaryInv,'area',1);
+else
+    imageF3=imageF2;
+end
 
-ROI=this.ROIbuilder(image,prop.Centroid);
+prop = regionprops(imageF3,'centroid');
+
+[ROI,vertex]=this.ROIbuilder(image,prop.Centroid);
 
 end
 
-function ROI = ROIbuilder(this,image,center)
+function [ROI,ver1] = ROIbuilder(this,image,center)
 % 
 % ROIbuilder  generate square ROI of size N around given center. 
 %    inputs: 
@@ -392,8 +404,23 @@ function match = FmatchSURF(this,image)
 %         Inliers: Inliers matches
 %         Images: Useful images of the matching
         
+[ROI,vertex]=this.FROIbuilder(image);
 template=imread(this.FtemplatePath);
-match=this.matchSURF(image,template);
+
+
+match=this.matchSURF(ROI,template);
+match.Center(1)=match.Center(1)+vertex(1);
+match.Center(2)=match.Center(2)+vertex(2);
+fig=figure('visible','off','Position', get(0, 'Screensize'));
+imshow(image);
+hold on
+plot(match.Center(1),match.Center(2), 'r+', 'MarkerSize', 30, 'LineWidth', 2);
+title('Final match','FontSize', 18);
+
+fig2image=getframe(fig);
+plotImage=fig2image.cdata;
+
+match.Images{5}=plotImage;
 
 end
 end
