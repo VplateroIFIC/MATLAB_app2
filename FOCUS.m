@@ -3,12 +3,12 @@ classdef FOCUS
   
     
     properties (Access=private)
-       maxIter=5;
-       FocusRange=0.4;
+       maxIter=8;
+       FocusRange=0.5;
        velocity=2;
-       threshold=0.05;
-       splits=3;
-       RoiSize=300;
+       threshold=0.02;
+       splits=4;
+       RoiSize=500;
        ReadyToFocus=0;
        FocusType='BREN';
        ImageSize=[2764 3856];
@@ -88,7 +88,7 @@ image{ImCont}=this.cam.OneFrame;
 end
 image{ImCont}=this.cam.OneFrame;
 % Asking focus parameter %
-FocusValue(fCont)=fmeasure(image{ImCont},this.FocusType,[x0,y0,RoiWidth,RoiHeight]);
+FocusValue(fCont)=this.fmeasure(image{ImCont},this.FocusType,[x0,y0,RoiWidth,RoiHeight]);
 % Updating counters %
 zCont=zCont+1;
 ImCont=ImCont+1;
@@ -121,7 +121,7 @@ X=Z;
 Y=FocusValue;
 p=polyfit(X,Y,2);
 Zfinal=-(p(2)/(2*p(1)));
-if (Zfinal>=Zini-this.FocusRange/2 || Zfinal<=Zini+FocusRange/2)
+if (Zfinal>=Zini-this.FocusRange/2 || Zfinal<=Zini+this.FocusRange/2)
 % Moving to Zfinal  %
 this.gantry.MoveTo(this.zAxis,Zfinal,this.velocity);
 this.gantry.WaitForMotion(this.zAxis,-1);
@@ -144,7 +144,7 @@ info.time=TotalTime;
 info.Images=image;
 end
         
-function FM = fmeasure(Image, Measure, ROI)
+function FM = fmeasure(this,Image, Measure, ROI)
     %This function measures the relative degree of focus of 
     %an image. It may be invoked as:
     %
