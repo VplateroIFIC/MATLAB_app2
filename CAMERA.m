@@ -8,6 +8,7 @@ ExposureM = 'manual';
 ImageOutput='D:\Gantry\cernbox\GANTRY-IFIC\Pictures_general\F_images_newLighting\';
 cam;
 CamStatus;
+calibration=3.62483; %um/pixel
 end
 properties (Access=public)
 IsConnected=0; 

@@ -3,6 +3,7 @@ Matlab_lib
 Output
 Reference_Images
 AdminFolder
+tests
 Examples_matlab/GUI_examples/contents.m
 Examples_matlab/GUI_examples/GUI_1.m
 Examples_matlab/GUI_examples/GUI_10.m
@@ -50,8 +51,5 @@ Examples_matlab/MemoryMonitorAppExample.mlapp
 Examples
 resources
 Gantry
-<<<<<<< HEAD
-opencvCompiler
-=======
-owis_lib
->>>>>>> da64db2488bca8d2fd5addf802396fd5625973c8
+opencv_compiler
+
