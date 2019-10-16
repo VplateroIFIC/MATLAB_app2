@@ -36,7 +36,7 @@ classdef JOYSTICK
             %Connect Connecting joystick
             % starting timer to manage the joystick input
         this.gantry.MotorEnableAll;     
-        this.t = timer('Name','JoyTimer','ExecutionMode','fixedSpacing','StartDelay', 0,'Period',0.001);
+        this.t = timer('Name','JoyTimer','ExecutionMode','fixedSpacing','StartDelay', 0,'Period',0.01);
         this.t.UserData = struct('FlagAxes',zeros(5,1),'FlagBut',zeros(16,1),'maxVelocity',this.maxVel,'minVelocity',this.minVel,'Velocity',this.CurrentVel);
         this.t.BusyMode='queue';
         
