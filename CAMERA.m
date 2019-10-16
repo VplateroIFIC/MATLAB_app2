@@ -5,7 +5,7 @@ properties (Access=private)
 ReturnedColor='grayscale';
 ROIPos=[0 0 3856 2764];
 ExposureM = 'manual';
-ImageOutput='tests\images\';
+ImageOutput='D:\Gantry\cernbox\GANTRY-IFIC\Pictures_general\F_images_newLighting\';
 cam;
 CamStatus;
 end
