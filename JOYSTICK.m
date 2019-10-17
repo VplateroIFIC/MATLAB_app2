@@ -9,7 +9,7 @@ classdef JOYSTICK
         JoystickIsReady=0;
         gantry;
         t;
-        threshold=0.01;
+        threshold=0.1;
         maxVel=15;
         minVel=0.1;
         CurrentVel=5;
