@@ -1,5 +1,5 @@
 
-function [match] = frameMatcher(fid,cam)
+function match = frameMatcher(fid,cam)
 % método que extrae una imagen de la cámara y aplica pattern matching de la F %
 % argumenos
 % inputs:
@@ -14,8 +14,8 @@ match=fid.FmatchSURF(image);
 
 match.Center
 
-figure(1), imshow(match.Images{3})
-figure(2), imshow(match.Images{5})
+% figure(1), imshow(match.Images{3})
+figure, imshow(match.Images{5})
 
 end
 
