@@ -32,15 +32,19 @@ ROIsize=1000;
 
 % FmatchSURF
 
-FtemplatePath=('F:\Gantry_code\Matlab_app\tests\fiducialMatching\FiducialsPictures\FinFidGray.jpg');
+% FtemplatePath=('F:\Gantry_code\Matlab_app\tests\fiducialMatching\FiducialsPictures\FinFidGray.jpg');
+FtemplatePath=('D:\Gantry\cernbox\GANTRY-IFIC\Pictures_general\FiducialsPictures\FinFidGray.jpg');
 
     end
     
     methods
         
         function fid=FIDUCIALS
-            addpath('F:\mexopencv');
-            addpath('F:\mexopencv\opencv_contrib');
+%             addpath('F:\mexopencv');
+%             addpath('F:\mexopencv\opencv_contrib');
+            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
+            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
+            
         end
      
         function match = matchSURF(this,imageIn,tempIn)
@@ -167,7 +171,7 @@ if size(imageIn,3)==3
 imageIn = rgb2gray(imageIn);
 end
 medianFilter=cv.medianBlur(imageIn,'KSize',kernel);
-BinaryFilter=cv.threshold(medianFilter,'Otsu','Type','Binary','MaxValue',255);
+BinaryFilter=cv.threshold(medianFilter,'Otsu','Type','Binary','MaxValue',150);
 adapLocalThres=cv.adaptiveThreshold(BinaryFilter,'MaxValue',255,'Method','Gaussian','Type','BinaryInv','BlockSize',threshold,'C',2);
 particlesRemoved=bwareaopen(adapLocalThres,this.sizeParticles);
 imuint8=im2uint8(particlesRemoved);
