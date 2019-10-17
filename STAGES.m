@@ -22,7 +22,7 @@ classdef STAGES
 % This class in under development, in case of bug or other question, please contact to Pablo León (pablo.leon@cern.ch)
 
 
-    properties (Access=private)
+    properties (Access=public)
      
    % General Properties %
         
@@ -80,7 +80,8 @@ classdef STAGES
                 case 2
                     
                  this.GantryType=1;   
-                 NET.addAssembly('F:\Gantry_code\Matlab_app\ACS.SPiiPlusNET.dll'); %loading .NET assembly
+%                  NET.addAssembly('F:\Gantry_code\Matlab_app\ACS.SPiiPlusNET.dll'); %loading .NET assembly
+                 NET.addAssembly('D:\Code\Matlab_app\ACS.SPiiPlusNET.dll'); %loading .NET assembly
                  this.xAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_0;
                  this.yAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_1;
                  this.z1Axis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_4;
@@ -165,15 +166,15 @@ classdef STAGES
                  end
                 case 1
                  switch axis
-                   case this.xAxis
+                   case 0
                      value=GetFPosition(this.GantryObj,this.xAxis);
-                   case this.yAxis
+                   case 1
                      value=GetFPosition(this.GantryObj,this.yAxis);
-                   case this.z1Axis
+                   case 4
                      value=GetFPosition(this.GantryObj,this.z1Axis); 
-                   case this.z2Axis
+                   case 5
                      value=GetFPosition(this.GantryObj,this.z2Axis);   
-                   case this.uAxis
+                   case 6
                      value=GetFPosition(this.GantryObj,this.uAxis);
                  end
             end
@@ -191,15 +192,15 @@ classdef STAGES
                 %insert here getVelocity with AEROTECH gantry %
                 case 1
                  switch axis
-                   case this.xAxis
+                   case 0
                      value=GetFVelocity(this.GantryObj,this.xAxis);
-                   case this.yAxis
+                   case 1
                      value=GetFVelocity(this.GantryObj,this.yAxis);
-                   case this.z1Axis
+                   case 4
                      value=GetFVelocity(this.GantryObj,this.z1Axis);
-                   case this.z2Axis
+                   case 5
                      value=GetFVelocity(this.GantryObj,this.z2Axis);
-                   case this.uAxis
+                   case 6
                      value=GetFVelocity(this.GantryObj,this.uAxis);
                  end
             end
@@ -217,15 +218,15 @@ classdef STAGES
                 %insert here GetCurrentFeedback with AEROTECH gantry %
                 case 1
                  switch axis
-                   case this.xAxis
+                   case 0
                      value=ReadVariable(this.GantryObj,'RMS',this.xAxis,this.xAxis); % if error, tray send 0 (or ACSC_NONE) after GantryObj pointer
-                   case this.yAxis
+                   case 1
                      value=ReadVariable(this.GantryObj,'RMS',this.yAxis,this.yAxis);
-                   case this.z1Axis
+                   case 4
                      value=ReadVariable(this.GantryObj,'RMS',this.z1Axis,this.z1Axis); 
-                   case this.z2Axis
+                   case 5
                      value=ReadVariable(this.GantryObj,'RMS',this.z1Axis,this.z2Axis);  
-                   case this.uAxis
+                   case 6
                      value=ReadVariable(this.GantryObj,'RMS',this.uAxis,this.uAxis);
                  end
             end
@@ -252,23 +253,23 @@ classdef STAGES
            SetVelocity(this.GantryObj,this.uAxis,this.HomeVelocity);
            target=0;
             switch axis
-               case this.xAxis
+               case 0
                  ToPoint(this.GantryObj,this.Absolute,this.xAxis,target);
                  WaitForMotion(this,axis,-1);
                  SetFPosition(this.GantryObj,this.xAxis,0);                         
-               case this.yAxis
+               case 1
                  ToPoint(this.GantryObj,this.Absolute,this.yAxis,target);
                  WaitForMotion(this,axis,0,-1);
                  SetFPosition(this.GantryObj,this.yAxis,0);                        
-               case this.z1Axis
+               case 4
                  ToPoint(this.GantryObj,this.Absolute,this.z1Axis,target); 
                  WaitForMotion(this,axis,-1);
                  SetFPosition(this.GantryObj,this.z1Axis,0);   
-               case this.z2Axis
+               case 5
                  ToPoint(this.GantryObj,this.Absolute,this.z2Axis,target); 
                  WaitForMotion(this,axis,-1);
                  SetFPosition(this.GantryObj,this.z2Axis,0);  
-               case this.uAxis
+               case 6
                  ToPoint(this.GantryObj,this.Absolute,this.uAxis,target);
                  WaitForMotion(this,axis,-1);
                  SetFPosition(this.GantryObj,this.uAxis,0);                           
@@ -287,19 +288,19 @@ classdef STAGES
                    %insert here MoveTo with AEROTECH gantry % 
                 case 1
             switch axis
-               case this.xAxis
+               case 0
                  SetVelocity(this.GantryObj,this.xAxis,velocity); 
                  ToPoint(this.GantryObj,this.Absolute,this.xAxis,target);
-               case this.yAxis
+               case 1
                  SetVelocity(this.GantryObj,this.yAxis,velocity);  
                  ToPoint(this.GantryObj,this.Absolute,this.yAxis,target);
-               case this.z1Axis
+               case 4
                  SetVelocity(this.GantryObj,this.z1Axis,velocity);  
                  ToPoint(this.GantryObj,this.Absolute,this.z1Axis,target);
-               case this.z2Axis
+               case 5
                  SetVelocity(this.GantryObj,this.z2Axis,velocity);  
                  ToPoint(this.GantryObj,this.Absolute,this.z2Axis,target);  
-               case this.uAxis
+               case 6
                  SetVelocity(this.GantryObj,this.uAxis,velocity);  
                  ToPoint(this.GantryObj,this.Absolute,this.uAxis,target);
             end  
@@ -318,19 +319,19 @@ classdef STAGES
                    %insert here MoveBy with AEROTECH gantry % 
                 case 1
             switch axis
-               case this.xAxis
+               case 0
                  SetVelocity(this.GantryObj,this.xAxis,velocity); 
                  ToPoint(this.GantryObj,this.Relative,this.xAxis,delta);
-               case this.yAxis
+               case 1
                  SetVelocity(this.GantryObj,this.yAxis,velocity);  
                  ToPoint(this.GantryObj,this.Relative,this.yAxis,delta);
-               case this.z1Axis
+               case 4
                  SetVelocity(this.GantryObj,this.z1Axis,velocity);  
                  ToPoint(this.GantryObj,this.Relative,this.z1Axis,delta);  
-               case this.z2Axis
+               case 5
                  SetVelocity(this.GantryObj,this.z2Axis,velocity);  
                  ToPoint(this.GantryObj,this.Relative,this.z2Axis,delta);   
-               case this.uAxis
+               case 6
                  SetVelocity(this.GantryObj,this.uAxis,velocity);  
                  ToPoint(this.GantryObj,this.Relative,this.uAxis,delta);
              end  
@@ -347,15 +348,15 @@ classdef STAGES
                    %insert here SetAcc with AEROTECH gantry % 
                 case 1
               switch axis
-               case this.xAxis
+               case 0
                  SetAcceleration(this.GantryObj,this.xAxis,acceleration); 
-               case this.yAxis
+               case 1
                  SetAcceleration(this.GantryObj,this.yAxis,acceleration);  
-               case this.z1Axis
+               case 4
                  SetAcceleration(this.GantryObj,this.z1Axis,acceleration);  
-               case this.z2Axis
+               case 5
                  SetAcceleration(this.GantryObj,this.z2Axis,acceleration);  
-               case this.uAxis
+               case 6
                  SetAcceleration(this.GantryObj,this.uAxis,acceleration);  
                end 
             end
@@ -373,15 +374,15 @@ classdef STAGES
                    %insert here MotorEnable with AEROTECH gantry % 
                 case 1
             switch axis
-               case this.xAxis
+               case 0
                  Enable(this.GantryObj,this.xAxis);
-               case this.yAxis
+               case 1
                  Enable(this.GantryObj,this.yAxis);
-               case this.z1Axis
+               case 4
                  Enable(this.GantryObj,this.z1Axis);
-               case this.z2Axis
+               case 5
                  Enable(this.GantryObj,this.z2Axis);  
-               case this.uAxis
+               case 6
                  Enable(this.GantryObj,this.uAxis);
             end
            end
@@ -415,15 +416,15 @@ classdef STAGES
                    %insert here MotorDisable with AEROTECH gantry % 
                 case 1
              switch axis
-               case this.xAxis
+               case 0
                  Disable(this.GantryObj,this.xAxis);
-               case this.yAxis
+               case 1
                  Disable(this.GantryObj,this.yAxis);
-               case this.z1Axis
+               case 4
                  Disable(this.GantryObj,this.z1Axis);  
-               case this.z2Axis
+               case 5
                  Disable(this.GantryObj,this.z2Axis);   
-               case this.uAxis
+               case 6
                  Disable(this.GantryObj,this.uAxis);
               end
             end
@@ -457,15 +458,15 @@ classdef STAGES
                    %insert here WaitForMotion with AEROTECH gantry % 
                 case 1
               switch axis
-               case this.xAxis
+               case 0
                  WaitMotionEnd(this.GantryObj,this.xAxis,time);
-               case this.yAxis
+               case 1
                  WaitMotionEnd(this.GantryObj,this.yAxis,time);
-               case this.z1Axis
+               case 4
                  WaitMotionEnd(this.GantryObj,this.z1Axis,time);
-               case this.z2Axis
+               case 5
                  WaitMotionEnd(this.GantryObj,this.z2Axis,time);  
-               case this.uAxis
+               case 6
                  WaitMotionEnd(this.GantryObj,this.uAxis,time);
               end 
             end 
@@ -483,15 +484,15 @@ classdef STAGES
                    %insert here MotionAbort with AEROTECH gantry % 
                 case 1
               switch axis
-               case this.xAxis
+               case 0
                  Halt(this.GantryObj,this.xAxis);
-               case this.yAxis
+               case 1
                  Halt(this.GantryObj,this.yAxis);
-               case this.z1Axis
+               case 4
                  Halt(this.GantryObj,this.z1Axis);  
-               case this.z2Axis
+               case 5
                  Halt(this.GantryObj,this.z2Axis);  
-               case this.uAxis
+               case 6
                  Halt(this.GantryObj,this.uAxis);
               
                end
@@ -515,20 +516,36 @@ classdef STAGES
             KillAll(this.GantryObj);
             else
               switch axis
-               case this.xAxis
+               case 0
                  Kill(this.GantryObj,this.xAxis);
-               case this.yAxis
+               case 1
                  Kill(this.GantryObj,this.yAxis);
-               case this.z1Axis
+               case 4
                  Kill(this.GantryObj,this.z1Axis);  
-               case this.z2Axis
+               case 5
                  Kill(this.GantryObj,this.z2Axis);  
-               case this.uAxis
+               case 6
                  Kill(this.GantryObj,this.uAxis);
               end 
             end
            end
         end
+        
+        %% MotionAbortAll %%
+         function  MotionAbortAll(this)
+        %function  MotionAbortAll(this) 
+        % stop all motion with reduced decceleration profile
+        % Arguments: object ALIO (this)%
+        % Returns: none %
+           switch this.GantryType
+                case 0
+                   %insert here MotionAbort with AEROTECH gantry % 
+                case 1
+            KillAll(this.GantryObj);
+            end
+           end
+
+        
          %% FreeRunX %%
          
         function  FreeRunX(this,velocity)
@@ -615,15 +632,15 @@ classdef STAGES
            %insert here MotionAbort with AEROTECH gantry % 
         case 1
          switch axis
-               case this.xAxis
+               case 0
                  State=GetMotorState(this.GantryObj,this.xAxis);
-               case this.yAxis
+               case 1
                  State=GetMotorState(this.GantryObj,this.yAxis);
-               case this.z1Axis
+               case 4
                  State=GetMotorState(this.GantryObj,this.z1Axis);
-               case this.z2Axis
+               case 5
                  State=GetMotorState(this.GantryObj,this.z2Axis);  
-               case this.uAxis
+               case 6
                  State=GetMotorState(this.GantryObj,this.uAxis);
          end
          end 
@@ -650,15 +667,15 @@ classdef STAGES
            %insert here MotionAbort with AEROTECH gantry % 
         case 1
          switch axis
-               case this.xAxis
+               case 0
                  State=GetAxisState(this.GantryObj,this.xAxis);
-               case this.yAxis
+               case 1
                  State=GetAxisState(this.GantryObj,this.yAxis);
-               case this.z1Axis
+               case 4
                  State=GetAxisState(this.GantryObj,this.z1Axis);
-               case this.z2Axis
+               case 5
                  State=GetAxisState(this.GantryObj,this.z2Axis);  
-               case this.uAxis
+               case 6
                  State=GetAxisState(this.GantryObj,this.uAxis);
          end
          end 
