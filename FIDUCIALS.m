@@ -28,7 +28,7 @@ pixelAreaF=74000;  % aprox value of the F Area in pixels in IFIC setup
 deltaArea=10000;
 perimeterF=2000;   % aprox value of the F Perimeter in pixels in IFIC setup
 deltaPerimeter=500;
-ROIsize=600;
+ROIsize=1000;
 
 % FmatchSURF
 
