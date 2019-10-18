@@ -25,10 +25,10 @@ sizeParticles=9500;
 % FROIbuilder
 
 pixelAreaF=74000;  % aprox value of the F Area in pixels in IFIC setup
-deltaArea=3000;
+deltaArea=10000;
 perimeterF=2000;   % aprox value of the F Perimeter in pixels in IFIC setup
 deltaPerimeter=500;
-ROIsize=1000;
+ROIsize=600;
 
 % FmatchSURF
 
@@ -171,7 +171,8 @@ if size(imageIn,3)==3
 imageIn = rgb2gray(imageIn);
 end
 medianFilter=cv.medianBlur(imageIn,'KSize',kernel);
-BinaryFilter=cv.threshold(medianFilter,'Otsu','Type','Binary','MaxValue',150);
+BinaryFilter=cv.threshold(medianFilter,'Otsu','Type','Binary','MaxValue',255);
+% BinaryFilter=cv.threshold(medianFilter,160,'Type','Binary','MaxValue',255);
 adapLocalThres=cv.adaptiveThreshold(BinaryFilter,'MaxValue',255,'Method','Gaussian','Type','BinaryInv','BlockSize',threshold,'C',2);
 particlesRemoved=bwareaopen(adapLocalThres,this.sizeParticles);
 imuint8=im2uint8(particlesRemoved);
@@ -368,7 +369,7 @@ else
     imageF3=imageF2;
 end
 
-prop = regionprops(imageF3,'centroid');
+prop = regionprops(imageF3,'centroid')
 
 [ROI,vertex]=this.ROIbuilder(image,prop.Centroid);
 
