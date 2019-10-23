@@ -32,18 +32,23 @@ ROIsize=1000;
 
 % FmatchSURF
 
-% FtemplatePath=('F:\Gantry_code\Matlab_app\tests\fiducialMatching\FiducialsPictures\FinFidGray.jpg');
-FtemplatePath=('D:\Gantry\cernbox\GANTRY-IFIC\Pictures_general\FiducialsPictures\FinFidGray.jpg');
+FtemplatePath=('F:\Gantry_code\Matlab_app\tests\fiducialMatching\FiducialsPictures\FinFidGray.jpg');
+% FtemplatePath=('D:\Gantry\cernbox\GANTRY-IFIC\Pictures_general\FiducialsPictures\FinFidGray.jpg');
+
+% CirclesFinder
+
+camCalibration=3.62483; %um/pixel
+binaryFilterKernel_circles=81;
 
     end
     
     methods
         
         function fid=FIDUCIALS
-%             addpath('F:\mexopencv');
-%             addpath('F:\mexopencv\opencv_contrib');
-            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
-            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
+            addpath('F:\mexopencv');
+            addpath('F:\mexopencv\opencv_contrib');
+%             addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
+%             addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
             
         end
      
@@ -425,6 +430,59 @@ fig2image=getframe(fig);
 plotImage=fig2image.cdata;
 
 match.Images{5}=plotImage;
+
+end
+
+function match = petalFidFinder(this,image)
+% 
+% FmatchSURF  Look for 0.3mm petal fiducial into given image (Valencia setup).
+%    inputs: 
+%       this: instance which calls the method
+%       image: original image to find circles
+%    outputs:
+%     match: structure with next fields
+%         Center: coordenates of the center of the located circles into the image. In pixels. image coordinate system.
+%         Diameter: Diameters of circles detected. in microns.
+%         Images: Useful images of the matching.
+
+if size(image,3)==3
+imageIn = rgb2gray(image);
+else
+    imageIn=image;
+end
+
+medianFilter=cv.medianBlur(imageIn,'KSize',this.binaryFilterKernel);
+
+circles = cv.HoughCircles(medianFilter,'MaxRadius',0,'Param1',50,'Param2',30,'MinRadius',130*this.camCalibration,'MaxRadius',170*this.camCalibration);
+
+[m,n]=size(circles);
+
+for i=1:n
+    X(i)=circles{i}(1);
+    Y(i)=circles{i}(2);
+    R(i)=circles{i}(3);
+end
+
+
+fig=figure('visible','off','Position', get(0, 'Screensize'));
+subplot(2,1,1)
+imshow(imageIn)
+title('original image')
+subplot(2,1,2)
+imshow(medianFilter)
+title('Circles detected')
+hold on
+plot(X,Y, 'r+', 'MarkerSize', 30, 'LineWidth', 2);
+hold on
+viscircles([X Y],R);
+
+fig2image=getframe(fig);
+plotImage=fig2image.cdata;
+
+match.center=[circles{1}(1) circles{1}(2)];
+match.diameter=circles{1}(3)*2/this.camCalibration;
+
+match.images{1}=plotImage;
 
 end
 end
