@@ -472,6 +472,21 @@ end
 %                 this.IsConnected=1;
 %                 disp('Stages conections done');
 %             end
+%    end
+        
+    
+        %% Disconnect  Pablo%%      
+        function this = Disconnect(this)
+            if this.PS90_connected  ~= 0
+                return
+            end
+            if this.X_stage_on ~= 0
+                this.X_stage_on=false;
+                error = calllib ('ps90', 'PS90_MotorOff', this.Index, this.Axisid_X);
+            if (error ~= 0 )
+                disp ('Error in PS90_MotorOff X Axis ');
+            end
+            end
         end
         
         %% Disconnect  %%
