@@ -25,9 +25,12 @@ sizeParticles=9500;
 % FROIbuilder
 
 pixelAreaF=74000;  % aprox value of the F Area in pixels in IFIC setup
-deltaArea=10000;
+deltaArea=20000;
 perimeterF=2000;   % aprox value of the F Perimeter in pixels in IFIC setup
-deltaPerimeter=500;
+deltaPerimeter=2000;
+
+% ROIbuilder
+
 ROIsize=1000;
 
 % FmatchSURF
