@@ -1,4 +1,4 @@
-classdef FOCUS
+siclassdef FOCUS
     %FOCUS focusing tools
   
     
