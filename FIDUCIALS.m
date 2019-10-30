@@ -25,8 +25,8 @@ sizeParticles=9500;
 % FROIbuilder
 
 pixelAreaF=74000;  % aprox value of the F Area in pixels in IFIC setup
-deltaArea=20000;
-perimeterF=2000;   % aprox value of the F Perimeter in pixels in IFIC setup
+deltaArea=10000;
+perimeterF=500;   % aprox value of the F Perimeter in pixels in IFIC setup
 deltaPerimeter=2000;
 
 % ROIbuilder
@@ -35,8 +35,8 @@ ROIsize=1000;
 
 % FmatchSURF
 
-FtemplatePath=('F:\Gantry_code\Matlab_app\tests\fiducialMatching\FiducialsPictures\FinFidGray.jpg');
-% FtemplatePath=('D:\Gantry\cernbox\GANTRY-IFIC\Pictures_general\FiducialsPictures\FinFidGray.jpg');
+% FtemplatePath=('F:\Gantry_code\Matlab_app\tests\fiducialMatching\FiducialsPictures\FinFidGray.jpg');
+FtemplatePath=('D:\Gantry\cernbox\GANTRY-IFIC\Pictures_general\FiducialsPictures\FinFidGray.jpg');
 
 % CirclesFinder
 
@@ -50,6 +50,7 @@ diameter=22;
 deltaDiam=2.5;
 NominalShortDistance=49;   % distance between consecutive circles in um
 NominalLongDistance=69;    % Distance between opposite circles
+binaryFilterKernel_calibrationPlate=9;
 
 % calibrationFidFinder
 
@@ -62,10 +63,10 @@ binaryFilterKernel_calibration=5;
     methods
         
         function fid=FIDUCIALS
-            addpath('F:\mexopencv');
-            addpath('F:\mexopencv\opencv_contrib');
-%             addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
-%             addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
+%             addpath('F:\mexopencv');
+%             addpath('F:\mexopencv\opencv_contrib');
+            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
+            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
             
         end
      
@@ -540,7 +541,9 @@ rangePerimeter=[2*pi*(NominalDiameter-deltaDiameter)/2*calibration,2*pi*(Nominal
 
 % binarize image and filtering by area,perimeter and circularity
 
-Binary = imbinarize(imageIn);
+medianFilter=cv.medianBlur(imageIn,'KSize',this.binaryFilterKernel_calibrationPlate);
+BinaryThreshold=cv.threshold(medianFilter,'Otsu','Type','Binary','MaxValue',255);
+Binary = imbinarize(BinaryThreshold);
 
 imageF1 = bwpropfilt(Binary,'area',rangeArea);
 imageF2 = bwpropfilt(imageF1,'perimeter',rangePerimeter);
@@ -678,7 +681,7 @@ switch n
         match.Center=(center_2+center_3)/2;
         end
     case 4  % 4 circles detected. Applied fit. 
-        fit=fit_square(circles);
+        fit=this.fit_square(circles);
         match.Center=fit(1:2);
 end
 
@@ -740,7 +743,7 @@ match.Images{6}=imagesROIbuilder{3};
 
 end
 
-function sol = fit_square (vertex)
+function sol = fit_square (this,vertex)
 % fit_square fit a perfect square to the 4 centers of the circles. Used with fiducial matching for calibration plate.
 % input: vertex: cell array with 4 points of the circles detected
 % output: sol: array with the optimum value for the 4 fitted parameters (X, Y, width, rotation)
