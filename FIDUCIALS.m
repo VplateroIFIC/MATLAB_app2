@@ -40,6 +40,20 @@ FtemplatePath=('F:\Gantry_code\Matlab_app\tests\fiducialMatching\FiducialsPictur
 camCalibration=3.62483; %um/pixel
 binaryFilterKernel_circles=81;
 
+% CalibrationFiducialROIBuilder
+
+ROIsizeCalib=150; % size of the ROI (um)
+diameter=22;
+deltaDiam=2.5;
+NominalShortDistance=49;   % distance between consecutive circles in um
+NominalLongDistance=69;    % Distance between opposite circles
+
+% calibrationFidFinder
+
+binaryFilterKernel_calibration=5;
+
+
+
     end
     
     methods
@@ -344,7 +358,7 @@ end
 
 function [ROI,vertex] = FROIbuilder(this,image)
 % 
-% FROIbuilder  generate square ROI of size N around F of the image. It locate the F centroid by reading the pixel area of the F High res camera!.
+% FROIbuilder  generate square ROI of size N around F of the image. It locate the F centroid by reading the pixel area and the perimeter of the F.
 %    inputs: 
 %       this: instance which calls the method
 %       image: original image to extract the ROI
@@ -374,13 +388,13 @@ else
     imageF3=imageF2;
 end
 
-prop = regionprops(imageF3,'centroid')
+prop = regionprops(imageF3,'centroid');
 
-[ROI,vertex]=this.ROIbuilder(image,prop.Centroid);
+[ROI,vertex]=this.ROIbuilder(image,prop.Centroid,this.ROIsize);
 
 end
 
-function [ROI,ver1] = ROIbuilder(this,image,center)
+function [ROI,ver1] = ROIbuilder(this,image,center,size)
 % 
 % ROIbuilder  generate square ROI of size N around given center. 
 %    inputs: 
@@ -390,12 +404,16 @@ function [ROI,ver1] = ROIbuilder(this,image,center)
 %    outputs:
 %       ROI: region of interest around F.
         
-ver1=[center(1)-this.ROIsize/2,center(2)-this.ROIsize/2];
-ver2=[center(1)+this.ROIsize/2,center(2)-this.ROIsize/2];
-ver3=[center(1)+this.ROIsize/2,center(2)+this.ROIsize/2];
-ver4=[center(1)-this.ROIsize/2,center(2)+this.ROIsize/2];
+ver1=[center(1)-size/2,center(2)-size/2];
+ver2=[center(1)+size/2,center(2)-size/2];
+ver3=[center(1)+size/2,center(2)+size/2];
+ver4=[center(1)-size/2,center(2)+size/2];
+
+ver1=round(ver1);
+ver3=round(ver3);
 
 ROI=image(ver1(2):ver3(2),ver1(1):ver3(1),:);
+
 end
 
 function match = FmatchSURF(this,image)
@@ -436,7 +454,7 @@ end
 
 function match = petalFidFinder(this,image)
 % 
-% FmatchSURF  Look for 0.3mm petal fiducial into given image (Valencia setup).
+% petalFidFinder  Look for 0.3mm petal fiducial into given image (Valencia setup).
 %    inputs: 
 %       this: instance which calls the method
 %       image: original image to find circles
@@ -486,5 +504,273 @@ match.diameter=circles{1}(3)*2/this.camCalibration;
 match.images{1}=plotImage;
 
 end
+
+function [ROI,vertex,imagesOut] = CalibrationFiducialROIBuilder(this,image)
+% 
+% CalibrationFiducialROIBuilder  generate square ROI around caibration plate fiducial. It locate the fiducial centroid by reading the pixel area, perimeter and
+% circularity
+%    inputs: 
+%       this: instance which calls the method
+%       image: original image to extract the ROI
+%    outputs:
+%       ROI: region of interest around calibration fiducial.
+%       Vertex: Vertex 1 of the ROI in the original image.
+%       imagesOut: useful images of the process of building the ROI.
+
+% Passing image to gray is needed
+
+if length(size(image))==3
+imageIn = rgb2gray(image);
+else
+    imageIn=image;
 end
+
+% calculating area and perimeter ranges of the circles
+
+calibration=this.camCalibration;
+NominalDiameter=this.diameter;  % nominal diameter of the fiducial circles (um)
+deltaDiameter=this.deltaDiam;    % range of threshold (um)
+sizeROI=this.ROIsizeCalib*this.camCalibration;
+
+rangeArea=[pi*((NominalDiameter-deltaDiameter)/2*calibration)^2,pi*((NominalDiameter+deltaDiameter)/2*calibration)^2];
+rangePerimeter=[2*pi*(NominalDiameter-deltaDiameter)/2*calibration,2*pi*(NominalDiameter+deltaDiameter)/2*calibration];
+
+% binarize image and filtering by area,perimeter and circularity
+
+Binary = imbinarize(imageIn);
+
+imageF1 = bwpropfilt(Binary,'area',rangeArea);
+imageF2 = bwpropfilt(imageF1,'perimeter',rangePerimeter);
+stats = regionprops(imageF2,'Circularity');
+L = bwlabel(imageF2);
+imageF3=imageF2;
+% delete all the objects with circularity less than 0.8
+for i=1:length(stats)
+    if stats(i).Circularity<0.8
+        imageF3(L==i)=0;
+    end
+end
+
+% output images
+
+imagesOut{1}=imageF1;
+imagesOut{2}=imageF2;
+imagesOut{3}=imageF3;
+
+% info about elements (circles) found
+
+CC=bwconncomp(imageF3);
+stats = regionprops(imageF3,'Centroid');
+% cases depending on elements number(circles) were found
+
+switch CC.NumObjects
+    case 1 % just 1 circle detected, no possible ROI detection
+    ROI=0;
+    vertex=0;
+    return
+    case 2 % 2 circles detected, ROI detection if circles are not consecutive
+    centroid_1=stats(1).Centroid;
+    centroid_2=stats(2).Centroid;
+    dist=sqrt((centroid_2(1)-centroid_1(1))^2+(centroid_2(2)-centroid_1(2))^2);
+    if dist >(this.NominalLongDistance-5)*this.camCalibration && dist < (this.NominalLongDistance+5)*this.camCalibration  
+    center=(centroid_1+centroid_2)/2; 
+    else
+    ROI=0;
+    vertex=0;
+    return
+    end
+    case 3 % 3 circles detected, ROI center calculated as middle point between opposite circles 
+    centroid_1=stats(1).Centroid;
+    centroid_2=stats(2).Centroid;
+    centroid_3=stats(3).Centroid;
+    dist1=sqrt((centroid_2(1)-centroid_1(1))^2+(centroid_2(2)-centroid_1(2))^2);
+    dist2=sqrt((centroid_3(1)-centroid_1(1))^2+(centroid_3(2)-centroid_1(2))^2);
+    dist3=sqrt((centroid_3(1)-centroid_2(1))^2+(centroid_3(2)-centroid_2(2))^2);
+    if dist1>dist2 && dist1>dist3
+    center=(centroid_1+centroid_2)/2;
+    elseif dist2>dist1 && dist2>dist3
+    center=(centroid_1+centroid_3)/2; 
+    elseif dist3>dist1 && dist3>dist2
+    center=(centroid_2+centroid_3)/2; 
+    end
+    case 4 % 4 circles detected, ROI center calculated as the mass center of all of them
+    centroid_1=stats(1).Centroid;
+    centroid_2=stats(2).Centroid;
+    centroid_3=stats(3).Centroid; 
+    centroid_4=stats(4).Centroid;
+    center=(centroid_1+centroid_2+centroid_3+centroid_4)/4;         
+end
+
+[ROI,vertex]=this.ROIbuilder(image,center,sizeROI);
+
+end
+
+function match = CalibrationFidFinder(this,image)
+% 
+% CalibrationFidFinder  Look for calibration plate fiducial into given image.
+%    inputs: 
+%       this: instance which calls the method
+%       image: original image to find circles
+%    outputs:
+%     match: structure with next fields
+%         Center: coordenates of the center of the fiducial.
+%         Images: Useful images of the matching.
+
+kernel=this.binaryFilterKernel_calibration;
+calibration=this.camCalibration;
+
+% Passing image to gray if it is RGB
+
+if length(size(image))==3
+imageIn = rgb2gray(image);
+else
+    imageIn=image;
+end
+
+% calling ROI builder
+
+[ROI,vertex,imagesROIbuilder]=this.CalibrationFiducialROIBuilder(imageIn);
+if ROI==0
+    disp('matching error, error by detecting the ROI');
+        match.Center=0;
+return
+end
+
+% looking for circles
+
+medianFilter=cv.medianBlur(ROI,'KSize',kernel);
+circles = cv.HoughCircles(medianFilter,'MinDist',100,'Param1',100,'Param2',5,'MinRadius',10.5*calibration,'MaxRadius',12*calibration);
+[m,n]=size(circles);
+
+% calculating center of the fiducial depending on number of fiducials detected %
+
+switch n
+    case 1  % just 1 circle detected
+        disp('just 1 circle detected, match failed')
+        match.Center=0;
+        return
+    case 2 % 2 circles detected
+        center_1=circles{1};
+        center_2=circles{2};
+        dist=sqrt((center_2(1)-center_1(1))^2+(center_2(2)-center_1(2))^2);
+        if dist >65*this.camCalibration && dist < 75*this.camCalibration   % checking that circles are opposite
+        match.Center=(center_1+center_2)/2; 
+        else
+        disp('just 2 circles detected, match failed')
+        match=0;
+        return
+        end
+    case 3  % 3 circles detected
+        center_1=circles{1};
+        center_2=circles{2};
+        center_3=circles{3}; 
+        dist1=sqrt((center_2(1)-center_1(1))^2+(center_2(2)-center_1(2))^2);
+        dist2=sqrt((center_3(1)-center_1(1))^2+(center_3(2)-center_1(2))^2);
+        dist3=sqrt((center_3(1)-center_2(1))^2+(center_3(2)-center_2(2))^2);
+        if dist1 > dist2 && dist1 > dist3
+        match.Center=(center_1+center_2)/2; 
+        elseif dist2 > dist1 && dist2 > dist3
+        match.Center=(center_1+center_3)/2;
+        elseif dist3 > dist1 && dist3 > dist2
+        match.Center=(center_2+center_3)/2;
+        end
+    case 4  % 4 circles detected. Applied fit. 
+        fit=fit_square(circles);
+        match.Center=fit(1:2);
+end
+
+centerFid=[match.Center(1),match.Center(2)];
+match.Center=[match.Center(1)+vertex(1),match.Center(2)+vertex(2)];
+
+for i=1:n
+    X(i)=circles{i}(1);
+    Y(i)=circles{i}(2);
+    R(i)=circles{i}(3);
+end
+
+% plots of circles detected %
+
+fig1=figure('visible','off','Position', get(0, 'Screensize'));
+subplot(3,1,1)
+imshow(image)
+title('original image')
+subplot(3,1,2)
+imshow(medianFilter)
+title('ROI')
+subplot(3,1,3)
+imshow(medianFilter)
+title('Circles detected')
+hold on
+viscircles([X' Y'],R);
+hold on 
+plot(centerFid(1),centerFid(2), 'r+', 'MarkerSize', 30, 'LineWidth', 2);
+
+fig2=figure('visible','off','Position', get(0, 'Screensize'));
+imshow(image)
+title('Calibration plate fiducial matched')
+hold on
+plot(match.Center(1),match.Center(2), 'r+', 'MarkerSize', 30, 'LineWidth', 2);
+
+fig3=figure('visible','off','Position', get(0, 'Screensize'));
+imshow(medianFilter)
+title('Circles detected')
+hold on
+viscircles([X' Y'],R);
+hold on 
+plot(centerFid(1),centerFid(2), 'r+', 'MarkerSize', 30, 'LineWidth', 2);
+
+fig2image=getframe(fig1);
+plotImage=fig2image.cdata;
+match.Images{1}=plotImage;
+
+fig2image=getframe(fig2);
+plotImage=fig2image.cdata;
+match.Images{2}=plotImage;
+
+fig2image=getframe(fig3);
+plotImage=fig2image.cdata;
+match.Images{3}=plotImage;
+
+match.Images{4}=imagesROIbuilder{1};
+match.Images{5}=imagesROIbuilder{2};
+match.Images{6}=imagesROIbuilder{3};
+
+end
+
+function sol = fit_square (vertex)
+% fit_square fit a perfect square to the 4 centers of the circles. Used with fiducial matching for calibration plate.
+% input: vertex: cell array with 4 points of the circles detected
+% output: sol: array with the optimum value for the 4 fitted parameters (X, Y, width, rotation)
+ 
+X0(1)=vertex{1}(1);
+X0(2)=vertex{2}(1);
+X0(3)=vertex{3}(1);
+X0(4)=vertex{4}(1);
+
+Y0(1)=vertex{1}(2);
+Y0(2)=vertex{2}(2);
+Y0(3)=vertex{3}(2);
+Y0(4)=vertex{4}(2);
+
+% condiciones iniciales (parece que no afectan mucho a la convergencia con este solver..)
+
+cond_t0=[0.5 0.5 0 0.4];
+
+% Implemento funcion %
+
+fun = @(x)(X0(1)-(x(1)-(x(4)/sqrt(2))*cos(x(3)+pi/4)))^2+(Y0(1)-(x(2)-(x(4)/sqrt(2))*sin(x(3)+pi/4)))^2 ...
+    + (X0(2)-(x(1)-(x(4)/sqrt(2))*cos(pi/4-x(3))))^2+(Y0(2)-(x(2)+(x(4)/sqrt(2))*sin(pi/4-x(3))))^2 ...
+    + (X0(3)-(x(1)+(x(4)/sqrt(2))*cos(pi/4+x(3))))^2+(Y0(3)-(x(2)+(x(4)/sqrt(2))*sin(pi/4+x(3))))^2 ...
+    + (X0(4)-(x(1)+(x(4)/sqrt(2))*cos(pi/4-x(3))))^2+(Y0(4)-(x(2)-(x(4)/sqrt(2))*sin(pi/4-x(3))))^2;
+    
+% Fijo número de iteraciones %
+
+options = optimset('MaxFunEvals',1000);
+
+% ejecuto el solver %
+
+sol=fminsearch(fun,cond_t0,options);
+
+end
+end  
 end
