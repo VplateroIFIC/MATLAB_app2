@@ -1,13 +1,13 @@
-siclassdef FOCUS
+classdef FOCUS
     %FOCUS focusing tools
   
     
     properties (Access=private)
        maxIter=8;
-       FocusRange=0.5;
+       FocusRange=0.3;
        velocity=2;
        threshold=0.02;
-       splits=4;
+       splits=3;    %4
        RoiSize=500;
        ReadyToFocus=0;
        FocusType='BREN';
