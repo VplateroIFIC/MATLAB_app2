@@ -24,7 +24,13 @@ classdef OWIS_STAGES
         IsConnected         % Eliminar???
         
 %         Connection properties
-        nComPort=int32(3); 
+        Interface = 0;      % 0-> ComPort or USB; 1-> NET
+        nComPort=int32(3);  % 0(COM0), 1(COM1), ... 255(COM255), default: 1
+        Baud = 9600;        % 9600,19200,38400,57600,115200, default: 9600
+        Handshake = 0;      % 0(CR), 1(CR+LF), 2(LF), default: 0
+        Parity = 0;         % 0-> No parity; 1-> OddParity; 2-> EvenParity
+        dataBits = 8;
+        stopBits = 0;
         nAxis=int32(1);
         dPosF=30000.0;
         dDistance=10.0;
@@ -163,6 +169,12 @@ end
                 %% Initialize  Pablo%%
         
             function this = INIT(this)
+                
+                if calllib('ps90', 'PS90_Connect', this.Index, this.Interface, this.nComPort, this.Baud, this.Handshake, this.Parity, this.dataBits, this.stopBits) ~= 0 
+                    disp('Connected');
+                    this.PS90_connected = true;
+                end
+                    
                 error = calllib('ps90', 'PS90_SetMotorType', this.Index, this.Axisid_X,motor_type(0));
 %                 if ERROR ~= 0
 %                     disp ('Error in PS90_SetMotorType X Axis');
@@ -478,6 +490,7 @@ end
         %% Disconnect  Pablo%%      
         function this = Disconnect(this)
             if this.PS90_connected  ~= 0
+                disp ('Already disconnected. Nothing to do.');
                 return
             end
             if this.X_stage_on ~= 0
@@ -485,8 +498,29 @@ end
                 error = calllib ('ps90', 'PS90_MotorOff', this.Index, this.Axisid_X);
             if (error ~= 0 )
                 disp ('Error in PS90_MotorOff X Axis ');
+                disp (error);
             end
             end
+            if this.Y_stage_on ~= 0
+                this.Y_stage_on=false;
+                error = calllib ('ps90', 'PS90_MotorOff', this.Index, this.Axisid_Y);
+            if (error ~= 0 )
+                disp ('Error in PS90_MotorOff Y Axis ');
+                disp (error);
+            end
+            end
+            if this.Z_stage_on ~= 0
+                this.Z_stage_on=false;
+                error = calllib ('ps90', 'PS90_MotorOff', this.Index, this.Axisid_Z);
+            if (error ~= 0 )
+                disp ('Error in PS90_MotorOff Z Axis ');
+                disp (error);
+            end
+            end
+            
+            error = calllib ('ps90', 'PS90_MotorOff', this.Index, this.Axisid_Z);
+            
+            PS90_Disconnect(1)
         end
         
         %% Disconnect  %%
