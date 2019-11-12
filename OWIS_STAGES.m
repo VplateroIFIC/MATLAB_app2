@@ -174,11 +174,6 @@ end
                     disp('Connected');
                     this.PS90_connected = true;
                 end
-                    
-                error = calllib('ps90', 'PS90_SetMotorType', this.Index, this.Axisid_X,motor_type(0));
-%                 if ERROR ~= 0
-%                     disp ('Error in PS90_SetMotorType X Axis');
-%                 end
             
 %                     //X Axis : 1//
 
@@ -467,26 +462,6 @@ end
         end
             end
         
-        
-                   %% Trash  %%
-     
-        
-%             switch this.GantryType
-%                 case 0
-%                 this.GantryObj=A3200Connect;
-%                 this.IsConnected=1;
-%                 disp('Stages conections done');
-%                 case 1
-%                 Port = 701;
-%                 Address=("10.0.0.100");
-%                 this.GantryObj=ACS.SPiiPlusNET.Api;
-%                 OpenCommEthernetTCP(this.GantryObj,Address,Port);
-%                 this.IsConnected=1;
-%                 disp('Stages conections done');
-%             end
-%    end
-        
-    
         %% Disconnect  Pablo%%      
         function this = Disconnect(this)
             if this.PS90_connected  ~= 0
@@ -494,58 +469,70 @@ end
                 return
             end
             if this.X_stage_on ~= 0
-                this.X_stage_on=false;
                 error = calllib ('ps90', 'PS90_MotorOff', this.Index, this.Axisid_X);
-            if (error ~= 0 )
+                if error == 0
+                    this.X_stage_on=false;
+                else 
                 disp ('Error in PS90_MotorOff X Axis ');
-                disp (error);
+                this.showError (error);
+                end
             end
-            end
-            if this.Y_stage_on ~= 0
-                this.Y_stage_on=false;
+            if this.X_stage_on ~= 0
                 error = calllib ('ps90', 'PS90_MotorOff', this.Index, this.Axisid_Y);
-            if (error ~= 0 )
+                if error == 0
+                    this.Y_stage_on=false;
+                else 
                 disp ('Error in PS90_MotorOff Y Axis ');
-                disp (error);
-            end
+                this.showError (error);
+                end
             end
             if this.Z_stage_on ~= 0
-                this.Z_stage_on=false;
                 error = calllib ('ps90', 'PS90_MotorOff', this.Index, this.Axisid_Z);
-            if (error ~= 0 )
+                if error == 0
+                    this.Z_stage_on=false;
+                else 
                 disp ('Error in PS90_MotorOff Z Axis ');
-                disp (error);
+                this.showError (error);
+                end
             end
-            end
-            
-            error = calllib ('ps90', 'PS90_MotorOff', this.Index, this.Axisid_Z);
-            
             PS90_Disconnect(1)
         end
         
-        %% Disconnect  %%
-        
-        function  this = Disconnect(this)
-        % function  this = Disconnect(this)
-        % Arguments: object STAGES %
-        % Returns: none %
-        
-        Disconnect(this.OWISobj)
-        Connect(this.OWISobj)
-        
-            switch this.GantryType
+        function showError (error)
+            switch error
                 case 0
-                A3200Disconnect(this.OWISObj);
-                this.IsConnected=0;
-                disp('Stages disconnected');
-                case 1
-                CloseComm(this.GantryObj); 
-                this.IsConnected=0;
-                disp('Stages disconnected');
+                    disp ('Function was successful');
+                case -1
+                    disp ('Function error');
+                case -2 
+                    disp ('Communication error');
+                case -3 
+                    disp ('Syntax error');
             end
         end
+        %% Disconnect  %%
         
-        
+%         function  this = Disconnect(this)
+%         % function  this = Disconnect(this)
+%         % Arguments: object STAGES %
+%         % Returns: none %
+%         
+%         Disconnect(this.OWISobj)
+%         Connect(this.OWISobj)
+%         
+%             switch this.GantryType
+%                 case 0
+%                 A3200Disconnect(this.OWISObj);
+%                 this.IsConnected=0;
+%                 disp('Stages disconnected');
+%                 case 1
+%                 CloseComm(this.GantryObj); 
+%                 this.IsConnected=0;
+%                 disp('Stages disconnected');
+%             end
+%         end
+%         
+%         
         
         
         
