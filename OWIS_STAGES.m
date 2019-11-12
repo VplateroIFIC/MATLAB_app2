@@ -510,6 +510,7 @@ end
                     disp ('Syntax error');
             end
         end
+        
         %% Disconnect  %%
         
 %         function  this = Disconnect(this)
