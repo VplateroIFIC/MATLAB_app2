@@ -226,64 +226,64 @@ end
         if (calllib('ps90', 'PS90_SetLimitSwitchMode', this.Index, this.Axisid_X,this.limit_switch_mode(1)) ~= 0 )
             disp('Error in PS90_SetLimitSwitchMode X Axis');
         end
-        if (calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axisid_X,ref_switch(1)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axisid_X, this.ref_switch(1)) ~= 0 )
             disp('Error in PS90_SetRefSwitch X Axis');
         end
-        if (calllib('ps90', 'PS90_SetRefSwitchMode', this.Index, this.Axisid_X,ref_switch_mode(1)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetRefSwitchMode', this.Index, this.Axisid_X, this.ref_switch_mode(1)) ~= 0 )
             disp('Error in SetRefSwitchMode X Axis');
         end
-        if (calllib('ps90', 'PS90_SetSampleTime', this.Index, this.Axisid_X,sample_time(1)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetSampleTime', this.Index, this.Axisid_X, this.sample_time(1)) ~= 0 )
             disp('Error in SetSampleTime X Axis');
         end
-        if (calllib('ps90', 'PS90_SetKP', this.Index, this.Axisid_X,KP(1)) ~= 0 ) 
+        if (calllib('ps90', 'PS90_SetKP', this.Index, this.Axisid_X, this.KP(1)) ~= 0 ) 
             disp('Error in PS90_SetKP X Axis');
         end
-        if (calllib('ps90', 'PS90_SetKI', this.Index, this.Axisid_X,KI(1)) ~= 0 ) 
+        if (calllib('ps90', 'PS90_SetKI', this.Index, this.Axisid_X, this.KI(1)) ~= 0 ) 
             disp('Error in PS90_SetKI X Axis');
         end
-        if (calllib('ps90', 'PS90_SetKD', this.Index, this.Axisid_X,KD(1)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetKD', this.Index, this.Axisid_X, this.KD(1)) ~= 0 )
             disp('Error in PS90_SetKD X Axis');
         end
-        if (calllib('ps90', 'PS90_SetDTime', this.Index, this.Axisid_X,DTime(1)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetDTime', this.Index, this.Axisid_X, this.DTime(1)) ~= 0 )
             disp('Error in PS90_SetDTime X Axis');
         end
-        if (calllib('ps90', 'PS90_SetILimit', this.Index, this.Axisid_X,ILimit(1)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetILimit', this.Index, this.Axisid_X, this.ILimit(1)) ~= 0 )
             disp('Error in PS90_SetILimit X Axis');
         end
-        if (calllib('ps90', 'PS90_SetTargetWindow', this.Index, this.Axisid_X,target_window(1)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetTargetWindow', this.Index, this.Axisid_X, this.target_window(1)) ~= 0 )
             disp('Error in PS90_SetTargetWindow X Axis');
         end
-        if (calllib('ps90', 'PS90_SetInPosMode', this.Index, this.Axisid_X,pos_mode(1)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetInPosMode', this.Index, this.Axisid_X, this.pos_mode(1)) ~= 0 )
             disp('Error in PS90_SetInPosMode X Axis');
         end
-        if (calllib('ps90', 'PS90_SetCurrentLevel', this.Index, this.Axisid_X,current_level(1)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetCurrentLevel', this.Index, this.Axisid_X, this.current_level(1)) ~= 0 )
             disp('Error in SetCurrentLevel X Axis');
         end
-        if (calllib('ps90', 'PS90_SetStageAttributes', this.Index, this.Axisid_X, this.pitch(1), this.increments_per_rev(1),gear_reduction_ratio(1)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetStageAttributes', this.Index, this.Axisid_X, this.pitch(1), this.increments_per_rev(1), this.gear_reduction_ratio(1)) ~= 0 )
             disp('Error in PS90_SetStageAttributes X Axis');
         end
         if (calllib('ps90', 'PS90_SetCalcResol', this.Index, this.Axisid_X, this.res_motor(1)) ~= 0 )
             disp('Error in PS90_SetCalcResol X Axis');
         end
-        if (calllib('ps90', 'PS90_SetMsysResol', this.Index, this.Axisid_X,lin_res(1)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetMsysResol', this.Index, this.Axisid_X, this.lin_res(1)) ~= 0 )
             disp('Error in PS90_SetMsysResol X Axis');
         end
         if (calllib('ps90', 'PS90_SetTargetMode', this.Index, this.Axisid_X, this.ini_target_mode(1)) ~= 0 )
             disp('Error in PS90_SetTargetMode X Axis');
         end
-        if (calllib('ps90', 'PS90_SetAccelEx', this.Index, this.Axisid_X,acc(1)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetAccelEx', this.Index, this.Axisid_X, this.acc(1)) ~= 0 )
             disp('Error in PS90_SetAccelEx X Axis');
         end
         if (calllib('ps90', 'PS90_SetDecelEx', this.Index, this.Axisid_X, this.dacc(1)) ~= 0 )
             disp('Error in PS90_SetDecelEx X Axis');
         end
-        if (calllib('ps90', 'PS90_SetJerk', this.Index, this.Axisid_X,jacc(1)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetJerk', this.Index, this.Axisid_X, this.jacc(1)) ~= 0 )
             disp('Error in PS90_SetJerk X Axis');
         end
         if (calllib('ps90', 'PS90_SetRefDecelEx', this.Index, this.Axisid_X, this.ref_dacc(1)) ~= 0 )
             disp('Error in PS90_SetRefDecelEx X Axis');
         end
-        if (calllib('ps90', 'PS90_SetVel', this.Index, this.Axisid_X,vel(1)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetVel', this.Index, this.Axisid_X, this.vel(1)) ~= 0 )
             disp('Error in PS90_SetVel X Axis');
         end
         if (calllib('ps90', 'PS90_SetPosFEx', this.Index, this.Axisid_X, this.pos_vel(1)) ~= 0 )
@@ -292,10 +292,10 @@ end
         if (calllib('ps90', 'PS90_SetSlowRefFEx', this.Index, this.Axisid_X, this.ref_vel_slow(1)) ~= 0 )
             disp('Error in PS90_SetSlowRefFEx X Axis');
         end
-        if (calllib('ps90', 'PS90_SetFastRefFEx', this.Index, this.Axisid_X,ref_vel_fast(1)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetFastRefFEx', this.Index, this.Axisid_X, this.ref_vel_fast(1)) ~= 0 )
             disp('Error in PS90_SetFastRefFEx X Axis');
         end
-        if (calllib('ps90', 'PS90_SetFreeVel', this.Index, this.Axisid_X,free_vel(1)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetFreeVel', this.Index, this.Axisid_X, this.free_vel(1)) ~= 0 )
             disp('Error in PS90_SetFreeVel X Axis');
         end
         if (calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axisid_X, this.ref_switch_x) ~= 0 )
@@ -307,7 +307,8 @@ end
         if (calllib('ps90', 'PS90_GetReadError', this.Index) ~= 0 )
             disp('Error in PS90_GetPositionEx X Axis');
         end
-        disp('X_possition: ', value);
+        disp('X_possition: ');
+        disp(value);
         
 %         //Y Axis : 2//
  
@@ -320,64 +321,64 @@ end
         if (calllib('ps90', 'PS90_SetLimitSwitchMode', this.Index, this.Axisid_Y,this.limit_switch_mode(2)) ~= 0 )
             disp('Error in PS90_SetLimitSwitchMode Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axisid_Y,ref_switch(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axisid_Y, this.ref_switch(2)) ~= 0 )
             disp('Error in PS90_SetRefSwitch Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetRefSwitchMode', this.Index, this.Axisid_Y,ref_switch_mode(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetRefSwitchMode', this.Index, this.Axisid_Y, this.ref_switch_mode(2)) ~= 0 )
             disp('Error in SetRefSwitchMode Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetSampleTime', this.Index, this.Axisid_Y,sample_time(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetSampleTime', this.Index, this.Axisid_Y, this.sample_time(2)) ~= 0 )
             disp('Error in SetSampleTime Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetKP', this.Index, this.Axisid_Y,KP(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetKP', this.Index, this.Axisid_Y, this.KP(2)) ~= 0 )
             disp('Error in PS90_SetKP Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetKI', this.Index, this.Axisid_Y,KI(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetKI', this.Index, this.Axisid_Y, this.KI(2)) ~= 0 )
             disp('Error in PS90_SetKI Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetKD', this.Index, this.Axisid_Y,KD(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetKD', this.Index, this.Axisid_Y, this.KD(2)) ~= 0 )
             disp('Error in PS90_SetKD Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetDTime', this.Index, this.Axisid_Y,DTime(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetDTime', this.Index, this.Axisid_Y, this.DTime(2)) ~= 0 )
             disp('Error in PS90_SetDTime Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetILimit', this.Index, this.Axisid_Y,ILimit(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetILimit', this.Index, this.Axisid_Y, this.ILimit(2)) ~= 0 )
             disp('Error in PS90_SetILimit Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetTargetWindow', this.Index, this.Axisid_Y,target_window(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetTargetWindow', this.Index, this.Axisid_Y, this.target_window(2)) ~= 0 )
             disp('Error in PS90_SetTargetWindow Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetInPosMode', this.Index, this.Axisid_Y,pos_mode(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetInPosMode', this.Index, this.Axisid_Y, this.pos_mode(2)) ~= 0 )
             disp('Error in PS90_SetInPosMode Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetCurrentLevel', this.Index, this.Axisid_Y,current_level(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetCurrentLevel', this.Index, this.Axisid_Y, this.current_level(2)) ~= 0 )
             disp('Error in SetCurrentLevel Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetStageAttributes', this.Index, this.Axisid_Y, this.pitch(2), this.increments_per_rev(2),gear_reduction_ratio(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetStageAttributes', this.Index, this.Axisid_Y, this.pitch(2), this.increments_per_rev(2), this.gear_reduction_ratio(2)) ~= 0 )
             disp('Error in PS90_SetStageAttributes Y Axis');
         end
         if (calllib('ps90', 'PS90_SetCalcResol', this.Index, this.Axisid_Y, this.res_motor(2)) ~= 0 )
             disp('Error in PS90_SetCalcResol Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetMsysResol', this.Index, this.Axisid_Y,lin_res(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetMsysResol', this.Index, this.Axisid_Y, this.lin_res(2)) ~= 0 )
             disp('Error in PS90_SetMsysResol Y Axis');
         end
         if (calllib('ps90', 'PS90_SetTargetMode', this.Index, this.Axisid_Y, this.ini_target_mode(2)) ~= 0 )
             disp('Error in PS90_SetTargetMode Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetAccelEx', this.Index, this.Axisid_Y,acc(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetAccelEx', this.Index, this.Axisid_Y, this.acc(2)) ~= 0 )
             disp('Error in PS90_SetAccelEx Y Axis');
         end
         if (calllib('ps90', 'PS90_SetDecelEx', this.Index, this.Axisid_Y, this.dacc(2)) ~= 0 )
             disp('Error in PS90_SetDecelEx Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetJerk', this.Index, this.Axisid_Y,jacc(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetJerk', this.Index, this.Axisid_Y, this.jacc(2)) ~= 0 )
             disp('Error in PS90_SetJerk Y Axis');
         end
         if (calllib('ps90', 'PS90_SetRefDecelEx', this.Index, this.Axisid_Y, this.ref_dacc(2)) ~= 0 )
             disp('Error in PS90_SetRefDecelEx Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetVel', this.Index, this.Axisid_Y,vel(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetVel', this.Index, this.Axisid_Y, this.vel(2)) ~= 0 )
             disp('Error in PS90_SetVel Y Axis');
         end
         if (calllib('ps90', 'PS90_SetPosFEx', this.Index, this.Axisid_Y, this.pos_vel(2)) ~= 0 )
@@ -386,21 +387,22 @@ end
         if (calllib('ps90', 'PS90_SetSlowRefFEx', this.Index, this.Axisid_Y, this.ref_vel_slow(2)) ~= 0 )
             disp('Error in PS90_SetSlowRefFEx Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetFastRefFEx', this.Index, this.Axisid_Y,ref_vel_fast(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetFastRefFEx', this.Index, this.Axisid_Y, this.ref_vel_fast(2)) ~= 0 )
             disp('Error in PS90_SetFastRefFEx Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetFreeVel', this.Index, this.Axisid_Y,free_vel(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetFreeVel', this.Index, this.Axisid_Y, this.free_vel(2)) ~= 0 )
             disp('Error in PS90_SetFreeVel Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axisid_Y,ref_switch_y) ~= 0 )
+        if (calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axisid_Y, this.ref_switch_y) ~= 0 )
             disp('Error in PS90_SetRefSwitch Y Axis');
         end
 
-        value = callib ('ps90', 'PS90_GetPositionEx', this.Index, this.Axisid_Y);
+        value = calllib('ps90', 'PS90_GetPositionEx', this.Index, this.Axisid_Y);
         if (calllib('ps90', 'PS90_GetReadError', this.Index) ~= 0 )
             disp('Error in PS90_GetPositionEx Y Axis');
         end
-         disp('Y_possition: ', value);      
+         disp('Y_possition: ');
+         disp(value);
 
 %         //Z Axis : 3//
 
@@ -413,64 +415,64 @@ end
         if (calllib('ps90', 'PS90_SetLimitSwitchMode', this.Index, this.Axisid_Z,this.limit_switch_mode(3)) ~= 0 )
             disp('Error in PS90_SetLimitSwitchMode Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axisid_Z,ref_switch(3)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axisid_Z, this.ref_switch(3)) ~= 0 )
             disp('Error in PS90_SetRefSwitch Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetRefSwitchMode', this.Index, this.Axisid_Z,ref_switch_mode(3)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetRefSwitchMode', this.Index, this.Axisid_Z, this.ref_switch_mode(3)) ~= 0 )
             disp('Error in SetRefSwitchMode Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetSampleTime', this.Index, this.Axisid_Z,sample_time(3)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetSampleTime', this.Index, this.Axisid_Z, this.sample_time(3)) ~= 0 )
             disp('Error in SetSampleTime Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetKP', this.Index, this.Axisid_Z,KP(3)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetKP', this.Index, this.Axisid_Z, this.KP(3)) ~= 0 )
             disp('Error in PS90_SetKP Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetKI', this.Index, this.Axisid_Z,KI(3)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetKI', this.Index, this.Axisid_Z, this.KI(3)) ~= 0 )
             disp('Error in PS90_SetKI Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetKD', this.Index, this.Axisid_Z,KD(3)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetKD', this.Index, this.Axisid_Z, this.KD(3)) ~= 0 )
             disp('Error in PS90_SetKD Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetDTime', this.Index, this.Axisid_Z,DTime(3)) ~= 0 ) 
+        if (calllib('ps90', 'PS90_SetDTime', this.Index, this.Axisid_Z, this.DTime(3)) ~= 0 ) 
             disp('Error in PS90_SetDTime Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetILimit', this.Index, this.Axisid_Z,ILimit(3)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetILimit', this.Index, this.Axisid_Z, this.ILimit(3)) ~= 0 )
             disp('Error in PS90_SetILimit Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetTargetWindow', this.Index, this.Axisid_Z,target_window(3)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetTargetWindow', this.Index, this.Axisid_Z, this.target_window(3)) ~= 0 )
             disp('Error in PS90_SetTargetWindow Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetInPosMode', this.Index, this.Axisid_Z,pos_mode(3)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetInPosMode', this.Index, this.Axisid_Z, this.pos_mode(3)) ~= 0 )
             disp('Error in PS90_SetInPosMode Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetCurrentLevel', this.Index, this.Axisid_Z,current_level(3)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetCurrentLevel', this.Index, this.Axisid_Z, this.current_level(3)) ~= 0 )
             disp('Error in SetCurrentLevel Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetStageAttributes', this.Index, this.Axisid_Z, this.pitch(3), this.increments_per_rev(3),gear_reduction_ratio(3)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetStageAttributes', this.Index, this.Axisid_Z, this.pitch(3), this.increments_per_rev(3), this.gear_reduction_ratio(3)) ~= 0 )
             disp('Error in PS90_SetStageAttributes Z Axis');
         end
         if (calllib('ps90', 'PS90_SetCalcResol', this.Index, this.Axisid_Z, this.res_motor(3)) ~= 0 )
             disp('Error in PS90_SetCalcResol Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetMsysResol', this.Index, this.Axisid_Z,lin_res(3)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetMsysResol', this.Index, this.Axisid_Z, this.lin_res(3)) ~= 0 )
             disp('Error in PS90_SetMsysResol Z Axis');
         end
         if (calllib('ps90', 'PS90_SetTargetMode', this.Index, this.Axisid_Z, this.ini_target_mode(3)) ~= 0 )
             disp('Error in PS90_SetTargetMode Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetAccelEx', this.Index, this.Axisid_Z,acc(3)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetAccelEx', this.Index, this.Axisid_Z, this.acc(3)) ~= 0 )
             disp('Error in PS90_SetAccelEx Z Axis');
         end
         if (calllib('ps90', 'PS90_SetDecelEx', this.Index, this.Axisid_Z, this.dacc(3)) ~= 0 )
             disp('Error in PS90_SetDecelEx Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetJerk', this.Index, this.Axisid_Z,jacc(3)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetJerk', this.Index, this.Axisid_Z, this.jacc(3)) ~= 0 )
             disp('Error in PS90_SetJerk Z Axis');
         end
         if (calllib('ps90', 'PS90_SetRefDecelEx', this.Index, this.Axisid_Z, this.ref_dacc(3)) ~= 0 )
             disp('Error in PS90_SetRefDecelEx Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetVel', this.Index, this.Axisid_Z,vel(3)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetVel', this.Index, this.Axisid_Z, this.vel(3)) ~= 0 )
             disp('Error in PS90_SetVel Z Axis');
         end
         if (calllib('ps90', 'PS90_SetPosFEx', this.Index, this.Axisid_Z, this.pos_vel(3)) ~= 0 )
@@ -479,21 +481,22 @@ end
         if (calllib('ps90', 'PS90_SetSlowRefFEx', this.Index, this.Axisid_Z, this.ref_vel_slow(3)) ~= 0 )
             disp('Error in PS90_SetSlowRefFEx Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetFastRefFEx', this.Index, this.Axisid_Z,ref_vel_fast(3)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetFastRefFEx', this.Index, this.Axisid_Z, this.ref_vel_fast(3)) ~= 0 )
             disp('Error in PS90_SetFastRefFEx Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetFreeVel', this.Index, this.Axisid_Z,free_vel(3) ~= 0 ))
+        if (calllib('ps90', 'PS90_SetFreeVel', this.Index, this.Axisid_Z, this.free_vel(3) ~= 0 ))
             disp('Error in PS90_SetFreeVel Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axisid_Z,ref_switch_z) ~= 0 )
+        if (calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axisid_Z, this.ref_switch_z) ~= 0 )
             disp('Error in PS90_SetRefSwitch Z Axis');
         end
 
-        value = callib ('ps90', 'PS90_GetPositionEx', this.Index, this.Axisid_Z);
+        value = calllib ('ps90', 'PS90_GetPositionEx', this.Index, this.Axisid_Z);
         if (calllib('ps90', 'PS90_GetReadError', this.Index) ~= 0 )
             disp('Error in PS90_GetPositionEx Z Axis');
         else
-            disp('Z_possition: ', value);
+            disp('Z_possition: ');
+            disp(value);
         end
             end
         
