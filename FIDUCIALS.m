@@ -25,8 +25,8 @@ sizeParticles=9500;
 
 pixelAreaF=74000;  % aprox value of the F Area in pixels in IFIC setup
 deltaArea=10000;
-perimeterF=500;   % aprox value of the F Perimeter in pixels in IFIC setup
-deltaPerimeter=2000;
+perimeterF=2500;   % aprox value of the F Perimeter in pixels in IFIC setup
+deltaPerimeter=500;
 
 % ROIbuilder
 
@@ -35,7 +35,7 @@ ROIsize=1000;
 % FmatchSURF
 
 % FtemplatePath=('F:\Gantry_code\Matlab_app\tests\fiducialMatching\FiducialsPictures\FinFidGray.jpg');
-FtemplatePath=('D:\Gantry\cernbox\GANTRY-IFIC\Pictures_general\FiducialsPictures\FinFidGray.jpg');
+FtemplatePath=('templates\F.jpg');
 
 % CirclesFinder
 
@@ -62,10 +62,12 @@ binaryFilterKernel_calibration=5;
     methods
         
         function fid=FIDUCIALS
+            % Adding to the path the opencv library if necessary.
+            
 %             addpath('F:\mexopencv');
 %             addpath('F:\mexopencv\opencv_contrib');
-            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
-            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
+%             addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
+%             addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
             
         end
      
@@ -364,9 +366,7 @@ function [ROI,vertex] = FROIbuilder(this,image)
 % FROIbuilder  generate square ROI of size N around F of the image. It locate the F centroid by reading the pixel area and the perimeter of the F.
 %    inputs: 
 %       this: instance which calls the method
-%       image: original image to extract the ROI
-
-     
+%       image: original image to extract the ROI 
 %    outputs:
 %       ROI: region of interest around F.
       
@@ -425,7 +425,6 @@ function match = FmatchSURF(this,image)
 %    inputs: 
 %       this: instance which calls the method
 %       image: original image to find fiducial
-
 %    outputs:
 %     match: structure with next fields
 %         Center: coordenates of the center of the located template into the image. In pixels. image coordinate system.
