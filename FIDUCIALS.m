@@ -21,7 +21,6 @@ filter_size=50;   % minimum size for the feature
 
 sizeParticles=9500;
 
-
 % FROIbuilder
 
 pixelAreaF=74000;  % aprox value of the F Area in pixels in IFIC setup
