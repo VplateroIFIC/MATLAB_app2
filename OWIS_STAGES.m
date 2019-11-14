@@ -563,7 +563,9 @@ end
                 this.showError (error);
                 end
             end
-            PS90_Disconnect(1)
+             error = calllib ('ps90', 'PS90_Disconnect', this.Index);
+             this.showError (error);
+   
         end
         
         function showError (this, error)
