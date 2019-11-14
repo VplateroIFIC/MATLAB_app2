@@ -5,70 +5,117 @@ classdef FIDUCIALS
     properties (Access=private)
 
 % matchSURF
-
-binaryFilterKernel=9;
-adaptativeThreshold=41;
-SURF_Extended=false;   %false 
-SURF_HessianThreshold=300;   %300 to 500 (the larger, the less keypoints we get)
-SURF_NOctaveLayers=2;       %2
-SURF_NOctaves=10;    %4  increase for big features, decrease for small features
-SURF_Upright=false;   % ignore the rotation check for each feature
-knn_match_number=2;
-filter_ratio=0.8;   %minimum distance between matches
-filter_size=50;   % minimum size for the feature
+binaryFilterKernel;
+adaptativeThreshold;
+SURF_Extended;    
+SURF_HessianThreshold;  
+SURF_NOctaveLayers;  
+SURF_NOctaves;   
+SURF_Upright; 
+knn_match_number;
+filter_ratio;   
+filter_size;   
 
 % prepareImage
-
-sizeParticles=9500;
+sizeParticles;
 
 % FROIbuilder
-
-pixelAreaF=74000;  % aprox value of the F Area in pixels in IFIC setup
-deltaArea=10000;
-perimeterF=2500;   % aprox value of the F Perimeter in pixels in IFIC setup
-deltaPerimeter=500;
+pixelAreaF;  
+deltaArea;
+perimeterF; 
+deltaPerimeter;
 
 % ROIbuilder
-
-ROIsize=1000;
+ROIsize;
 
 % FmatchSURF
-
-% FtemplatePath=('F:\Gantry_code\Matlab_app\tests\fiducialMatching\FiducialsPictures\FinFidGray.jpg');
-FtemplatePath=('templates\F.jpg');
+FtemplatePath;
 
 % CirclesFinder
-
-camCalibration=3.62483; %um/pixel
-binaryFilterKernel_circles=81;
+camCalibration; %um/pixel
+binaryFilterKernel_circles;
 
 % CalibrationFiducialROIBuilder
-
-ROIsizeCalib=150; % size of the ROI (um)
-diameter=22;
-deltaDiam=2.5;
-NominalShortDistance=49;   % distance between consecutive circles in um
-NominalLongDistance=69;    % Distance between opposite circles
-binaryFilterKernel_calibrationPlate=9;
+ROIsizeCalib; 
+diameter;
+deltaDiam;
+NominalShortDistance;   
+NominalLongDistance;    
+binaryFilterKernel_calibrationPlate;
 
 % calibrationFidFinder
-
-binaryFilterKernel_calibration=5;
-
-
+binaryFilterKernel_calibration;
 
     end
     
     methods
         
-        function fid=FIDUCIALS
-            % Adding to the path the opencv library if necessary.
-            
+        function this=FIDUCIALS(setup)
+% Contructor
+% 1--> Gantry setup
+% 2--> OWIS setup
+       
+%             %Adding to the path the opencv library if necessary.
+%             
 %             addpath('F:\mexopencv');
 %             addpath('F:\mexopencv\opencv_contrib');
 %             addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
 %             addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
-            
+
+% Loading corresponding properties to the class
+
+switch setup
+    case 1
+        FIDUCIALS_properties_Gantry
+    case 2
+        FIDUCIALS_properties_OWIS
+end
+
+% initialization of the properties values
+
+% matchSURF
+this.binaryFilterKernel=binaryFilterKernel;
+this.adaptativeThreshold=adaptativeThreshold;
+this.SURF_Extended=SURF_Extended;    
+this.SURF_HessianThreshold=SURF_HessianThreshold;   
+this.SURF_NOctaveLayers=SURF_NOctaveLayers;      
+this.SURF_NOctaves=SURF_NOctaves;    
+this.SURF_Upright=SURF_Upright;  
+this.knn_match_number=knn_match_number;
+this.filter_ratio=filter_ratio;  
+this.filter_size=filter_size;   
+
+% prepareImage
+this.sizeParticles=sizeParticles;
+
+% FROIbuilder
+this.pixelAreaF=pixelAreaF;  
+this.deltaArea=deltaArea;
+this.perimeterF=perimeterF;  
+this.deltaPerimeter=deltaPerimeter;
+
+% ROIbuilder
+this.ROIsize=ROIsize;
+
+% FmatchSURF
+this.FtemplatePath=FtemplatePath;
+
+% CirclesFinder
+this.camCalibration=camCalibration; 
+this.binaryFilterKernel_circles=binaryFilterKernel_circles;
+
+% CalibrationFiducialROIBuilder
+this.ROIsizeCalib=ROIsizeCalib; 
+this.diameter=diameter;
+this.deltaDiam=deltaDiam;
+this.NominalShortDistance=NominalShortDistance; 
+this.NominalLongDistance=NominalLongDistance;  
+this.binaryFilterKernel_calibrationPlate=binaryFilterKernel_calibrationPlate;
+
+% calibrationFidFinder
+this.binaryFilterKernel_calibration=binaryFilterKernel_calibration;
+
+
         end
      
         function match = matchSURF(this,imageIn,tempIn)
@@ -92,7 +139,6 @@ totalTime=tic;
 centerTemp=[n/2,m/2];
 
 % passing to grayscale if needed %
-
 if size(imageIn,3)==3
 image = rgb2gray(imageIn);
 else
@@ -106,7 +152,6 @@ else
 end
 
 % processing images %
-
 kernel=this.binaryFilterKernel; 
 threshold=this.adaptativeThreshold;      
 
@@ -114,7 +159,6 @@ preparedROI=this.prepareImage(image,kernel,threshold);
 preparedTemp=this.prepareImage(template,kernel,threshold);
 
  % appling SURF algorithm to find keypoints and compute detectors %
-
 detector=cv.SURF('Extended',true);
 
 detector.Extended=this.SURF_Extended; 
@@ -127,22 +171,18 @@ detector.Upright=this.SURF_Upright;
 [keypointsTemp, descriptorsTemp] = detector.detectAndCompute(preparedTemp);
 
 % Appling brute force cross matching %
-
 matcher=cv.DescriptorMatcher('BruteForce');
 matches12=matcher.knnMatch(descriptorsROI,descriptorsTemp,this.knn_match_number);
 
 % plotting initial matches %
-
 images{1} = cv.drawMatches(preparedROI, keypointsROI, preparedTemp, keypointsTemp, matches12,'NotDrawSinglePoints',true,'DrawRichKeypoints',true);
 
 % applying size filter and ratio filter to remove bad matches %
-
 ratio=this.filter_ratio;
 sizeThreshold=this.filter_size;
 betterMatches= this.ratioTest(matches12,keypointsROI,keypointsTemp,sizeThreshold,ratio);
 
 % Bulding the final keypoints vectors (scene and object) %
-
 objeto=cell(1,length(betterMatches));
 scene=cell(1,length(betterMatches));
 
@@ -155,19 +195,15 @@ for i=1:length(betterMatches)
 end
 
 % Performing affine transformation %
-
 [H,inliers] = cv.estimateAffinePartial2D(objeto',scene','Method','Ransac','RefineIters',50);
 
 % plotting better matches %
-
 images{2} = cv.drawMatches(preparedROI, keypointsROI, preparedTemp, keypointsTemp, betterMatches,'NotDrawSinglePoints',true,'DrawRichKeypoints',true);
 
 % plotting results %
-
 images{3} = this.plotTempMatched (preparedROI,preparedTemp,H);
 
 % plot final matches %
-
 images{4} = this.plotFinalMatches (scene,objeto,preparedROI,preparedTemp,H);
 
 match.Center=H(1:2,1:2)*centerTemp'+[H(1,3),H(2,3)]';
@@ -191,12 +227,14 @@ match.Images=images;
 %         imageOut: preprocessed image
 %         images: cell array with all steps of processing
 
+% passing to gray image if necessary
 if size(imageIn,3)==3
 imageIn = rgb2gray(imageIn);
 end
+
+% Processing image
 medianFilter=cv.medianBlur(imageIn,'KSize',kernel);
 BinaryFilter=cv.threshold(medianFilter,'Otsu','Type','Binary','MaxValue',255);
-% BinaryFilter=cv.threshold(medianFilter,160,'Type','Binary','MaxValue',255);
 adapLocalThres=cv.adaptiveThreshold(BinaryFilter,'MaxValue',255,'Method','Gaussian','Type','BinaryInv','BlockSize',threshold,'C',2);
 particlesRemoved=bwareaopen(adapLocalThres,this.sizeParticles);
 imuint8=im2uint8(particlesRemoved);
@@ -275,7 +313,6 @@ vertexTrans{3}=ScaRot*vertexTemp{3}'+[xDelta,yDelta]';
 vertexTrans{4}=ScaRot*vertexTemp{4}'+[xDelta,yDelta]';
 
 
-% imageSize=size(image);
 fig=figure('visible','off','Position', get(0, 'Screensize'));
 subplot(1,2,2)
 imshow(image);
@@ -370,92 +407,137 @@ function [ROI,vertex] = FROIbuilder(this,image)
 %    outputs:
 %       ROI: region of interest around F.
       
+% passing rgb to gray if necessary
 if size(image,3)==3
 image = rgb2gray(image);
 end
 
+%Binarize the image
 Binary = imbinarize(image);
 BynaryInv=imcomplement(Binary);
-    
+
+% Setting Area and Perimeter expected for the F
 area=this.pixelAreaF;
 rangeArea=[area-this.deltaArea,area+this.deltaArea];
 perimeter=this.perimeterF; 
 rangePerimeter=[perimeter-this.deltaPerimeter,perimeter+this.deltaPerimeter];
 
+% Filtering by Area, perimeter and number of objects
 imageF1 = bwpropfilt(BynaryInv,'area',rangeArea);   %filter by area
 imageF2 = bwpropfilt(imageF1,'perimeter',rangePerimeter);   %filter by perimeter
 CC=bwconncomp(imageF2);
-if CC.NumObjects>1
-    imageF3=bwpropfilt(BynaryInv,'area',1);
-else
-    imageF3=imageF2;
+
+% Calculation center of mass of the F found
+prop = regionprops(imageF2,'centroid');
+q=size(prop);
+numberOfF=q(1);
+ROI=cell(numberOfF,1);
+vertex=cell(numberOfF,1);
+
+% Cutting the ROI taking the reference the centroid
+for i=1:numberOfF
+[ROI{i},vertex{i}]=this.ROIbuilder(image,prop(i).Centroid,this.ROIsize);
+end
 end
 
-prop = regionprops(imageF3,'centroid');
-
-[ROI,vertex]=this.ROIbuilder(image,prop.Centroid,this.ROIsize);
-
-end
-
-function [ROI,ver1] = ROIbuilder(this,image,center,size)
+function [ROI,ver1] = ROIbuilder(this,image,center,N)
 % 
-% ROIbuilder  generate square ROI of size N around given center. 
+% ROIbuilder  generate square ROI of size N around given center.
 %    inputs: 
 %       this: instance which calls the method
 %       image: original image to extract the ROI
 %       center: center of the desired ROI (2x1 array)   
 %    outputs:
 %       ROI: region of interest around F.
-        
-ver1=[center(1)-size/2,center(2)-size/2];
-ver2=[center(1)+size/2,center(2)-size/2];
-ver3=[center(1)+size/2,center(2)+size/2];
-ver4=[center(1)-size/2,center(2)+size/2];
 
+% passing rgb to gray if necessary and getting dimensions of the image
+if size(image,3)==3
+imageGray = rgb2gray(image);
+[m,n]=size(imageGray);
+else
+[m,n]=size(image);
+end
+
+% Locating vertex of the ROI
+ver1=[center(1)-N/2,center(2)-N/2];
+ver3=[center(1)+N/2,center(2)+N/2];
 ver1=round(ver1);
 ver3=round(ver3);
+
+% In case vertex are out of original image, going to the edge
+if ver1(1)<0, ver1(1)=0; end
+if ver1(2)<0, ver1(2)=0; end
+if ver3(1)>n, ver3(1)=n; end
+if ver3(2)>m, ver3(2)=m; end
 
 ROI=image(ver1(2):ver3(2),ver1(1):ver3(1),:);
 
 end
 
-function match = FmatchSURF(this,image)
-% 
+function Fmatch = FmatchSURF(this,image)
 % FmatchSURF  Look for F sensor fiducial into given image
 %    inputs: 
 %       this: instance which calls the method
 %       image: original image to find fiducial
 %    outputs:
-%     match: structure with next fields
+%     match: cell of structures with next fields. There will be 1 structure for each fiducial found in the image. 
 %         Center: coordenates of the center of the located template into the image. In pixels. image coordinate system.
 %         Time: time consumed
 %         Matches: number of final matches
 %         Transformation: Transformation matrix from knn matching
 %         Inliers: Inliers matches
 %         Images: Useful images of the matching
-        
+%             Image1: Matching Keypoints between query and train image. (all matches)
+%             Image2: Matching Keypoints between query and train image. (Filtered matches)
+%             Image3: Matching result over ROI
+%             Image4: Matches selected for final match
+%             Image5: Match of the current fiducial over the original image
+%             Image6: Matches of all fiducials over the original image
+
 [ROI,vertex]=this.FROIbuilder(image);
 template=imread(this.FtemplatePath);
 
+% how many F detected in image, k
+[k,l]=size(ROI);
+Fmatch=cell(k,1);
 
-match=this.matchSURF(ROI,template);
-match.Center(1)=match.Center(1)+vertex(1);
-match.Center(2)=match.Center(2)+vertex(2);
+% loop to match the Fs of the image
+for i=1:k
+match=this.matchSURF(ROI{i},template);
+match.Center(1)=match.Center(1)+vertex{i}(1);
+match.Center(2)=match.Center(2)+vertex{i}(2);
+Fmatch{i}=match;
+clearvars match
+end
+
+% loop to plot the final image (each fiducial separately)
+for i=1:k
 fig=figure('visible','off','Position', get(0, 'Screensize'));
 imshow(image);
-hold on
-plot(match.Center(1),match.Center(2), 'r+', 'MarkerSize', 30, 'LineWidth', 2);
 title('Final match','FontSize', 18);
-
+hold on
+plot(Fmatch{i}.Center(1),Fmatch{i}.Center(2), 'r+', 'MarkerSize', 30, 'LineWidth', 2);
 fig2image=getframe(fig);
 plotImage=fig2image.cdata;
+Fmatch{i}.Images{5}=plotImage;
+end
 
-match.Images{5}=plotImage;
-
+% loop to plot the final image (all fiducials)
+fig=figure('visible','off','Position', get(0, 'Screensize'));
+imshow(image);
+title('Final match','FontSize', 18);
+for i=1:k
+hold on
+plot(Fmatch{i}.Center(1),Fmatch{i}.Center(2), 'r+', 'MarkerSize', 30, 'LineWidth', 2);
+end
+fig2image=getframe(fig);
+plotImage=fig2image.cdata;
+for i=1:k
+Fmatch{i}.Images{6}=plotImage;
+end
 end
 
 function match = petalFidFinder(this,image)
-% 
 % petalFidFinder  Look for 0.3mm petal fiducial into given image (Valencia setup).
 %    inputs: 
 %       this: instance which calls the method
@@ -466,14 +548,18 @@ function match = petalFidFinder(this,image)
 %         Diameter: Diameters of circles detected. in microns.
 %         Images: Useful images of the matching.
 
+
+% Passing to gray if necessary
 if size(image,3)==3
 imageIn = rgb2gray(image);
 else
     imageIn=image;
 end
 
+% median filter to blur the image
 medianFilter=cv.medianBlur(imageIn,'KSize',this.binaryFilterKernel);
 
+% Detecting circles
 circles = cv.HoughCircles(medianFilter,'MaxRadius',0,'Param1',50,'Param2',30,'MinRadius',130*this.camCalibration,'MaxRadius',170*this.camCalibration);
 
 [m,n]=size(circles);
@@ -484,7 +570,7 @@ for i=1:n
     R(i)=circles{i}(3);
 end
 
-
+% Ploting circles found
 fig=figure('visible','off','Position', get(0, 'Screensize'));
 subplot(2,1,1)
 imshow(imageIn)
@@ -520,7 +606,6 @@ function [ROI,vertex,imagesOut] = CalibrationFiducialROIBuilder(this,image)
 %       imagesOut: useful images of the process of building the ROI.
 
 % Passing image to gray is needed
-
 if length(size(image))==3
 imageIn = rgb2gray(image);
 else
@@ -528,7 +613,6 @@ else
 end
 
 % calculating area and perimeter ranges of the circles
-
 calibration=this.camCalibration;
 NominalDiameter=this.diameter;  % nominal diameter of the fiducial circles (um)
 deltaDiameter=this.deltaDiam;    % range of threshold (um)
@@ -538,7 +622,6 @@ rangeArea=[pi*((NominalDiameter-deltaDiameter)/2*calibration)^2,pi*((NominalDiam
 rangePerimeter=[2*pi*(NominalDiameter-deltaDiameter)/2*calibration,2*pi*(NominalDiameter+deltaDiameter)/2*calibration];
 
 % binarize image and filtering by area,perimeter and circularity
-
 medianFilter=cv.medianBlur(imageIn,'KSize',this.binaryFilterKernel_calibrationPlate);
 BinaryThreshold=cv.threshold(medianFilter,'Otsu','Type','Binary','MaxValue',255);
 Binary = imbinarize(BinaryThreshold);
@@ -548,6 +631,7 @@ imageF2 = bwpropfilt(imageF1,'perimeter',rangePerimeter);
 stats = regionprops(imageF2,'Circularity');
 L = bwlabel(imageF2);
 imageF3=imageF2;
+
 % delete all the objects with circularity less than 0.8
 for i=1:length(stats)
     if stats(i).Circularity<0.8
@@ -556,13 +640,11 @@ for i=1:length(stats)
 end
 
 % output images
-
 imagesOut{1}=imageF1;
 imagesOut{2}=imageF2;
 imagesOut{3}=imageF3;
 
 % info about elements (circles) found
-
 CC=bwconncomp(imageF3);
 stats = regionprops(imageF3,'Centroid');
 % cases depending on elements number(circles) were found
@@ -624,7 +706,6 @@ kernel=this.binaryFilterKernel_calibration;
 calibration=this.camCalibration;
 
 % Passing image to gray if it is RGB
-
 if length(size(image))==3
 imageIn = rgb2gray(image);
 else
@@ -632,7 +713,6 @@ else
 end
 
 % calling ROI builder
-
 [ROI,vertex,imagesROIbuilder]=this.CalibrationFiducialROIBuilder(imageIn);
 if ROI==0
     disp('matching error, error by detecting the ROI');
@@ -641,7 +721,6 @@ return
 end
 
 % looking for circles
-
 medianFilter=cv.medianBlur(ROI,'KSize',kernel);
 circles = cv.HoughCircles(medianFilter,'MinDist',100,'Param1',100,'Param2',5,'MinRadius',10.5*calibration,'MaxRadius',12*calibration);
 [m,n]=size(circles);
@@ -693,7 +772,6 @@ for i=1:n
 end
 
 % plots of circles detected %
-
 fig1=figure('visible','off','Position', get(0, 'Screensize'));
 subplot(3,1,1)
 imshow(image)
@@ -757,22 +835,18 @@ Y0(3)=vertex{3}(2);
 Y0(4)=vertex{4}(2);
 
 % condiciones iniciales (parece que no afectan mucho a la convergencia con este solver..)
-
 cond_t0=[0.5 0.5 0 0.4];
 
 % Implemento funcion %
-
 fun = @(x)(X0(1)-(x(1)-(x(4)/sqrt(2))*cos(x(3)+pi/4)))^2+(Y0(1)-(x(2)-(x(4)/sqrt(2))*sin(x(3)+pi/4)))^2 ...
     + (X0(2)-(x(1)-(x(4)/sqrt(2))*cos(pi/4-x(3))))^2+(Y0(2)-(x(2)+(x(4)/sqrt(2))*sin(pi/4-x(3))))^2 ...
     + (X0(3)-(x(1)+(x(4)/sqrt(2))*cos(pi/4+x(3))))^2+(Y0(3)-(x(2)+(x(4)/sqrt(2))*sin(pi/4+x(3))))^2 ...
     + (X0(4)-(x(1)+(x(4)/sqrt(2))*cos(pi/4-x(3))))^2+(Y0(4)-(x(2)-(x(4)/sqrt(2))*sin(pi/4-x(3))))^2;
     
 % Fijo número de iteraciones %
-
 options = optimset('MaxFunEvals',1000);
 
 % ejecuto el solver %
-
 sol=fminsearch(fun,cond_t0,options);
 
 end
