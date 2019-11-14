@@ -20,9 +20,9 @@ end
  %% CAMERA constructor %%
  % generates instance and load properties script %
         switch setup
-            case 1
+            case 1 % Gantry Case
                 CAMERA_properties_Gantry
-            case 2
+            case 2  % OWIS case
                 CAMERA_properties_OWIS
         end
         
