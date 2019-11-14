@@ -1,7 +1,6 @@
 %% PROPERTIES FOR FIDUCIALS CLASS: GANTRY SETUP %%
 
-% this script generate the .mat file with all the properties needed for the FIDUCIALS class for the case of the Gantry. The class will load the .mat file in the
-% constructor
+% this script generate the properties needed for the FIDUCIALS class for the Gantry Setup. It is launched in the constructor of the class. 
 
 % matchSURF
 
