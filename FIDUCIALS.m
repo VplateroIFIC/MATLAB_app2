@@ -118,6 +118,109 @@ this.binaryFilterKernel_calibration=binaryFilterKernel_calibration;
 
         end
      
+        
+function mytest = test(this)
+%image = imread("hybrid_circle_fid_1.png");
+%image = imresize(image, 0.1);
+image = imread("detectcirclesexample_01_es.png");
+%imshow(image);
+%imshow(image);
+
+%botHatImage = imbothat(image, true(15)); % Whatever value works for you.
+% imshow(botHatImage, []);
+% topHatImage = imtophat(image, true(5)); % Whatever value works for you.
+% imshow(topHatImage, []);
+% regMaxImage = imregionalmax(image);
+% imshow(regMaxImage, []);
+% regMinImage = imregionalmin(image);
+% imshow(regMinImage, []);
+
+% d = imdistline;
+
+image = rgb2gray(image);
+% imshow(image2);
+%image = imsharpen(image,'Radius',10,'Amount',10);
+%image2 = cv.medianBlur(botHatImage);
+% imshow(imagen2);
+% imshowpair(botHatImage,image2,'montage');
+
+level = graythresh(image)
+BW = imbinarize(image,level);
+% BW = imbinarize(image,'adaptive','ForegroundPolarity','bright','Sensitivity',0.2);
+% BW = imbinarize(image,'adaptive','ForegroundPolarity','dark','Sensitivity',0.3);
+%imshowpair(image2,BW,'montage');
+% imshow(BW)
+
+[centers,radii] = imfindcircles(BW,[20 25],'ObjectPolarity','bright','Sensitivity',0.95)
+imshow(BW)
+h = viscircles(centers,radii);
+
+
+
+
+%J = imnoise(image2,'gaussian');
+%J = imnoise(image,'gaussian',m);
+%J = imnoise(image,'gaussian',m,var_gauss);
+%J = imnoise(image,'localvar',var_local);
+%J = imnoise(image,'localvar',intensity_map,var_local);
+%J = imnoise(image,'poisson');
+%J = imnoise(image,'salt & pepper');
+%J = imnoise(BW,'salt & pepper',0.02);
+%J = imnoise(image,'speckle');
+%J = imnoise(image,'speckle',var_speckle);    
+% imshow(J);
+
+%Kaverage = filter2(fspecial('average',3),J)/255;
+%%imshowpair(J,Kaverage,'montage');
+%Kmedian = medfilt2(J);
+%imshowpair(BW,Kmedian,'montage')
+
+
+
+
+
+
+%b = imsharpen(imageB,'Radius',2,'Amount',1);
+%imshowpair(imageB,b,'montage');
+
+
+% I = gpuArray(imread('hybrid_circle_fid_1.png'));
+%Iblur = imgaussfilt(image, 2);
+%imshowpair(image,Iblur,'montage');
+
+
+%meanIntensity = mean(image(:));
+%image_binary = image > meanIntensity;
+%imshow(image_binary);
+
+
+%level = graythresh(image)
+
+% threshold the image to reveal light regions in the blurred image
+%% thresh = cv.threshold(image);
+%BW = imbinarize(image,level);
+%imshowpair(image,BW,'montage');
+%imshow(image);
+%%d = imdistline;
+
+%[centers,radii] = imfindcircles(image,[270 280],'ObjectPolarity','dark','Sensitivity',0.98)
+%imshow(image)
+%h = viscircles(centers,radii);
+
+%circles = cv.HoughCircles(BW,'MaxRadius',0,'Param1',50,'Param2',30,'MinRadius',80*this.camCalibration,'MaxRadius',120*this.camCalibration);
+
+%[m,n]=size(circles);
+
+%for i=1:n
+%    X(i)=circles{i}(1);
+%    Y(i)=circles{i}(2);
+%    R(i)=circles{i}(3);
+%end
+
+end        
+        
+        
+        
         function match = matchSURF(this,imageIn,tempIn)
 % matchSURF match template on given image using SURF method
 % this method and submethods work with opencv lib. mexopencv folder and subfolders have to be added to the path
@@ -180,7 +283,7 @@ images{1} = cv.drawMatches(preparedROI, keypointsROI, preparedTemp, keypointsTem
 % applying size filter and ratio filter to remove bad matches %
 ratio=this.filter_ratio;
 sizeThreshold=this.filter_size;
-betterMatches= this.ratioTest(matches12,keypointsROI,keypointsTemp,sizeThreshold,ratio);
+betterMatches= this.ratios(matches12,keypointsROI,keypointsTemp,sizeThreshold,ratio);
 
 % Bulding the final keypoints vectors (scene and object) %
 objeto=cell(1,length(betterMatches));
