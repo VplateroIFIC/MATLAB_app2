@@ -19,8 +19,9 @@ classdef OWIS_STAGES
         mov_state_X=0;
         mov_state_Y=0;
         mov_state_Z=0;
-        
+    end        
 %         Connection properties
+    properties (Constant, Access = private)
         Interface = 0;      % 0-> ComPort or USB; 1-> NET
         nComPort=int32(3);  % 0(COM0), 1(COM1), ... 255(COM255), default: 1
         Baud = 9600;        % 9600,19200,38400,57600,115200, default: 9600
@@ -33,7 +34,7 @@ classdef OWIS_STAGES
         dDistance=10.0;
     end
     
-    properties (Constant)
+    properties (Constant, Access = private)
         Index = 1;    %// PS-90 INDEX    %search for reference switch and release switch
         xAxis = 1.;
         yAxis = 2.;
@@ -236,9 +237,11 @@ end
                     disp ('Loading PS90 library')
                     loadlibrary('ps90','ps90.h')
                 end
-                if calllib('ps90', 'PS90_Connect', this.Index, this.Interface, this.nComPort, this.Baud, this.Handshake, this.Parity, this.dataBits, this.stopBits) ~= 0 
+                error = calllib('ps90', 'PS90_Connect', this.Index, this.Interface, this.nComPort, this.Baud, this.Handshake, this.Parity, this.dataBits, this.stopBits) ~= 0
+                if  error == 0
                     disp('Connected');
                     this.IsConnected = true;
+                else this.showError(error)
                 end
             
 %                     //X Axis : 1//
@@ -532,7 +535,7 @@ end
         
         %% Disconnect  Pablo%%      
         function this = Disconnect(this)
-            if this.IsConnected  ~= 0
+            if this.IsConnected  == 0
                 disp ('Already disconnected. Nothing to do.');
                 return
             end
@@ -540,6 +543,7 @@ end
                 error = calllib ('ps90', 'PS90_MotorOff', this.Index, this.xAxis);
                 if error == 0
                     this.X_stage_on=false;
+                    disp ('X motor disconnected');
                 else 
                 disp ('Error in PS90_MotorOff X Axis ');
                 this.showError (error);
@@ -549,6 +553,7 @@ end
                 error = calllib ('ps90', 'PS90_MotorOff', this.Index, this.yAxis);
                 if error == 0
                     this.Y_stage_on=false;
+                    disp ('X motor disconnected');
                 else 
                 disp ('Error in PS90_MotorOff Y Axis ');
                 this.showError (error);
@@ -558,14 +563,15 @@ end
                 error = calllib ('ps90', 'PS90_MotorOff', this.Index, this.zAxis);
                 if error == 0
                     this.Z_stage_on=false;
+                    disp ('X motor disconnected');
                 else 
                 disp ('Error in PS90_MotorOff Z Axis ');
                 this.showError (error);
                 end
             end
              error = calllib ('ps90', 'PS90_Disconnect', this.Index);
-             this.showError (error);
-   
+             this.IsConnected  = 0;
+             this.showError (error);   
         end
         
         function showError (this, error)
@@ -609,6 +615,11 @@ end
         % function  MoveTo(this,axis,target,velocity)
         % Arguments: object ALIO (this), axis int, target double, velocity double%
         % Returns: none % 
+        
+        calllib('ps90','PS90_MotorInit', cosa.Index, cosa.yAxis);
+        calllib ('ps90', 'PS90_MoveEx', cosa.Index, cosa.xAxis, -30, 1)
+        xPos = calllib ('ps90', 'PS90_GetPosition', cosa.Index, cosa.xAxis);
+        
 
         if this.IsConnected == 0
             disp('Not connected');
