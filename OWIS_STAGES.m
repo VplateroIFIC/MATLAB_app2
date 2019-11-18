@@ -15,10 +15,6 @@ classdef OWIS_STAGES
          move_state_X=0;
          move_state_Y=0;
          move_state_Z=0;
-%         int properties
-        mov_state_X=0;
-        mov_state_Y=0;
-        mov_state_Z=0;
     end        
 %         Connection properties
     properties (Constant, Access = private)
@@ -91,7 +87,9 @@ classdef OWIS_STAGES
     end
     
     properties (Access = private)
-        
+        Xpos = 0;
+        Ypos = 0;
+        Zpos = 0;
     end
     
     methods
