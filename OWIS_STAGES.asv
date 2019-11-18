@@ -563,9 +563,8 @@ end
                 this.showError (error);
                 end
             end
-             error = calllib ('ps90', 'PS90_Disconnect', this.Index);
-             this.showError (error);
-   
+            calllib ('ps90', 'PS90_Disconnect', this.Index, this.yAxis)
+            PS90_Disconnect(1)
         end
         
         function showError (this, error)
@@ -580,7 +579,6 @@ end
                     disp ('Syntax error');
             end
         end
-        
         %% Disconnect  %%
         
 %         function  this = Disconnect(this)
