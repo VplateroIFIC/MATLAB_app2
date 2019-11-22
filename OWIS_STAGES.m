@@ -29,6 +29,7 @@ classdef OWIS_STAGES
         dPosF=30000.0;
         dDistance=10.0;
     end
+%         General properties for our OWIS controller
     
     properties (Constant, Access = private)
         Index = 1;    %// PS-90 INDEX    %search for reference switch and release switch
@@ -90,21 +91,27 @@ classdef OWIS_STAGES
         Xpos = 0;
         Ypos = 0;
         Zpos = 0;
+        AxisState = [ 'off' 'off' 'off' ];
+        
     end
     
     methods
-                
-%       function this = Connect(this, timer, SIGNAL(timeout()), SLOT(updatePositions_X()))
-%        end
-        
-%         function this = initialize (this, AXIS)
-%             X_stage_init = true;
-%             X_stage_on = true;
-%             
-% 
-%             
-%         end
+                %% Connect  %%
 
+function this = Connect (this)
+    if libisloaded('ps90')
+        disp ('PS90 library is already loaded')
+    else
+        disp ('Loading PS90 library')
+        loadlibrary('ps90','ps90.h')
+    end
+    error = calllib('ps90', 'PS90_Connect', this.Index, this.Interface, this.nComPort, this.Baud, this.Handshake, this.Parity, this.dataBits, this.stopBits) ~= 0
+    if  error == 0
+        disp('Connected');
+        this.IsConnected = true;
+        else this.showError(error)
+    end    
+end
 
                 %% Connect  %%
 function OWISobj = ps90tool( in1, in2, in3, in4 )
@@ -225,7 +232,7 @@ function showErrors (this)
 %             end
 end    
 
-                %% Initialize  Pablo%%
+                %% Initialize %%
         
             function this = INIT(this)
                 
@@ -235,16 +242,14 @@ end
                     disp ('Loading PS90 library')
                     loadlibrary('ps90','ps90.h')
                 end
-                error = calllib('ps90', 'PS90_Connect', this.Index, this.Interface, this.nComPort, this.Baud, this.Handshake, this.Parity, this.dataBits, this.stopBits) ~= 0
-                if  error == 0
-                    disp('Connected');
-                    this.IsConnected = true;
-                else this.showError(error)
+                
+                if  this.IsConnected == true
+                    disp('Already Connected');
+                else 
+                    this.Connect(this);
                 end
             
 %                     //X Axis : 1//
-
-%       calllib('ps90',PS90_SetMotorType, this.Index, this.xAxis, this.motor_type(1))
 
 %        if PS90_SetMotorType(Index,xAxis, this.motor_type[0]) ~= 0
 %        error = calllib('ps90', 'PS90_SetMotorType', this.Index, xAxis, motor_type(1));
@@ -333,13 +338,12 @@ end
             disp('Error in PS90_SetRefSwitch X Axis');
         end
 
-
-        value = calllib('ps90', 'PS90_GetPositionEx', this.Index, this.xAxis);
+        this.Xpos = calllib('ps90', 'PS90_GetPositionEx', this.Index, this.xAxis);
         if (calllib('ps90', 'PS90_GetReadError', this.Index) ~= 0 )
             disp('Error in PS90_GetPositionEx X Axis');
         end
         disp('X_possition: ');
-        disp(value);
+        disp(this.Xpos);
         
 %         //Y Axis : 2//
  
@@ -428,12 +432,12 @@ end
             disp('Error in PS90_SetRefSwitch Y Axis');
         end
 
-        value = calllib('ps90', 'PS90_GetPositionEx', this.Index, this.yAxis);
+        this.Ypos = calllib('ps90', 'PS90_GetPositionEx', this.Index, this.yAxis);
         if (calllib('ps90', 'PS90_GetReadError', this.Index) ~= 0 )
             disp('Error in PS90_GetPositionEx Y Axis');
         end
          disp('Y_possition: ');
-         disp(value);
+         disp(this.Ypos);
 
 %         //Z Axis : 3//
 
@@ -522,16 +526,16 @@ end
             disp('Error in PS90_SetRefSwitch Z Axis');
         end
 
-        value = calllib ('ps90', 'PS90_GetPositionEx', this.Index, this.zAxis);
+        this.Zpos = calllib ('ps90', 'PS90_GetPositionEx', this.Index, this.zAxis);
         if (calllib('ps90', 'PS90_GetReadError', this.Index) ~= 0 )
             disp('Error in PS90_GetPositionEx Z Axis');
         else
             disp('Z_possition: ');
-            disp(value);
+            disp(this.Zpos);
         end
             end
         
-        %% Disconnect  Pablo%%      
+        %% Disconnect%%      
         function this = Disconnect(this)
             if this.IsConnected  == 0
                 disp ('Already disconnected. Nothing to do.');
@@ -642,6 +646,51 @@ end
             end  
         end        
         
+                   %% MoveBy %% Relative movement %%
+       
+        function  MoveBy(this,axis,delta,velocity)
+        % function  MoveBy(this,axis,delta,velocity)
+        % Arguments: object ALIO (this), axis int, delta double, velocity double%
+        % Returns: none % 
+        
+        if this.AxisState(axis) == 'Off'
+            disp ('Activating motor');
+            error = calllib('ps90','PS90_MotorInit', this.Index, axis);
+            if error ~= 0
+                disp (showError(error);
+            else 
+                this.AxisState(axis) = 'On';
+                calllib ('ps90', 'PS90_MoveEx', this.Index, axis, delta, 1)
+            end
+        end
+             
+        
+        calllib('ps90','PS90_MotorInit', cosa.Index, cosa.yAxis);
+        calllib ('ps90', 'PS90_MoveEx', cosa.Index, cosa.xAxis, -30, 1)
+        xPos = calllib ('ps90', 'PS90_GetPosition', cosa.Index, cosa.xAxis);
+             switch this.GantryType
+                case 0
+                   %insert here MoveBy with AEROTECH gantry % 
+                case 1
+            switch axis
+               case 0
+                 SetVelocity(this.GantryObj,this.xAxis,velocity); 
+                 ToPoint(this.GantryObj,this.Relative,this.xAxis,delta);
+               case 1
+                 SetVelocity(this.GantryObj,this.yAxis,velocity);  
+                 ToPoint(this.GantryObj,this.Relative,this.yAxis,delta);
+               case 4
+                 SetVelocity(this.GantryObj,this.z1Axis,velocity);  
+                 ToPoint(this.GantryObj,this.Relative,this.z1Axis,delta);  
+               case 5
+                 SetVelocity(this.GantryObj,this.z2Axis,velocity);  
+                 ToPoint(this.GantryObj,this.Relative,this.z2Axis,delta);   
+               case 6
+                 SetVelocity(this.GantryObj,this.uAxis,velocity);  
+                 ToPoint(this.GantryObj,this.Relative,this.uAxis,delta);
+             end  
+            end
+        end
         
     end
 end
