@@ -1,6 +1,9 @@
+
 classdef OWIS_STAGES
     %OWIS_STAGES Summary of this class goes here
     %   Detailed explanation goes here
+    
+    
     
     properties (Access = public)
 %         bool properties
@@ -30,12 +33,13 @@ classdef OWIS_STAGES
         dDistance=10.0;
     end
 %         General properties for our OWIS controller
-    
+
     properties (Constant, Access = private)
         Index = 1;    %// PS-90 INDEX    %search for reference switch and release switch
         xAxis = 1.;
         yAxis = 2.;
         zAxis = 3.;
+%         axis = {this.xAxis,this.yAxis,this.zAxis};      %Translating controller axis to our own axis num.
         relative = 0;
         absolute = 1;
         motor_type = [0.,0.,0.];
@@ -50,7 +54,7 @@ classdef OWIS_STAGES
         DTime  = [0,0,0];
         ILimit  = [5000000,5000000,5000000];
         target_window  = [500,500,500];
-        pos_mode  = [0,0,0];
+        in_pos_mode  = [0,0,0];                         % 0-> target position; 1-> Windows arround target position
         current_level  = [1,0,0];
         pitch  = [5.0,2.0,1.0];
         increments_per_rev  = [50000,20000,10000];
@@ -91,9 +95,14 @@ classdef OWIS_STAGES
         Xpos = 0;
         Ypos = 0;
         Zpos = 0;
-        AxisState = [ 'off' 'off' 'off' ];
-        
+        AxisName = ['x','y','z'];
+        Position = [ 0, 0, 0];
+        AxisState = [ 'Off' 'Off' 'Off' ];  % On, Off, Moving
+        PosMode = [ 0, 0, 0];               % 0-> Trapezoidal profile;  1-> S-curve
+        TargetMode = [ 0, 0, 0];            % 0-> Relative positioning;  1-> Absolute positioning
     end
+    
+
     
     methods
                 %% Connect  %%
@@ -289,7 +298,7 @@ end
         if (calllib('ps90', 'PS90_SetTargetWindow', this.Index, this.xAxis, this.target_window(1)) ~= 0 )
             disp('Error in PS90_SetTargetWindow X Axis');
         end
-        if (calllib('ps90', 'PS90_SetInPosMode', this.Index, this.xAxis, this.pos_mode(1)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetInPosMode', this.Index, this.xAxis, this.in_pos_mode(1)) ~= 0 )
             disp('Error in PS90_SetInPosMode X Axis');
         end
         if (calllib('ps90', 'PS90_SetCurrentLevel', this.Index, this.xAxis, this.current_level(1)) ~= 0 )
@@ -383,7 +392,7 @@ end
         if (calllib('ps90', 'PS90_SetTargetWindow', this.Index, this.yAxis, this.target_window(2)) ~= 0 )
             disp('Error in PS90_SetTargetWindow Y Axis');
         end
-        if (calllib('ps90', 'PS90_SetInPosMode', this.Index, this.yAxis, this.pos_mode(2)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetInPosMode', this.Index, this.yAxis, this.in_pos_mode(2)) ~= 0 )
             disp('Error in PS90_SetInPosMode Y Axis');
         end
         if (calllib('ps90', 'PS90_SetCurrentLevel', this.Index, this.yAxis, this.current_level(2)) ~= 0 )
@@ -477,7 +486,7 @@ end
         if (calllib('ps90', 'PS90_SetTargetWindow', this.Index, this.zAxis, this.target_window(3)) ~= 0 )
             disp('Error in PS90_SetTargetWindow Z Axis');
         end
-        if (calllib('ps90', 'PS90_SetInPosMode', this.Index, this.zAxis, this.pos_mode(3)) ~= 0 )
+        if (calllib('ps90', 'PS90_SetInPosMode', this.Index, this.zAxis, this.in_pos_mode(3)) ~= 0 )
             disp('Error in PS90_SetInPosMode Z Axis');
         end
         if (calllib('ps90', 'PS90_SetCurrentLevel', this.Index, this.zAxis, this.current_level(3)) ~= 0 )
@@ -652,15 +661,28 @@ end
         % function  MoveBy(this,axis,delta,velocity)
         % Arguments: object ALIO (this), axis int, delta double, velocity double%
         % Returns: none % 
+                
+        fprintf('Current %s position: %6.4f', this.AxisName, this.Position);
+        fprintf('Current X position: %6.4f', this.Xpos);
+        fprintf('Current Y position: %6.4f', this.Ypos);
+        fprintf('Current Z position: %6.4f', this.Zpos);
+        error = calllib('ps90','PS90_MotorInit', this.Index, axis);
+        
+        for i=1:3
+            
+        end
         
         if this.AxisState(axis) == 'Off'
             disp ('Activating motor');
             error = calllib('ps90','PS90_MotorInit', this.Index, axis);
             if error ~= 0
-                disp (showError(error);
+                disp (showError(error));
             else 
-                this.AxisState(axis) = 'On';
-                calllib ('ps90', 'PS90_MoveEx', this.Index, axis, delta, 1)
+                error = calllib ('ps90', 'PS90_MoveEx', this.Index, axis, delta, 1);
+                if error ~= 0
+                else
+                    this.AxisState(axis) = 'On';
+                end
             end
         end
              
