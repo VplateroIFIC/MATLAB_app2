@@ -627,11 +627,8 @@ classdef OWIS_STAGES
             % Arguments: object ALIO (this), axis int, target double, velocity double%
             % Returns: none %
             
-            calllib('ps90','PS90_MotorInit', cosa.Index, cosa.yAxis);
-            calllib ('ps90', 'PS90_MoveEx', cosa.Index, cosa.xAxis, -30, 1)
-            xPos = calllib ('ps90', 'PS90_GetPositionEx', cosa.Index, cosa.xAxis);
-            
-            
+            this.TargetMode(axis) = this.absolute;
+
             if this.IsConnected == 0
                 disp('Not connected');
                 return
