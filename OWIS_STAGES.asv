@@ -589,13 +589,13 @@ classdef OWIS_STAGES
         function showError (this, error)
             switch error
                 case 0
-                    disp ('Function was successful');
+                    fprintf('OK\n');
                 case -1
-                    disp ('Function error');
+                    fprintf('Function error\n');
                 case -2
-                    disp ('Communication error');
+                    fprintf('Communication error\n');
                 case -3
-                    disp ('Syntax error');
+                    fprintf('Syntax error\n');
             end
         end
         
@@ -696,10 +696,12 @@ classdef OWIS_STAGES
                 if error == 0           %There are no error in all axis
                     fprintf('OK\n');
                     this.Position(axis) = this.GetPosition(i);
+                    error = (calllib('ps90','PS90_GetReadError' , this.Index));   %%Check error in reading position
+                    showError1 (error);
                 else 
                     fprintf('Error %s \n', error);
                 end
-                this.MotorEnableAll.
+                this.MotorEnableAll;
             end
         end
         %% MotorEnableS %% Enable all motors
@@ -724,9 +726,9 @@ classdef OWIS_STAGES
                 disp ('No connection stablished');
                 return
             end
-            
+            this.pos_vel(axis) = velocity;
             this.TargetMode(axis) = this.relative;
-            
+            error = (calllib('ps90', 'PS90_SetPosFEx', this.Index, this.xAxis, this.pos_vel(axis)) ~= 0 )
             
             %         fprintf('Current %s position: %6.4f\n', this.AxisName, this.Position);
             %         fprintf('Current X position: %6.4f\n', this.Xpos);
