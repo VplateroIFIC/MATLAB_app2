@@ -39,13 +39,13 @@ classdef OWIS_STAGES
         xAxis = 1.;
         yAxis = 2.;
         zAxis = 3.;
-        %         axis = {this.xAxis,this.yAxis,this.zAxis};      %Translating controller axis to our own axis num.
+        Axis = [this.xAxis,this.yAxis,this.zAxis];
         relative = 0;
         absolute = 1;
         motor_type = [0.,0.,0.];
-        limit_switch = [15,15,7];
+        limit_switch = [15,15,7];           %Z_Min_SW_STOP fails
         limit_switch_mode  = [15,15,15];
-        ref_switch  = [2,2,2];
+        ref_switch  = [2,2,2];              % 2-> Reference SW is MINDEC
         ref_switch_mode  = [15,15,15];
         sample_time  = [256,256,256];
         KP  = [25,30,30];
@@ -82,9 +82,9 @@ classdef OWIS_STAGES
         maxdec=4;
         maxstp=8;
         max=12;
-        ref_switch_x=2;
-        ref_switch_y=2;
-        ref_switch_z=2;
+%         ref_switch_x=2;
+%         ref_switch_y=2;
+%         ref_switch_z=2;
         
         goRefMode = [0,1,2,3,4,5,6,7];
         
@@ -95,7 +95,7 @@ classdef OWIS_STAGES
         Xpos = 0;
         Ypos = 0;
         Zpos = 0;
-        AxisName = ['x';'y';'z'];
+        AxisName = ['X_axis';'Y_axis';'Z_axis'];
         Position = [ 0, 0, 0];
         %         AxisState = [ ['Off']; ['Off']; ['Off'] ];  % On, Off, Moving
         AxisState = [ 0, 0, 0]
@@ -118,7 +118,8 @@ classdef OWIS_STAGES
             if  error == 0
                 disp('Connected');
                 this.IsConnected = true;
-            else this.showError(error)
+            else
+                this.showError(error)
             end
         end
         
@@ -243,7 +244,7 @@ classdef OWIS_STAGES
         
         %% Initialize %%
         
-        function this = INIT(this)
+        function this = INIT_old(this)
             
             if libisloaded('ps90')
                 disp ('PS90 library is already loaded')
@@ -255,7 +256,7 @@ classdef OWIS_STAGES
             if  this.IsConnected == true
                 disp('Already Connected');
             else
-                this.Connect;
+                this = this.Connect;
             end
             
             %                     //X Axis : 1//
@@ -598,29 +599,7 @@ classdef OWIS_STAGES
             end
         end
         
-        %% Disconnect  %%
-        
-        %         function  this = Disconnect(this)
-        %         % function  this = Disconnect(this)
-        %         % Arguments: object STAGES %
-        %         % Returns: none %
-        %
-        %         Disconnect(this.OWISobj)
-        %         Connect(this.OWISobj)
-        %
-        %             switch this.GantryType
-        %                 case 0
-        %                 A3200Disconnect(this.OWISObj);
-        %                 this.IsConnected=0;
-        %                 disp('Stages disconnected');
-        %                 case 1
-        %                 CloseComm(this.GantryObj);
-        %                 this.IsConnected=0;
-        %                 disp('Stages disconnected');
-        %             end
-        %         end
-        %
-        %
+    
         %% MoveTo %% Absolute movements %%
         function  MoveTo(this,axis,target,velocity)
             % function  MoveTo(this,axis,target,velocity)
@@ -628,7 +607,7 @@ classdef OWIS_STAGES
             % Returns: none %
             
             this.TargetMode(axis) = this.absolute;
-
+            
             if this.IsConnected == 0
                 disp('Not connected');
                 return
@@ -651,6 +630,88 @@ classdef OWIS_STAGES
                     ToPoint(this.Absolute,this.uAxis,target);
             end
         end
+        %% Getposition %%
+        function  value = GetPosition(this,axis)
+            % function  value = GetPosition(this,axis)
+            % Arguments: object STAGES (this),axis int ()%
+            % Returns: double %
+            value = calllib ('ps90', 'PS90_GetPositionEx', this.Index, axis);
+            error = (calllib('ps90','PS90_GetReadError' , this.Index));
+            if error ~= 0
+                fprintf('Error reading %s position: %d\n', this.AxisName(axis), error);
+                return
+            else
+                fprintf('Current %s position: %3.3f\n', this.AxisName(axis), this.Position(axis));
+            end
+            fprintf('Current %s position: %3.3f\n', this.AxisName(axis), this.Position(axis));
+            this.Position(axis) = value;
+            return
+        end
+        
+        %% Initialization %%
+        function this = INIT(this)
+            if libisloaded('ps90')
+                disp ('PS90 library is already loaded')
+            else
+                disp ('Loading PS90 library')
+                loadlibrary('ps90','ps90.h')
+            end  
+            if  this.IsConnected == true
+                disp('Already Connected');
+            else
+                this.Connect;
+                this.IsConnected = true;
+            end
+            
+            for i=1:3
+                fprintf('Setting %s --> ', this.AxisName)
+                error = calllib('ps90', 'PS90_SetMotorType', this.Index, this.Axis(i), this.motor_type(i));
+                error = error + calllib('ps90', 'PS90_SetLimitSwitch', this.Index, this.Axis(i),this.limit_switch(i));
+                error = error + calllib('ps90', 'PS90_SetLimitSwitchMode', this.Index, this.Axis(i),this.limit_switch_mode(i));
+                error = error + calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axis(i), this.ref_switch(i));
+                error = error + calllib('ps90', 'PS90_SetRefSwitchMode', this.Index, this.Axis(i), this.ref_switch_mode(i));
+                error = error + calllib('ps90', 'PS90_SetSampleTime', this.Index, this.Axis(i), this.sample_time(i));
+                error = error + calllib('ps90', 'PS90_SetKP', this.Index, this.Axis(i), this.KP(i));
+                error = error + calllib('ps90', 'PS90_SetKI', this.Index, this.Axis(i), this.KI(i));
+                error = error + calllib('ps90', 'PS90_SetKD', this.Index, this.Axis(i), this.KD(i));
+                error = error + calllib('ps90', 'PS90_SetDTime', this.Index, this.Axis(i), this.DTime(i));
+                error = error + calllib('ps90', 'PS90_SetILimit', this.Index, this.Axis(i), this.ILimit(i));
+                error = error + calllib('ps90', 'PS90_SetTargetWindow', this.Index, this.Axis(i), this.target_window(i));
+                error = error + calllib('ps90', 'PS90_SetInPosMode', this.Index, this.Axis(i), this.in_pos_mode(i));                
+                error = error + calllib('ps90', 'PS90_SetCurrentLevel', this.Index, this.Axis(i), this.current_level(i));                
+                error = error + calllib('ps90', 'PS90_SetStageAttributes', this.Index, this.Axis(i), this.pitch(1), this.increments_per_rev(1), this.gear_reduction_ratio(i));                
+                error = error + calllib('ps90', 'PS90_SetCalcResol', this.Index, this.Axis(i), this.res_motor(i));                
+                error = error + calllib('ps90', 'PS90_SetMsysResol', this.Index, this.Axis(i), this.lin_res(i));                
+                error = error + calllib('ps90', 'PS90_SetTargetMode', this.Index, this.Axis(i), this.ini_target_mode(i));                
+                error = error + calllib('ps90', 'PS90_SetAccelEx', this.Index, this.Axis(i), this.acc(i));                
+                error = error + calllib('ps90', 'PS90_SetDecelEx', this.Index, this.Axis(i), this.dacc(i));               
+                error = error + calllib('ps90', 'PS90_SetJerk', this.Index, this.Axis(i), this.jacc(i));
+                error = error + calllib('ps90', 'PS90_SetRefDecelEx', this.Index, this.Axis(i), this.ref_dacc(i));
+                error = error + calllib('ps90', 'PS90_SetVel', this.Index, this.Axis(i), this.vel(i));
+                error = error + calllib('ps90', 'PS90_SetPosFEx', this.Index, this.Axis(i), this.pos_vel(i));
+                error = error + calllib('ps90', 'PS90_SetSlowRefFEx', this.Index, this.Axis(i), this.ref_vel_slow(i));
+                error = error + calllib('ps90', 'PS90_SetFastRefFEx', this.Index, this.Axis(i), this.ref_vel_fast(i));    
+                error = error + calllib('ps90', 'PS90_SetFreeVel', this.Index, this.Axis(i), this.free_vel(i));
+                error = error + calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axis(i), this.ref_switch(i)) ~= 0 )
+                if error == 0           %There are no error in all axis
+                    fprintf('OK\n');
+                    this.Position(axis) = this.GetPosition(i);
+                else 
+                    fprintf('Error %s \n', error);
+                end
+                this.MotorEnableAll;
+            end
+        end
+        %% MotorEnableS %% Enable all motors
+
+        function MotorEnableAll(this)
+            for i=1:3
+                error = calllib('ps90','PS90_MotorInit', this.Index, axis(i));
+                if errr ~= 0
+                fprintf('Error Activating Motor: %s \n', this.AxisName(i));
+                end
+            end
+        end
         
         %% MoveBy %% Relative movement %%
         
@@ -658,6 +719,11 @@ classdef OWIS_STAGES
             % function  MoveBy(this,axis,delta,velocity)
             % Arguments: object ALIO (this), axis int, delta double, velocity double%
             % Returns: none %
+            
+            if this.IsConnected == 0
+                disp ('No connection stablished');
+                return
+            end
             
             this.TargetMode(axis) = this.relative;
             
@@ -668,10 +734,10 @@ classdef OWIS_STAGES
             %         fprintf('Current Z position: %6.4f\n', this.Zpos);
             
             for i=1:3
-                fprintf('Initial %s position: %3.3fmm', this.AxisName(i), this.Position(i));
+                fprintf('Initial %s position: %3.3fmm\n', this.AxisName(i), this.Position(i));
                 calllib('ps90','PS90_SetPosMode', this.Index, axis, this.PosMode(i));
-                if this.AxisState(i) == 'Off'
-                    disp ('Activating motor');
+                if this.AxisState(i) == 0
+                    disp ('Activating motor'\n);
                     error = calllib('ps90','PS90_MotorInit', this.Index, axis);
                 end
             end
