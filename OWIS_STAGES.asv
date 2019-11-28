@@ -82,9 +82,9 @@ classdef OWIS_STAGES
         maxdec=4;
         maxstp=8;
         max=12;
-%         ref_switch_x=2;
-%         ref_switch_y=2;
-%         ref_switch_z=2;
+        %         ref_switch_x=2;
+        %         ref_switch_y=2;
+        %         ref_switch_z=2;
         
         goRefMode = [0,1,2,3,4,5,6,7];
         
@@ -589,21 +589,66 @@ classdef OWIS_STAGES
         function showError (this, error)
             switch error
                 case 0
-                    fprintf('OK\n');
+                    fprintf(' OK\n');
                 case -1
-                    fprintf('Function error\n');
+                    fprintf(' Function error\n');
                 case -2
-                    fprintf('Communication error\n');
+                    fprintf(' Communication error\n');
                 case -3
-                    fprintf('Syntax error\n');
+                    fprintf(' Syntax error\n');
             end
         end
+
+        %% MotionStop %%
+        function  MotionStop(this,axis)
+            %function  MotionAbort(this,axis)
+            % stop motion with full decceleration profile
+            % Arguments: object OWIS (this),int Axis%
+            % Returns: none %
+            
+            error = (calllib('ps90', 'PS90_Stop', this.Index, axis);
+            fprintf(' Stopping %s movement -> ', axis);           
+            this.ShowError(error);
+        end
         
-    
+        
+        %% MotionStopAll %% All Axis %%
+        function  MotionStopAll(this)
+            %function  MotionStopAll(this)
+            % stop motion with full decceleration profile in ALL axis
+            % Arguments: object OWIS (this)%
+            % Returns: none %
+            
+            for i=1:3
+                this.MotionStop(this,this.Axis(i));
+                error = (calllib('ps90', 'PS90_Stop', this.Index, axis);
+                this.showError(error);
+            end
+%             error = (calllib('ps90', 'PS90_MultiStop', this.Index, axis);
+ 
+        end
+        
+        %% MotionAbort %%
+        function  MotionAbort(this,axis)
+            %function  MotionAbort(this,axis)
+            % stop motion with reduced decceleration profile
+            % Arguments: object OWIS (this),array int Axes%
+            % Returns: none %
+            
+            n=length(axis);
+            if n>1
+            KillAll(this.GantryObj);
+            else
+                Kill(this,axis);
+            end
+            
+        end
+        
         %% MoveTo %% Absolute movements %%
+        
         function  MoveTo(this,axis,target,velocity)
             % function  MoveTo(this,axis,target,velocity)
-            % Arguments: object ALIO (this), axis int, target double, velocity double%
+            % Arguments: object OWIS (this), axis int, target double, velocity double%
             % Returns: none %
             
             this.TargetMode(axis) = this.absolute;
@@ -631,6 +676,7 @@ classdef OWIS_STAGES
             end
         end
         %% Getposition %%
+        
         function  value = GetPosition(this,axis)
             % function  value = GetPosition(this,axis)
             % Arguments: object STAGES (this),axis int ()%
@@ -655,7 +701,7 @@ classdef OWIS_STAGES
             else
                 disp ('Loading PS90 library')
                 loadlibrary('ps90','ps90.h')
-            end  
+            end
             if  this.IsConnected == true
                 disp('Already Connected');
             else
@@ -677,20 +723,20 @@ classdef OWIS_STAGES
                 error = error + calllib('ps90', 'PS90_SetDTime', this.Index, this.Axis(i), this.DTime(i));
                 error = error + calllib('ps90', 'PS90_SetILimit', this.Index, this.Axis(i), this.ILimit(i));
                 error = error + calllib('ps90', 'PS90_SetTargetWindow', this.Index, this.Axis(i), this.target_window(i));
-                error = error + calllib('ps90', 'PS90_SetInPosMode', this.Index, this.Axis(i), this.in_pos_mode(i));                
-                error = error + calllib('ps90', 'PS90_SetCurrentLevel', this.Index, this.Axis(i), this.current_level(i));                
-                error = error + calllib('ps90', 'PS90_SetStageAttributes', this.Index, this.Axis(i), this.pitch(1), this.increments_per_rev(1), this.gear_reduction_ratio(i));                
-                error = error + calllib('ps90', 'PS90_SetCalcResol', this.Index, this.Axis(i), this.res_motor(i));                
-                error = error + calllib('ps90', 'PS90_SetMsysResol', this.Index, this.Axis(i), this.lin_res(i));                
-                error = error + calllib('ps90', 'PS90_SetTargetMode', this.Index, this.Axis(i), this.ini_target_mode(i));                
-                error = error + calllib('ps90', 'PS90_SetAccelEx', this.Index, this.Axis(i), this.acc(i));                
-                error = error + calllib('ps90', 'PS90_SetDecelEx', this.Index, this.Axis(i), this.dacc(i));               
+                error = error + calllib('ps90', 'PS90_SetInPosMode', this.Index, this.Axis(i), this.in_pos_mode(i));
+                error = error + calllib('ps90', 'PS90_SetCurrentLevel', this.Index, this.Axis(i), this.current_level(i));
+                error = error + calllib('ps90', 'PS90_SetStageAttributes', this.Index, this.Axis(i), this.pitch(1), this.increments_per_rev(1), this.gear_reduction_ratio(i));
+                error = error + calllib('ps90', 'PS90_SetCalcResol', this.Index, this.Axis(i), this.res_motor(i));
+                error = error + calllib('ps90', 'PS90_SetMsysResol', this.Index, this.Axis(i), this.lin_res(i));
+                error = error + calllib('ps90', 'PS90_SetTargetMode', this.Index, this.Axis(i), this.ini_target_mode(i));
+                error = error + calllib('ps90', 'PS90_SetAccelEx', this.Index, this.Axis(i), this.acc(i));
+                error = error + calllib('ps90', 'PS90_SetDecelEx', this.Index, this.Axis(i), this.dacc(i));
                 error = error + calllib('ps90', 'PS90_SetJerk', this.Index, this.Axis(i), this.jacc(i));
                 error = error + calllib('ps90', 'PS90_SetRefDecelEx', this.Index, this.Axis(i), this.ref_dacc(i));
                 error = error + calllib('ps90', 'PS90_SetVel', this.Index, this.Axis(i), this.vel(i));
                 error = error + calllib('ps90', 'PS90_SetPosFEx', this.Index, this.Axis(i), this.pos_vel(i));
                 error = error + calllib('ps90', 'PS90_SetSlowRefFEx', this.Index, this.Axis(i), this.ref_vel_slow(i));
-                error = error + calllib('ps90', 'PS90_SetFastRefFEx', this.Index, this.Axis(i), this.ref_vel_fast(i));    
+                error = error + calllib('ps90', 'PS90_SetFastRefFEx', this.Index, this.Axis(i), this.ref_vel_fast(i));
                 error = error + calllib('ps90', 'PS90_SetFreeVel', this.Index, this.Axis(i), this.free_vel(i));
                 error = error + calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axis(i), this.ref_switch(i)) ~= 0 )
                 if error == 0           %There are no error in all axis
@@ -698,20 +744,57 @@ classdef OWIS_STAGES
                     this.Position(axis) = this.GetPosition(i);
                     error = (calllib('ps90','PS90_GetReadError' , this.Index));   %%Check error in reading position
                     showError1 (error);
-                else 
+                else
                     fprintf('Error %s \n', error);
                 end
                 this.MotorEnableAll;
             end
         end
-        %% MotorEnableS %% Enable all motors
-
+        
+        %% MotorEnable %% Enable 1 motor %%
+        
+        function  MotorEnable(this,axis)
+            % function  MotorEnable(this,axis)
+            % Arguments: object OWIS (this), axis int%
+            % Returns: none %
+            error = calllib('ps90','PS90_MotorInit', this.Index, axis);
+            if errr ~= 0
+                fprintf('Error Activating Motor: %s \n', this.AxisName(i));
+                this.showError(error);
+            end
+        end
+        %% MotorEnableAll %% Enable all motors
+        % function  MotorEnableAll(this)
+        % Arguments: object OWIS (this), axis int array%
+        % Returns: none %
+        
         function MotorEnableAll(this)
             for i=1:3
-                error = calllib('ps90','PS90_MotorInit', this.Index, axis(i));
-                if errr ~= 0
-                fprintf('Error Activating Motor: %s \n', this.AxisName(i));
-                end
+                this.MotorEnable(this,this.Axis(i));
+            end
+        end
+        
+        %% MotorDisable %% Disable 1 motor
+        
+        function  MotorDisable(this,axis)
+            %function  MotorDisable(this,axis)
+            % Arguments: object OWIS (this), axis int,%
+            % Returns: none %
+            error = calllib ('ps90', 'PS90_MotorOff', this.Index, axis);
+            if errr ~= 0
+                fprintf('Error Desactivating Motor: %s \n', this.AxisName(i));
+                this.showError(error);
+            end
+        end
+        
+        %% MotorDisableAll %% Disable all motor
+        
+        function  MotorDisableAll(this)
+            %function  MotorDisableAll(this)
+            % Arguments: object OWIS (this), axis int,%
+            % Returns: none %
+            for i=1:3
+                this.MotorDisable(this,this.Axis(i));
             end
         end
         
@@ -719,7 +802,7 @@ classdef OWIS_STAGES
         
         function  MoveBy(this,axis,delta,velocity)
             % function  MoveBy(this,axis,delta,velocity)
-            % Arguments: object ALIO (this), axis int, delta double, velocity double%
+            % Arguments: object OWIS (this), axis int, delta double, velocity double%
             % Returns: none %
             
             if this.IsConnected == 0
@@ -728,7 +811,8 @@ classdef OWIS_STAGES
             end
             this.pos_vel(axis) = velocity;
             this.TargetMode(axis) = this.relative;
-            error = (calllib('ps90', 'PS90_SetPosFEx', this.Index, this.xAxis, this.pos_vel(axis)) ~= 0 )
+            error = (calllib('ps90', 'PS90_SetPosFEx', this.Index, this.xAxis, this.pos_vel(axis)) ~= 0 );
+            this.showError(error);
             
             %         fprintf('Current %s position: %6.4f\n', this.AxisName, this.Position);
             %         fprintf('Current X position: %6.4f\n', this.Xpos);
