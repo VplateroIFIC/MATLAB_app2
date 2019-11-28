@@ -22,9 +22,9 @@ sizeParticles=9500;
 
 % FROIbuilder
 
-pixelAreaF=74000;  % aprox value of the F Area in pixels in IFIC setup
+pixelAreaF=74000;  % nominal value of the F Area in pixels in IFIC setup
 deltaArea=10000;
-perimeterF=2500;   % aprox value of the F Perimeter in pixels in IFIC setup
+perimeterF=2500;   % nominal value of the F Perimeter in pixels in IFIC setup
 deltaPerimeter=500;
 
 % ROIbuilder
@@ -37,9 +37,7 @@ FtemplatePath=('templates\F.jpg');
 
 % CirclesFinder
 
-camCalibration=3.62483; %um/pixel % Daniele
-% camCalibration=3.5739; %um/pixel % sensor CNM
-
+camCalibration=3.62483; %um/pixel
 binaryFilterKernel_circles=81;
 
 % CalibrationFiducialROIBuilder
