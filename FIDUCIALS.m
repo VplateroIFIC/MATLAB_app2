@@ -401,7 +401,6 @@ classdef FIDUCIALS
         
         
         function [ROI,vertex] = FROIbuilder(this,image)
-            %
             % FROIbuilder  generate square ROI of size N around F of the image. It locate the F centroid by reading the pixel area and the perimeter of the F.
             %    inputs:
             %       this: instance which calls the method
@@ -413,29 +412,43 @@ classdef FIDUCIALS
             if size(image,3)==3
                 image = rgb2gray(image);
             end
-            
+            [m,n]=size(image);
             %Binarize the image
-            Binary = imbinarize(image);
+            medianFilter=cv.medianBlur(image,'KSize',35);       
+            Binary = imbinarize(medianFilter);
             BynaryInv=imcomplement(Binary);
-            
-            % Setting Area and Perimeter expected for the F
+        
+            % Setting Area and Perimeter expected for the F. Delta increased if no objects are found.
             area=this.pixelAreaF;
             rangeArea=[area-this.deltaArea,area+this.deltaArea];
             perimeter=this.perimeterF;
             rangePerimeter=[perimeter-this.deltaPerimeter,perimeter+this.deltaPerimeter];
-            
-            % Filtering by Area, perimeter and number of objects
+            trigger=0;
+            cont=0;
+            % loop that increase the area and perimeter ranges in case no F was found
+            while trigger==0 && cont<5          
+            rangeArea=[rangeArea(1)-1500,rangeArea(2)+1500];
+            rangePerimeter=[rangePerimeter(1)-150,rangePerimeter(2)+150];
+            % Filtering by Area, perimeter and number of objects. 
             imageF1 = bwpropfilt(BynaryInv,'area',rangeArea);   %filter by area
             imageF2 = bwpropfilt(imageF1,'perimeter',rangePerimeter);   %filter by perimeter
             CC=bwconncomp(imageF2);
+            if CC.NumObjects>=1
+                trigger=1;
+            end
+            cont=cont+1;
+            end
             
+           if CC.NumObjects==0  % We found no F
+               disp('No F was found');
+               return
+           end
             % Calculation center of mass of the F found
             prop = regionprops(imageF2,'centroid');
             q=size(prop);
             numberOfF=q(1);
             ROI=cell(numberOfF,1);
             vertex=cell(numberOfF,1);
-            
             % Cutting the ROI taking the reference the centroid
             for i=1:numberOfF
                 [ROI{i},vertex{i}]=this.ROIbuilder(image,prop(i).Centroid,this.ROIsize);
@@ -467,8 +480,8 @@ classdef FIDUCIALS
             ver3=round(ver3);
             
             % In case vertex are out of original image, going to the edge
-            if ver1(1)<0, ver1(1)=1; end
-            if ver1(2)<0, ver1(2)=1; end
+            if ver1(1)<=0, ver1(1)=1; end
+            if ver1(2)<=0, ver1(2)=1; end
             if ver3(1)>n, ver3(1)=n; end
             if ver3(2)>m, ver3(2)=m; end
             
