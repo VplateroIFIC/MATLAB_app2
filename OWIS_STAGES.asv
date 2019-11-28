@@ -820,8 +820,10 @@ classdef OWIS_STAGES
             this.TargetMode(axis) = this.relative;
             error = (calllib('ps90', 'PS90_SetPosFEx', this.Index, this.xAxis, velocity) ~= 0 );
             this.showError(error);
-            this.GetPosition(axis);
-            fprintf (' Moving ')
+            error = calllib('ps90','PS90_SetTargetMode', this.Index, axis, this.TargetMode(axis)); %Relative movement
+            error = calllib ('ps90', 'PS90_MoveEx', this.Index, axis, delta, this.units);
+
+
             
             %         fprintf('Current %s position: %3.3f\n', this.AxisName, this.Position);
             
@@ -846,6 +848,31 @@ classdef OWIS_STAGES
                 end
                 error = calllib ('ps90', 'PS90_MoveEx', this.Index, axis, delta, this.units);
             end
+        end
+        
+        function  State = AxisState(this,axis)
+            %The method retrieves the current axis state.
+            %function  AxisState(this,axis)
+            % Arguments: object ALIO (this),int Axis%
+            % Returns: array with the current state of the motor %
+            
+            State = calllib ('ps90', 'PS90_GetAxisState', this.Index, axis);
+            switch State
+                case 0
+                    State = 'axis not active';
+                case 1 
+                    State = 'Axis not initialized';
+                case 2
+                    State = 'Axis is switched off';
+                case 3 
+                    State = State = 'Axis not initialized';
+            end
+            error = calllib ('ps90', 'GetReadError', this.Index);
+            if State > 2
+                error = calllib ('ps90', 'PS90_GoTarget', this.Index);
+            end
+            
+            
         end
     end
 end
