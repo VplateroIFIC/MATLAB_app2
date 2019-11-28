@@ -23,7 +23,7 @@ sizeParticles=9500;
 % FROIbuilder
 
 pixelAreaF=43765;  % aprox value of the F Area in pixels in DESY setup
-deltaArea=6000;
+deltaArea=5000;
 perimeterF=1642.1;   % aprox value of the F Perimeter in pixels in DESY setup
 deltaPerimeter=500;
 
