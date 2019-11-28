@@ -4,7 +4,7 @@ classdef FOCUS
     
     properties (Access=private)
        maxIter=8;
-       FocusRange=0.3;
+       FocusRange=0.3;      %0.3
        velocity=2;
        threshold=0.02;
        splits=3;    %4
