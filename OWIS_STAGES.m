@@ -860,18 +860,18 @@ classdef OWIS_STAGES
             % Returns: array with the current state of the motor %
             
             State = calllib ('ps90', 'PS90_GetAxisState', this.Index, axis);
-%             switch State
-%                 case 0
-%                     State = 'axis not active';
-%                 case 1 
-%                     State = 'Axis not initialized';
-%                 case 2
-%                     State = 'Axis is switched off';
-%                 case 3 
-%                     State = 'Axis ready';
-%             end
-            error = calllib ('ps90', 'GetReadError', this.Index);
-            this.ShowError(error);
+             switch State
+                 case 0
+                     fprintf('Axis %s is not active', this.AxisName(axis));
+                 case 1 
+                     fprintf('Axis %s not initialized', this.AxisName(axis));
+                 case 2
+                     fprintf('Axis %s is switched off', this.AxisName(axis));
+                 case 3 
+                     fprintf('Axis %s is ready', this.AxisName(axis));
+             end
+            error = calllib ('ps90', 'PS90_GetReadError', this.Index);
+            this.showError(error);
         end
     end
 end
