@@ -1,9 +1,10 @@
 classdef CAMERA
     %UNTITLED Class that manage different cameras of out setup (input constructor required)
-%     camera Gantry high resolution --> 1
+%     old camera Gantry high resolution --> 1
 %     camera Gantry visual inspection --> 2
 %     camera OWIS high resolution --> 3
 %     camera OWIS visual inspection --> 4
+%     camera Gantry high resolution --> 5
 % CHECK WHICH IS THE CHANNEL THAT THE HENTL ADAPTOR GIVES TO EACH CAMERA AND UPDATE THE CLASS!!    
     
 properties (Access=private)  
@@ -32,9 +33,10 @@ end
         function this=CAMERA(cameraType)
  %% CAMERA constructor %%
  % generates instance and load properties script %
+ addpath('cameras_config')
         switch cameraType
             case 1
-                CAMERA_properties_Gantry
+                CAMERA_properties_Gantry_old_camera        %Imaging source DFK
                 this.ReturnedColor=ReturnedColor; 
                 this.ROIPos=ROIPos;     
                 this.ExposureM =ExposureM;        
@@ -43,29 +45,36 @@ end
                 this.trigger=trigger;      
                 this.videoAdaptor=videoAdaptor;
             case 2
-                CAMERA_properties_visual_inspection
+                CAMERA_properties_visual_inspection     % 050-IR
                 this.ROIPos=ROIPos;
                 this.ImageOutput=ImageOutput;
                 this.triggerConfig=triggerConfig;
                 this.videoAdaptor=videoAdaptor;
-                this.ExposureAuto=exposureAuto;
-                this.GainAuto=gainAuto;
+                this.ExposureAuto=ExposureAuto;
+                this.GainAuto=GainAuto;
             case 3
-                CAMERA_properties_OWIS
+                CAMERA_properties_OWIS              % Net gige cam
                 this.ROIPos=ROIPos;
                 this.ImageOutput=ImageOutput;
                 this.triggerConfig=triggerConfig;
                 this.videoAdaptor=videoAdaptor;
-                this.ExposureAuto=exposureAuto;
-                this.GainAuto=gainAuto;
+                this.ExposureAuto=ExposureAuto;
             case 4
-                CAMERA_properties_visual_inspection
+                CAMERA_properties_visual_inspection         % 050-IR
                 this.ROIPos=ROIPos;
                 this.ImageOutput=ImageOutput;
                 this.triggerConfig=triggerConfig;
                 this.videoAdaptor=videoAdaptor;
-                this.ExposureAuto=exposureAuto;
-                this.GainAuto=gainAuto;
+                this.ExposureAuto=ExposureAuto;
+                this.GainAuto=GainAuto;
+            case 5
+                CAMERA_properties_Gantry        % 040-IR
+                this.ROIPos=ROIPos;
+                this.ImageOutput=ImageOutput;
+                this.triggerConfig=triggerConfig;
+                this.videoAdaptor=videoAdaptor;
+                this.ExposureAuto=ExposureAuto;
+                this.GainAuto=GainAuto;
         end
         this.cameraType=cameraType;
             
@@ -93,20 +102,30 @@ end
                src = getselectedsource(this.cam);
                src.ExposureAuto = this.ExposureAuto;
                src.GainAuto = this.GainAuto;
+               this.IsConnected=1;
                case 3
                this.cam = videoinput(this.videoAdaptor,1); 
                triggerconfig(this.cam, this.triggerConfig);
                src = getselectedsource(this.cam);
                src.ExposureAuto = this.ExposureAuto;
-               src.GainAuto = this.GainAuto;
-
+%                src.GainAuto = this.GainAuto;
+               this.IsConnected=1;
                case 4
-               this.cam = videoinput(this.videoAdaptor,2); 
+               this.cam = videoinput('gentl', 2, 'RGB8Packed');
+%               this.cam = videoinput(this.videoAdaptor,2); 
                triggerconfig(this.cam, this.triggerConfig);
                src = getselectedsource(this.cam);
                src.ExposureAuto = this.ExposureAuto;
-               src.GainAuto = this.GainAuto;  
-
+               src.GainAuto = this.GainAuto; 
+               this.IsConnected=1;
+               case 5
+               this.cam = videoinput('gentl', 2);
+%               this.cam = videoinput(this.videoAdaptor,2); 
+               triggerconfig(this.cam, this.triggerConfig);
+               src = getselectedsource(this.cam);
+               src.ExposureAuto = this.ExposureAuto;
+               src.GainAuto = this.GainAuto; 
+               this.IsConnected=1;
             end
             disp('Camera connection done');
         end
@@ -137,7 +156,8 @@ end
         vidRes = this.cam.VideoResolution; 
         nBands = this.cam.NumberOfBands; 
         hImage = image( zeros(vidRes(2), vidRes(1), nBands) ); 
-        preview(this.cam, hImage); 
+        preview(this.cam, hImage);
+%         set(handles.fpsdisp,'String', num2str(this.cam.FramesPerTrigger));
         end
  
 %%  DispCamOff close the display of the camera   %%           
