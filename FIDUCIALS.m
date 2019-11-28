@@ -427,8 +427,8 @@ classdef FIDUCIALS
             cont=0;
             % loop that increase the area and perimeter ranges in case no F was found
             while trigger==0 && cont<5          
-            rangeArea=[rangeArea(1)-1500,rangeArea(2)+1500];
-            rangePerimeter=[rangePerimeter(1)-150,rangePerimeter(2)+150];
+            rangeArea=[rangeArea(1)-this.deltaArea/3,rangeArea(2)+this.deltaArea/3];
+            rangePerimeter=[rangePerimeter(1)-this.deltaPerimeter/4,rangePerimeter(2)+this.deltaPerimeter/4];
             % Filtering by Area, perimeter and number of objects. 
             imageF1 = bwpropfilt(BynaryInv,'area',rangeArea);   %filter by area
             imageF2 = bwpropfilt(imageF1,'perimeter',rangePerimeter);   %filter by perimeter
@@ -439,7 +439,7 @@ classdef FIDUCIALS
             cont=cont+1;
             end
             
-           if CC.NumObjects==0  % We found no F
+            if CC.NumObjects==0  % We found no F
                disp('No F was found');
                return
            end
