@@ -598,16 +598,58 @@ classdef OWIS_STAGES
                     fprintf(' Syntax error\n');
             end
         end
-
+        
         %% MotionStop %%
         function  MotionStop(this,axis)
             %function  MotionAbort(this,axis)
             % stop motion with full decceleration profile
-            % Arguments: object ALIO (this),int Axis%
+            % Arguments: object OWIS (this),int Axis%
             % Returns: none %
             
             error = (calllib('ps90', 'PS90_Stop', this.Index, axis);
+            fprintf(' Stopping %s movement -> ', axis);
             this.ShowError(error);
+        end
+        
+        
+        %% MotionStopAll %% All Axis %%
+        function  MotionStopAll(this)
+            %function  MotionStopAll(this)
+            % stop motion with full decceleration profile in ALL axis
+            % Arguments: object OWIS (this)%
+            % Returns: none %
+            
+            for i=1:3
+                this.MotionStop(this,this.Axis(i));
+                error = (calllib('ps90', 'PS90_Stop', this.Index, axis);
+                this.showError(error);
+            end
+            %             error = (calllib('ps90', 'PS90_MultiStop', this.Index, AxisBits);
+            %             AxisBits. Bit pattern which defines axes:
+            %             0 axis 1 will be stopped
+            %             1 axis 2 will be stopped
+            %             2 axis 3 will be stopped
+            %             3 axis 4 will be stopped
+            %             4 axis 5 will be stopped
+            %             5 axis 6 will be stopped
+            %             6 axis 7 will be stopped
+            %             7 axis 8 will be stopped
+            %             8 axis 9 will be stopped
+        end
+        
+        %% MotionAbort %%
+        function  MotionAbort(this,axis)
+            %function  MotionAbort(this,axis)
+            % stop motion with reduced decceleration profile
+            % Arguments: object OWIS (this),array int Axes%
+            % Returns: none %
+            
+            n=length(axis);
+            if n>1
+                KillAll(this.GantryObj);
+            else
+                Kill(this,axis);
+            end
             
         end
         
@@ -730,6 +772,7 @@ classdef OWIS_STAGES
                 this.showError(error);
             end
         end
+        
         %% MotorEnableAll %% Enable all motors
         % function  MotorEnableAll(this)
         % Arguments: object OWIS (this), axis int array%
