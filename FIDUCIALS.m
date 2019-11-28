@@ -32,7 +32,7 @@ classdef FIDUCIALS
         FtemplatePath;
         
         % CirclesFinder
-        camCalibration; %um/pixel
+        camCalibration;      %um/pixel
         binaryFilterKernel_circles;
         
         % CalibrationFiducialROIBuilder
