@@ -99,7 +99,7 @@ classdef OWIS_STAGES
         Position = [ 0, 0, 0];
         temp_vel = [ 0, 0, 0];
         %         AxisState = [ ['Off']; ['Off']; ['Off'] ];  % On, Off, Moving
-        AxisState = [ 0, 0, 0]
+%         AxisState = [ 0, 0, 0]
         PosMode = [ 0, 0, 0];               % 0-> Trapezoidal profile;  1-> S-curve
         TargetMode = [ 0, 0, 0];            % 0-> Relative positioning;  1-> Absolute positioning
         units = 1;                          % 0-> step increments;  1-> selected units (mm)
@@ -817,37 +817,40 @@ classdef OWIS_STAGES
                 disp ('No connection stablished');
                 return
             end
+
             this.TargetMode(axis) = this.relative;
             error = (calllib('ps90', 'PS90_SetPosFEx', this.Index, this.xAxis, velocity) ~= 0 );
             this.showError(error);
             error = calllib('ps90','PS90_SetTargetMode', this.Index, axis, this.TargetMode(axis)); %Relative movement
+            this.GetPosition(axis);
+            fprintf (' Moving ');
             error = calllib ('ps90', 'PS90_MoveEx', this.Index, axis, delta, this.units);
 
 
             
             %         fprintf('Current %s position: %3.3f\n', this.AxisName, this.Position);
             
-            if this.AxisState(axis) == 0
-                fprintf(' %s motor not activated\n', this.AxisName(axis));
-                error = calllib('ps90','PS90_MotorInit', this.Index, axis);
-                if error ~= 0
-                    fprintf('Error activating %s motor: %d\n', this.AxisName(axis), error);
-                else
-                    fprintf(' %s motor activated succesfully\n', this.AxisName(axis));
-                end
-                this.Position(axis) = calllib ('ps90', 'PS90_GetPositionEx', this.Index, axis);
-                fprintf('Current %s position: %3.3f\n', this.AxisName(axis), this.Position(axis));
-                
-                error = calllib('ps90','PS90_SetPosMode', this.Index, axis, this.PosMode(axis));       %Trapezoidal movement
-                if error ~= 0
-                    fprintf('Error in %s : %d\n', this.AxisName, error);
-                end
-                error = calllib('ps90','PS90_SetTargetMode', this.Index, axis, this.TargetMode(axis)); %Relative movement
-                if error ~= 0
-                    fprintf('Error in %s : %d\n', this.AxisName, error);
-                end
-                error = calllib ('ps90', 'PS90_MoveEx', this.Index, axis, delta, this.units);
-            end
+%             if this.AxisState(axis) == 0
+%                 fprintf(' %s motor not activated\n', this.AxisName(axis));
+%                 error = calllib('ps90','PS90_MotorInit', this.Index, axis);
+%                 if error ~= 0
+%                     fprintf('Error activating %s motor: %d\n', this.AxisName(axis), error);
+%                 else
+%                     fprintf(' %s motor activated succesfully\n', this.AxisName(axis));
+%                 end
+%                 this.Position(axis) = calllib ('ps90', 'PS90_GetPositionEx', this.Index, axis);
+%                 fprintf('Current %s position: %3.3f\n', this.AxisName(axis), this.Position(axis));
+%                 
+%                 error = calllib('ps90','PS90_SetPosMode', this.Index, axis, this.PosMode(axis));       %Trapezoidal movement
+%                 if error ~= 0
+%                     fprintf('Error in %s : %d\n', this.AxisName, error);
+%                 end
+%                 error = calllib('ps90','PS90_SetTargetMode', this.Index, axis, this.TargetMode(axis)); %Relative movement
+%                 if error ~= 0
+%                     fprintf('Error in %s : %d\n', this.AxisName, error);
+%                 end
+%                 error = calllib ('ps90', 'PS90_MoveEx', this.Index, axis, delta, this.units);
+%             end
         end
         
         function  State = AxisState(this,axis)
@@ -857,22 +860,20 @@ classdef OWIS_STAGES
             % Returns: array with the current state of the motor %
             
             State = calllib ('ps90', 'PS90_GetAxisState', this.Index, axis);
-            switch State
-                case 0
-                    State = 'axis not active';
-                case 1 
-                    State = 'Axis not initialized';
-                case 2
-                    State = 'Axis is switched off';
-                case 3 
-                    State = State = 'Axis not initialized';
-            end
-            error = calllib ('ps90', 'GetReadError', this.Index);
-            if State > 2
-                error = calllib ('ps90', 'PS90_GoTarget', this.Index);
-            end
-            
-            
+             switch State
+                 case 0
+                     fprintf('Axis not active %s : %d\n', this.AxisName, error);
+
+                     State = 'axis not active';
+                 case 1 
+                     State = 'Axis not initialized';
+                 case 2
+                     State = 'Axis is switched off';
+                 case 3 
+                     State = 'Axis ready';
+             end
+            error = calllib ('ps90', 'PS90_GetReadError', this.Index);
+            this.showError(error);
         end
     end
 end
