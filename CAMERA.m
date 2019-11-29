@@ -1,5 +1,5 @@
 classdef CAMERA
-    %UNTITLED Class that manage different cameras of out setup (input constructor required)
+    %CAMERA Class that manage different cameras of out setup (input constructor required)
 %     old camera Gantry high resolution --> 1
 %     camera Gantry visual inspection --> 2
 %     camera OWIS high resolution --> 3
@@ -111,7 +111,7 @@ end
 %                src.GainAuto = this.GainAuto;
                this.IsConnected=1;
                case 4
-               this.cam = videoinput('gentl', 2, 'RGB8Packed');
+               this.cam = videoinput(this.videoAdaptor, 2, 'RGB8Packed');
 %               this.cam = videoinput(this.videoAdaptor,2); 
                triggerconfig(this.cam, this.triggerConfig);
                src = getselectedsource(this.cam);
@@ -119,13 +119,18 @@ end
                src.GainAuto = this.GainAuto; 
                this.IsConnected=1;
                case 5
-               this.cam = videoinput('gentl', 2);
-%               this.cam = videoinput(this.videoAdaptor,2); 
+               this.cam = videoinput(this.videoAdaptor, 2);
+               this.cam.ROIPosition=this.ROIPos;
                triggerconfig(this.cam, this.triggerConfig);
                src = getselectedsource(this.cam);
                src.ExposureAuto = this.ExposureAuto;
                src.GainAuto = this.GainAuto; 
-               this.IsConnected=1;
+               set(this.cam, 'TriggerFrameDelay', 25);
+               set(this.cam, 'FramesPerTrigger', 1);
+               set(this.cam, 'TriggerRepeat', Inf);
+               src.TriggerDelay = 15;
+               
+                this.IsConnected=1;
             end
             disp('Camera connection done');
         end
@@ -140,12 +145,16 @@ end
         
 %%  OneFrame return current frame of the camera (image)   %%   
         function Image = OneFrame(this)
-            Image=getsnapshot(this.cam);
+            start(this.cam);
+            Image=getdata(this.cam);
+            stop(this.cam);
         end
         
 %%  DispFrame Display current frame in a figure   %%  
         function DispFrame(this)
-            pic=getsnapshot(this.cam);
+            start(this.cam);
+            pic=getdata(this.cam);
+            stop(this.cam);
             imshow(pic);
         end
        
@@ -175,13 +184,30 @@ end
                 case 3
                     extension='.jpg';
             end
-            pic=getsnapshot(this.cam);
+            pic=this.OneFrame;
             fullname=strcat(this.ImageOutput,name,extension);
             imwrite(pic,fullname);
             disp('frame saved')
         end
-        end
-end
-    
 
+%%  startAdquisition start the camera adquisition with infinite number of frames   %%           
+        function startAdquisition(this)
+            set(this.cam, 'FramesPerTrigger', Inf);
+            start(this.cam);
+        end
+        
+%%  stopAdquisition stop the camera adquisition  %%           
+        function stopAdquisition(this)
+        stop(this.cam);
+        end
+   
+%%  retrieveData retrieve the current logged data. Used during adquisition is ON  %%           
+        function data=retrieveData(this)
+        data=getdata(this.cam);
+        end        
+        
+        end      
+ end       
+        
+        
 
