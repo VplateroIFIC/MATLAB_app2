@@ -33,14 +33,8 @@ end
         function this=CAMERA(cameraType)
  %% CAMERA constructor %%
  % generates instance and load properties script %
-<<<<<<< HEAD
-        switch setup
-            case 1 % Gantry Case
-                CAMERA_properties_Gantry
-            case 2  % OWIS case
-                CAMERA_properties_OWIS
-=======
- addpath('cameras_config')
+
+           addpath('cameras_config')
         switch cameraType
             case 1
                 CAMERA_properties_Gantry_old_camera        %Imaging source DFK
@@ -82,7 +76,7 @@ end
                 this.videoAdaptor=videoAdaptor;
                 this.ExposureAuto=ExposureAuto;
                 this.GainAuto=GainAuto;
->>>>>>> Camera_update
+
         end
         this.cameraType=cameraType;
             
@@ -174,7 +168,6 @@ end
         nBands = this.cam.NumberOfBands; 
         hImage = image( zeros(vidRes(2), vidRes(1), nBands) ); 
         preview(this.cam, hImage);
-%         set(handles.fpsdisp,'String', num2str(this.cam.FramesPerTrigger));
         end
  
 %%  DispCamOff close the display of the camera   %%           
