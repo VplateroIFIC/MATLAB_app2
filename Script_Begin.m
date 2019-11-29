@@ -8,7 +8,7 @@ joy = joy.Connect;
 
 % gantry.MotorEnableAll
 
-cam= CAMERA(1);
+cam= CAMERA(5);
 cam = cam.Connect;
 
 enfoque = FOCUS(gantry, cam);
