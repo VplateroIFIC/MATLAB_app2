@@ -3,15 +3,14 @@ classdef FOCUS
   
     
     properties (Access=private)
-       maxIter=8;
-       FocusRange=0.3;
+       maxIter=15;
+       FocusRange=0.3;      %0.3
        velocity=2;
        threshold=0.02;
-       splits=3;    %4
+       splits=4;    %4
        RoiSize=500;
        ReadyToFocus=0;
        FocusType='BREN';
-       ImageSize=[2764 3856];
        zAxis=4;
        gantry;
        cam;
@@ -28,7 +27,8 @@ function this = FOCUS(gantry_obj,camera_obj)
     if (this.gantry.IsConnected==1) && (this.cam.IsConnected==1)
         this.ReadyToFocus=1;
         disp('System is ready to perform autofocus')
-        
+        warningID='imaq:getdata:infFramesPerTrigger';
+        warning('off',warningID);
     else
         if (gantry.IsConnected==0)
             disp('Autofocus can not be performed: gantry is not connected')
@@ -53,11 +53,20 @@ end
 
 total=tic;
 
+this.cam.startAdquisition;
+pause(1)
+data=this.cam.retrieveData;
+dimension=size(data);
+firstImage=data(:,:,1,dimension(4));
+[dimy,dimx]=size(firstImage);
+ImageSize(1)=dimx;
+ImageSize(2)=dimy;
+
 Zini=this.gantry.GetPosition(this.zAxis);
 R=this.FocusRange;
 div=this.splits;
-x0=this.ImageSize(1)/2;
-y0=this.ImageSize(2)/2;
+x0=round(ImageSize(1)/2);
+y0=round(ImageSize(2)/2);
 RoiWidth=this.RoiSize;
 RoiHeight=this.RoiSize;
 Z0=Zini;
@@ -83,10 +92,9 @@ this.gantry.MoveTo(this.zAxis,z,this.velocity);
 this.gantry.WaitForMotion(this.zAxis,-1);
 Z(zCont)=this.gantry.GetPosition(this.zAxis);
 % taking picture %
-if (iteration==1 && samples==1)
-image{ImCont}=this.cam.OneFrame;
-end
-image{ImCont}=this.cam.OneFrame;
+data=this.cam.retrieveData;
+dimension=size(data);
+image{ImCont}=data(:,:,1,dimension(4));
 % Asking focus parameter %
 FocusValue(fCont)=this.fmeasure(image{ImCont},this.FocusType,[x0,y0,RoiWidth,RoiHeight]);
 % Updating counters %
@@ -112,6 +120,8 @@ R=max([abs(Zopt(iteration)-P0),abs(Zopt(iteration)-Pn)]);
 Z0=Zopt(iteration);
 iteration=iteration+1;
 end
+
+this.cam.stopAdquisition;
 
 if (iteration<this.maxIter)
 % Fitting results to a quadratic polynomial (last 4 points) %
