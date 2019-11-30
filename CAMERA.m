@@ -203,8 +203,8 @@ end
         end
    
 %%  retrieveData retrieve the current logged data. Used during adquisition is ON  %%           
-        function data=retrieveData(this)
-        data=getdata(this.cam);
+        function [data, time, metadata]=retrieveData(this)
+        [data, time, metadata] =getdata(this.cam);
         end        
         
         end      
