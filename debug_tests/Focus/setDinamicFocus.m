@@ -29,13 +29,9 @@ gantry.WaitForMotion(Zaxis,-1);
 % setting initial Z
 Z0=gantry.GetPosition(Zaxis);
 
-% starting video adquisition. Freezing script until we receibe the firs images!! %
+% starting video adquisition.
 cam.startAdquisition;
-test=cam.retrieveData;
-while isempty(test==1)
-    test=cam.retrieveData;
-end
-% while flag==0
+
     
 
 % starting movement %
@@ -49,9 +45,6 @@ ZtimeBefore(cont,:)=clock;        % time before get position
 Z(cont)=gantry.GetPosition(Zaxis);
 ZtimeAfter(cont,:)=clock;        % time After get position
 currentPosition=Z(cont);
-% dimension=size(data(cont));
-% Image=data{cont}(:,:,1,dimension(4));
-% nameImage=strcat('nameImage_',num2str(cont));
 cont=cont+1;
 end
 
