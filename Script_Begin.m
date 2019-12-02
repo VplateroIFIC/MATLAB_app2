@@ -1,14 +1,17 @@
 
 % Script prepared to begin main gantry setup functions
-gantry = GANTRY(2)
-gantry = gantry.Connect
+gantry = STAGES(2);
+gantry = gantry.Connect;
 
-joy = JOYSTICK (gantry)
-joy = joy.Connect
+joy = JOYSTICK (gantry);
+joy = joy.Connect;
 
 % gantry.MotorEnableAll
 
-cam= CAMERA
-cam = cam.Connect
+fid=FIDUCIALS(1);
 
-enfoque = FOCUS(gantry, cam)
+
+cam= CAMERA(5);
+cam = cam.Connect;
+
+enfoque = FOCUS(gantry, cam);

@@ -59,8 +59,8 @@ binaryFilterKernel_calibration;
 %             
 %             addpath('F:\mexopencv');
 %             addpath('F:\mexopencv\opencv_contrib');
-%             addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
-%             addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
+            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
+            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
 
 % Loading corresponding properties to the class
 
@@ -283,7 +283,7 @@ images{1} = cv.drawMatches(preparedROI, keypointsROI, preparedTemp, keypointsTem
 % applying size filter and ratio filter to remove bad matches %
 ratio=this.filter_ratio;
 sizeThreshold=this.filter_size;
-betterMatches= this.ratios(matches12,keypointsROI,keypointsTemp,sizeThreshold,ratio);
+betterMatches= this.ratioTest(matches12,keypointsROI,keypointsTemp,sizeThreshold,ratio);
 
 % Bulding the final keypoints vectors (scene and object) %
 objeto=cell(1,length(betterMatches));
@@ -568,8 +568,8 @@ ver1=round(ver1);
 ver3=round(ver3);
 
 % In case vertex are out of original image, going to the edge
-if ver1(1)<0, ver1(1)=0; end
-if ver1(2)<0, ver1(2)=0; end
+if ver1(1)<0, ver1(1)=1; end
+if ver1(2)<0, ver1(2)=1; end
 if ver3(1)>n, ver3(1)=n; end
 if ver3(2)>m, ver3(2)=m; end
 
