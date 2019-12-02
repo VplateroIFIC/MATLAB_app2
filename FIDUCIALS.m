@@ -120,9 +120,9 @@ this.binaryFilterKernel_calibration=binaryFilterKernel_calibration;
      
         
 function mytest = test(this)
-%image = imread("hybrid_circle_fid_1.png");
+image = imread("hybrid_circle_fid_1.png");
 %image = imresize(image, 0.1);
-image = imread("detectcirclesexample_01_es.png");
+%image = imread("detectcirclesexample_01_es.png");
 %imshow(image);
 %imshow(image);
 
