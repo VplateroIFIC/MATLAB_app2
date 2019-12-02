@@ -11,24 +11,32 @@ Zaxis=4;
 delta=range/Nimages;
 Z0=gantry.GetPosition(Zaxis);
 
-resultsFile=strcat(outputPathResults,'staticFocus.txt');
-fileID = fopen(resultsFile,'w')
-
 % movin Z stage to the starting point %
 gantry.MoveBy(Zaxis,-range/2,velocity);
 gantry.WaitForMotion(Zaxis,-1);
 
+% starting data adquisition %
+cam.startAdquisition;
+
 % Starting the measure loop %
 Z=zeros(Nimages);
+images=zeros(2048,1536,1,Nimages);
 for i=1:Nimages
-    name=strcat('StaticFocusImage_',num2str(i));
-    cam.SaveFrame(name,2);
+    [data,time,medatada]=cam.retrieveData;
+    [resx,resy,color,frame]=size(data);
+    images(:,:,Nimages)=data(:,:,1,frame);
     Z(i)=gantry.GetPosition(Zaxis);
     gantry.MoveBy(Zaxis,delta,velocity);
     gantry.WaitForMotion(Zaxis,-1);
-    fprintf(fileID,'%6.5f\r\n',Z(i)); 
 end
- fclose(fileID);
  gantry.MoveTo(Zaxis,Z0,velocity);
+ gantry.WaitForMotion(Zaxis,-1);
+ 
+ % saving results %
+ results.Images=images;
+ results.Zvalues=Z;
+ namePath=strcat(outputPathResults,'results.mat');
+ save(namePath,'results')
+ 
 end
 
