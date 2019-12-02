@@ -195,6 +195,10 @@ end
         function startAdquisition(this)
             set(this.cam, 'FramesPerTrigger', Inf);
             start(this.cam);
+            test=this.retrieveData;     % waiting until adquistion begins (there is delay..)
+            while isempty(test==1)
+                test=this.retrieveData;
+            end
         end
         
 %%  stopAdquisition stop the camera adquisition  %%           
@@ -206,6 +210,16 @@ end
         function [data, time, metadata]=retrieveData(this)
         [data, time, metadata] =getdata(this.cam);
         end        
+        
+%%  ResetAdquisitionBuffer Remove data from memory buffer used to store acquired image frames  %%           
+        function ResetAdquisitionBuffer(this)
+        flushdata(this.cam);
+        test=this.retrieveData;     % waiting until adquistion begins after the reset
+            while isempty(test==1)
+                test=this.retrieveData;
+            end
+        end            
+        
         
         end      
  end       
