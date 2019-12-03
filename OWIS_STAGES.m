@@ -98,8 +98,6 @@ classdef OWIS_STAGES
         AxisName = ['X_axis';'Y_axis';'Z_axis'];
         Position = [ 0, 0, 0];
         temp_vel = [ 0, 0, 0];
-        %         AxisState = [ ['Off']; ['Off']; ['Off'] ];  % On, Off, Moving
-        %         AxisState = [ 0, 0, 0]
         PosMode = [ 0, 0, 0];               % 0-> Trapezoidal profile;  1-> S-curve
         TargetMode = [ 0, 0, 0];            % 0-> Relative positioning;  1-> Absolute positioning
         units = 1;                          % 0-> step increments;  1-> selected units (mm)
@@ -147,7 +145,7 @@ classdef OWIS_STAGES
                 otherwise
                     fprintf (' Error: %d\n', error);
             end
-                    
+            
         end
         
         function ReadErrors (this)
@@ -159,14 +157,18 @@ classdef OWIS_STAGES
             end
             
             error = (calllib('ps90','PS90_GetError' , this.Index));
-            disp ('Acumulated errors in the controller');
-            disp(error);
+            fprintf('Acumulated errors in the controller: %d \n', error);
+            if error ~= 0
+                error2 = (calllib('ps90','PS90_GetReadError' , this.Index));
+            end
             
             error2 = (calllib('ps90','PS90_GetReadError' , this.Index));
             if error2 ~= 0
-                disp ('Reading Error:' );
+                for i=1:error
+                    fprintf ('Reading Error: %d', i );
+                    this.showError (error2);
+                end
             end
-            this.showError (error2);
         end
         
         function showError (this, error)
@@ -179,6 +181,8 @@ classdef OWIS_STAGES
                     fprintf(' Communication error\n');
                 case -3
                     fprintf(' Syntax error\n');
+                case -4
+                    fprintf(' Axis in wrong state\n');
                 otherwise
                     fprintf (' Error: %d\n', error);
             end
@@ -263,13 +267,14 @@ classdef OWIS_STAGES
                 KillAll(this.GantryObj);
             else
                 this.Kill(axis);
-            end  
+            end
         end
         
         %% MoveTo %% Absolute movements %%
         
         function  MoveTo(this,axis,target,velocity)
             % function  MoveTo(this,axis,target,velocity)
+            % function  MoveTo(this,axis,target) Default axis velocity
             % Arguments: object OWIS (this), axis int, target double, velocity double%
             % Returns: none %
             
@@ -277,24 +282,32 @@ classdef OWIS_STAGES
                 this.MotionStop(axis);          % If axis is currently moving stop it first
             end
             
+            switch nargin
+                case 3
+                    velocity = this.pos_vel(axis);
+                otherwise
+                    fprintf ('Invalid number of arguments: (obj, axis, delta)\n');
+            end
+            
             this.TargetMode(axis) = this.absolute;
-            error = (calllib('ps90', 'PS90_SetPosFEx', this.Index, this.xAxis, velocity) ~= 0 );
+            error = calllib('ps90', 'PS90_SetPosFEx', this.Index, this.xAxis, velocity);
             if error ~= 0
                 this.showError(error);
             end
             error = calllib('ps90','PS90_SetTargetMode', this.Index, axis, this.TargetMode(axis)); %Absolute movement
             if error ~= 0
                 this.showError(error);
-            end           
+            end
             this.Position(axis) = this.GetPosition(axis);
             fprintf (' Moving %s from %3.3f to %3.3f mm ', this.AxisName(axis), this.Position(axis) , target);
             error = calllib ('ps90', 'PS90_SetTargetEx', this.Index, axis, target);
             if error ~= 0
                 this.showError(error);
-            end 
+            end
             error = calllib ('ps90', 'PS90_GoTarget', this.Index, axis);
             this.showError(error);
         end
+        
         %% Getposition %%
         
         function  value = GetPosition(this,axis)
@@ -308,7 +321,7 @@ classdef OWIS_STAGES
                 showError (error);
                 return
             else
-%                 fprintf('Current %s position: %3.3f\n', this.AxisName(axis), value);
+                %                 fprintf('Current %s position: %3.3f\n', this.AxisName(axis), value);
             end
             return
         end
@@ -420,15 +433,23 @@ classdef OWIS_STAGES
         
         function  MoveBy(this,axis,delta,velocity)
             % function  MoveBy(this,axis,delta,velocity)
+            % function  MoveBy(this,axis,delta)  Default axis velocity
             % Arguments: object OWIS (this), axis int, delta double, velocity double%
             % Returns: none %
             
             if calllib ('ps90', 'PS90_GetMoveState', this.Index, axis) ~= 0
                 this.MotionStop(axis);        % If axis is currently moving stop it first
             end
-             
+            
+            switch nargin
+                case 3
+                    velocity = this.pos_vel(axis);
+                otherwise
+                    fprintf ('Invalid number of arguments: (obj, axis, delta)\n');
+            end
+            
             this.TargetMode(axis) = this.relative;
-            error = (calllib('ps90', 'PS90_SetPosFEx', this.Index, this.xAxis, velocity) ~= 0 );
+            error = (calllib('ps90', 'PS90_SetPosFEx', this.Index, this.xAxis, velocity));
             if error ~= 0
                 this.showError(error);
             end
@@ -440,37 +461,15 @@ classdef OWIS_STAGES
             fprintf (' Moving %s from %3.3f to %3.3f mm ', this.AxisName(axis), this.Position(axis) , this.Position(axis) + delta);
             error = calllib ('ps90', 'PS90_MoveEx', this.Index, axis, delta, this.units);
             this.showError(error);
-            
-            
-            %         fprintf('Current %s position: %3.3f\n', this.AxisName, this.Position);
-            
-            %             if this.AxisState(axis) == 0
-            %                 fprintf(' %s motor not activated\n', this.AxisName(axis));
-            %                 error = calllib('ps90','PS90_MotorInit', this.Index, axis);
-            %                 if error ~= 0
-            %                     fprintf('Error activating %s motor: %d\n', this.AxisName(axis), error);
-            %                 else
-            %                     fprintf(' %s motor activated succesfully\n', this.AxisName(axis));
-            %                 end
-            %                 this.Position(axis) = calllib ('ps90', 'PS90_GetPositionEx', this.Index, axis);
-            %                 fprintf('Current %s position: %3.3f\n', this.AxisName(axis), this.Position(axis));
-            %
-            %                 error = calllib('ps90','PS90_SetPosMode', this.Index, axis, this.PosMode(axis));       %Trapezoidal movement
-            %                 if error ~= 0
-            %                     fprintf('Error in %s : %d\n', this.AxisName, error);
-            %                 end
-            %                 error = calllib('ps90','PS90_SetTargetMode', this.Index, axis, this.TargetMode(axis)); %Relative movement
-            %                 if error ~= 0
-            %                     fprintf('Error in %s : %d\n', this.AxisName, error);
-            %                 end
-            %                 error = calllib ('ps90', 'PS90_MoveEx', this.Index, axis, delta, this.units);
-            %             end
         end
+        
+        
+        %% AxisState %%
         
         function  State = AxisState(this,axis)
             %The method retrieves the current axis state.
             %function  AxisState(this,axis)
-            % Arguments: object ALIO (this),int Axis%
+            % Arguments: object OWIS (this),int Axis%
             % Returns: array with the current state of the motor %
             
             State = calllib ('ps90', 'PS90_GetAxisState', this.Index, axis);
@@ -493,6 +492,67 @@ classdef OWIS_STAGES
             error = calllib ('ps90', 'PS90_GetReadError', this.Index);
             this.showError(error);
         end
+        
+        %% Home %%
+        
+        function  Home(this,axis)
+            % function  Home(this,axis)
+            % Arguments: object ALIO (this), axis int,%
+            % Returns: none %
+            
+            if calllib ('ps90', 'PS90_GetMoveState', this.Index, axis) ~= 0
+                this.MotionStop(axis);        % If axis is currently moving stop it first
+            end
+            
+            error = calllib ('ps90', 'PS90_GoRef', this.Index, axis, 1); %Search for reference switch and release it
+            if error ~= 0
+                this.showError(error);
+            end
+        end
+        
+        %% WaitForMotion %% wait until movement is complete%%
+        
+        function  WaitForMotion(this,axis,time)
+            %function  WaitForMotion(this,axis,time)
+            % Arguments: object OWIS (this), axis int,time inn (if -1, wait infinite)%
+            % Returns: none %
+            tic
+            while toc <= time
+                if (calllib ('ps90', 'PS90_GetMoveState', this.Index, axis) ~= 0)
+                    return
+                end
+            end
+        end
+        
+        %% FreeRun %%        
+        function  FreeRun(this,axis, velocity)
+            %function  FreeRunX(this,velocity)
+            % Arguments: object OWIS (this),double velocity%
+            % Returns: none %          
+            error = calllib ('ps90', 'PS90_SetFEx', this.Index, axis, velocity);
+            this.showError(error);
+        end
+        function  FreeRunX(this,velocity)
+            %function  FreeRunX(this,velocity)
+            % Arguments: object OWIS (this),double velocity%
+            % Returns: none %
+            axis = this.xAxis;
+            this.FreeRun(this,axis,velocity);
+        end
+        function  FreeRunY(this,velocity)
+            %function  FreeRunX(this,velocity)
+            % Arguments: object OWIS (this),double velocity%
+            % Returns: none %
+            axis = this.YAxis;
+            this.FreeRun(this,axis,velocity);
+        end
+        function  FreeRunZ(this,velocity)
+            %function  FreeRunX(this,velocity)
+            % Arguments: object OWIS (this),double velocity%
+            % Returns: none %
+            axis = this.zAxis;
+            this.FreeRun(this,axis,velocity);
+        end     
     end
 end
 
