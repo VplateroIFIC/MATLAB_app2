@@ -148,7 +148,7 @@ end
 %%  OneFrame return current frame of the camera (image)   %%   
         function Image = OneFrame(this)
             start(this.cam);
-            Image=getdata(this.cam);
+            [Image,time,metadata]=this.retrieveDataOneFrame;
             stop(this.cam);
         end
         
@@ -195,10 +195,6 @@ end
         function startAdquisition(this)
             set(this.cam, 'FramesPerTrigger', Inf);
             start(this.cam);
-            test=this.retrieveData;     % waiting until adquistion begins (there is delay..)
-            while isempty(test==1)
-                test=this.retrieveData;
-            end
         end
         
 %%  stopAdquisition stop the camera adquisition  %%           
@@ -206,18 +202,25 @@ end
         stop(this.cam);
         end
    
-%%  retrieveData retrieve the current logged data. Used during adquisition is ON  %%           
-        function [data, time, metadata]=retrieveData(this)
+%%  retrieveDataAllFrames retrieve the current logged data. Used during adquisition is ON  %%           
+        function [data, time, metadata]=retrieveDataAllFrames(this)
         [data, time, metadata] =getdata(this.cam);
-        end        
+            while isempty(data)==1
+            [data, time, metadata] =getdata(this.cam);
+            end
+        end  
+        
+        %%  retrieveDataOneFrame retrieve the current logged data. Used during adquisition is ON  %%           
+        function [data, time, metadata]=retrieveDataOneFrame(this)
+        [data, time, metadata] =getdata(this.cam,1);
+            while isempty(data)==1
+            [data, time, metadata] =getdata(this.cam,1);
+            end
+        end
         
 %%  ResetAdquisitionBuffer Remove data from memory buffer used to store acquired image frames  %%           
         function ResetAdquisitionBuffer(this)
         flushdata(this.cam);
-        test=this.retrieveData;     % waiting until adquistion begins after the reset
-            while isempty(test==1)
-                test=this.retrieveData;
-            end
         end            
         
         
