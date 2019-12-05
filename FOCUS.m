@@ -3,14 +3,14 @@ classdef FOCUS
   
     
     properties (Access=private)
-       maxIter=15;
-       FocusRange=0.3;      %0.3
+       maxIter=4;
+       FocusRange=0.4;      %0.3
        velocity=2;
        threshold=0.02;
-       splits=4;    %4
-       RoiSize=500;
+       Samples=10;    %4
+%        RoiSize=500;
        ReadyToFocus=0;
-       FocusType='BREN';
+       FocusType='VOLA';
        zAxis=4;
        gantry;
        cam;
@@ -152,7 +152,122 @@ info.Zvalues=zAll;
 info.Fvalues=FocusAll;
 info.time=TotalTime;
 info.Images=image;
+ end
+
+
+ function info=AutoFocusNew(this)
+%This function launch the autofocus procedure (optimized script).
+%
+%   info=AutoFocus(this)
+%Where 
+%   this,  instance of the class
+%   info,   struct array with the focus information
+
+% Setting basic parameters for the focus loop % 
+
+%starting clock to log the total execution time
+total=tic;  
+
+maxIterations=this.maxIter;
+samplesPerIteration=this.Samples;
+range=this.FocusRange;
+thresh=this.threshold;
+
+% Setting counters to 1 and trigger to 0
+loopsCounter=1;
+focusValidFlag=0;
+
+% logging initial z and setting useful window
+Zinitial=this.gantry.GetPosition(this.zAxis);
+usefulWindow=[Zinitial -range/2,Zinitial+range/2];
+
+% setting initial properties
+Z0=Zinitial;
+scaling=1/3;
+deltaWindow=range/2;
+
+% Starting camera adquisition
+this.cam.startAdquisition;
+
+% getting 1 image and setting matrix size
+ this.cam.ResetAdquisitionBuffer;
+[data,~,~]=this.cam.retrieveDataOneFrame;
+[resy,resx]=size(data);
+
+% Starting measurement loops
+
+while (focusValidFlag==0) && (loopsCounter<maxIterations)
+   
+    localWindow=[Z0-deltaWindow*(loopsCounter-1)*scaling,Z0+deltaWindow*(loopsCounter-1)*scaling];
+    deltaPerSample=localWindow/(samplesPerIteration-1);
+    image=zeros(resy,resx,samplesPerIteration);
+    
+    %going to the starting point
+    this.gantry.MoveTo(this.zAxis,localWindow(1),this.velocity);
+    this.gantry.WaitForMotion(this.zAxis,-1);
+    
+    for i=1:samplesPerIteration
+        % logging current position
+        Z(loopsCounter,i)=this.gantry.GetPosition(this.zAxis);
+        
+        % reset camera buffer and taking 1 frame
+        this.cam.ResetAdquisitionBuffer;
+        [data,~,~]=this.cam.retrieveDataOneFrame;
+        image(:,:,i)=data;
+        disp(['loop: ',int2str(loopsCounter),' image', int2str(i),' taken']);
+        
+        % moving to next point
+        this.gantry.MoveBy(this.zAxis,deltaPerSample,this.velocity);
+        this.gantry.WaitForMotion(this.zAxis,-1);
+    end
+    
+    % Processing images
+    for i=1:samplesPerIteration
+      F(loopsCounter,i)=this.fmeasure(image(:,:,i),this.FocusType);
+    end
+    
+    % fitting 
+    p=polyfit(Z(loopsCounter,:),F(loopsCounter,:),6);
+    Zeval=Z(loopsCounter,1):0.0001:Z(length(Z(loopsCounter,:)));
+    Yfit=polyval(p,Zeval);
+    ZMaxFit=Zeval(find(Yfit==max(Yfit)));
+    ZMax(loopsCounter)=mean(ZMaxFit);
+    
+    % checking if threshold condition is met
+    if loopsCounter>1
+        if abs(ZMax(loopsCounter)-Z0)<thresh
+            focusValidFlag=1;
+        end
+    end
+    Z0=ZMax(loopsCounter);
+    loopsCounter=loopsCounter+1;
 end
+
+% stopping images adquisition
+this.cam.stopAdquisition;
+
+% setting the optimal value found
+Zoptimo=Z0;
+
+% solving depending if the optimal value is within or out of the useful window
+if (Zoptimo > usefulWindow(2)) || Zoptimo < usefulWindow(1)
+    disp('Focus out of range')
+    return
+else
+    TotalTime=toc(total);
+    disp('Optimal focus point reached');
+    info.Zoptim=Zoptimo;
+    info.Foptim=ZMaxFit;
+    info.Zvalues=Z;
+    info.Fvalues=F;
+    info.time=TotalTime;
+    
+    % moving to the optimal value
+    this.gantry.MoveTo(this.zAxis,Zoptimo,this.velocity);
+    this.gantry.WaitForMotion(this.zAxis,-1);
+    
+end
+ 
         
 function FM = fmeasure(this,Image, Measure, ROI)
     %This function measures the relative degree of focus of 
