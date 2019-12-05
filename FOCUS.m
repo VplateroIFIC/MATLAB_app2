@@ -4,7 +4,7 @@ classdef FOCUS
     
     properties (Access=private)
        maxIter=4;
-       FocusRange=0.4;      %0.3
+       FocusRange=0.6;      %0.3
        velocity=2;
        threshold=0.02;
        Samples=10;    %4
@@ -169,9 +169,9 @@ info.Images=image;
 total=tic;  
 
 maxIterations=this.maxIter;
-samplesPerIteration=this.Samples;
+samplesPerIteration=5;
 range=this.FocusRange;
-thresh=this.threshold;
+thresh=0.005;
 
 % Setting counters to 1 and trigger to 0
 loopsCounter=1;
@@ -179,7 +179,7 @@ focusValidFlag=0;
 
 % logging initial z and setting useful window
 Zinitial=this.gantry.GetPosition(this.zAxis);
-usefulWindow=[Zinitial -range/2,Zinitial+range/2];
+usefulWindow=[Zinitial-range/2,Zinitial+range/2];
 
 % setting initial properties
 Z0=Zinitial;
@@ -195,11 +195,11 @@ this.cam.startAdquisition;
 [resy,resx]=size(data);
 
 % Starting measurement loops
+localWindow=[Z0-deltaWindow,Z0+deltaWindow];
 
 while (focusValidFlag==0) && (loopsCounter<maxIterations)
    
-    localWindow=[Z0-deltaWindow*(loopsCounter-1)*scaling,Z0+deltaWindow*(loopsCounter-1)*scaling];
-    deltaPerSample=localWindow/(samplesPerIteration-1);
+    deltaPerSample=(localWindow(2)-localWindow(1))/(samplesPerIteration-1);
     image=zeros(resy,resx,samplesPerIteration);
     
     %going to the starting point
@@ -223,15 +223,20 @@ while (focusValidFlag==0) && (loopsCounter<maxIterations)
     
     % Processing images
     for i=1:samplesPerIteration
-      F(loopsCounter,i)=this.fmeasure(image(:,:,i),this.FocusType);
+      F(loopsCounter,i)=this.fmeasure(mat2gray(image(:,:,i)),this.FocusType,[0,0,resx,resy]);
     end
     
     % fitting 
     p=polyfit(Z(loopsCounter,:),F(loopsCounter,:),6);
-    Zeval=Z(loopsCounter,1):0.0001:Z(length(Z(loopsCounter,:)));
+    Zeval=localWindow(1):0.0001:localWindow(2);
     Yfit=polyval(p,Zeval);
     ZMaxFit=Zeval(find(Yfit==max(Yfit)));
     ZMax(loopsCounter)=mean(ZMaxFit);
+    
+    % checking if max value is leaving the useful window
+    if (ZMax(loopsCounter) > usefulWindow(2)) || ZMax(loopsCounter) < usefulWindow(1)
+        focusValidFlag=1;
+    else
     
     % checking if threshold condition is met
     if loopsCounter>1
@@ -239,8 +244,13 @@ while (focusValidFlag==0) && (loopsCounter<maxIterations)
             focusValidFlag=1;
         end
     end
+    end
     Z0=ZMax(loopsCounter);
     loopsCounter=loopsCounter+1;
+    deltaWindow=abs(localWindow(2)-localWindow(1))*scaling/2;
+    localWindow=[Z0-deltaWindow,Z0+deltaWindow];
+    
+   
 end
 
 % stopping images adquisition
@@ -248,25 +258,33 @@ this.cam.stopAdquisition;
 
 % setting the optimal value found
 Zoptimo=Z0;
-
+   TotalTime=toc(total);
 % solving depending if the optimal value is within or out of the useful window
 if (Zoptimo > usefulWindow(2)) || Zoptimo < usefulWindow(1)
     disp('Focus out of range')
-    return
-else
-    TotalTime=toc(total);
-    disp('Optimal focus point reached');
     info.Zoptim=Zoptimo;
-    info.Foptim=ZMaxFit;
+    info.Zinit=Zinitial;
+    info.Foptim=polyval(p,Zoptimo);
     info.Zvalues=Z;
     info.Fvalues=F;
     info.time=TotalTime;
-    
+    info.focusWindow=usefulWindow;
+else
+    disp('Optimal focus point reached');
+    info.Zoptim=Zoptimo;
+    info.Zinit=Zinitial;
+    info.Foptim=polyval(p,Zoptimo);
+    info.Zvalues=Z;
+    info.Fvalues=F;
+    info.time=TotalTime;
+    info.focusWindow=usefulWindow;
+    info
     % moving to the optimal value
     this.gantry.MoveTo(this.zAxis,Zoptimo,this.velocity);
     this.gantry.WaitForMotion(this.zAxis,-1);
     
 end
+ end
  
         
 function FM = fmeasure(this,Image, Measure, ROI)
