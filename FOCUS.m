@@ -3,17 +3,24 @@ classdef FOCUS
   
     
     properties (Access=private)
-       maxIter=4;
-       FocusRange=0.6;      %0.3
+      
+        %AutoFocus
+        maxIter=10;
+       FocusRange=0.2;      %0.3
        velocity=2;
        threshold=0.02;
-       Samples=10;    %4
-%        RoiSize=500;
+       splits=10;    %4
+       RoiSize=500;
        ReadyToFocus=0;
-       FocusType='VOLA';
+       FocusType='BREN';
        zAxis=4;
        gantry;
        cam;
+       
+       %AutoFocusNew
+       
+       
+       
     end
     
     methods
@@ -53,12 +60,13 @@ end
 
 total=tic;
 
+%starting adquisition
 this.cam.startAdquisition;
-pause(1)
-data=this.cam.retrieveData;
-dimension=size(data);
-firstImage=data(:,:,1,dimension(4));
-[dimy,dimx]=size(firstImage);
+
+%setting image properties
+ this.cam.ResetAdquisitionBuffer;
+[data,~,~]=this.cam.retrieveDataOneFrame;
+[dimy,dimx]=size(data);
 ImageSize(1)=dimx;
 ImageSize(2)=dimy;
 
@@ -71,13 +79,17 @@ RoiWidth=this.RoiSize;
 RoiHeight=this.RoiSize;
 Z0=Zini;
 image=cell(1,20);
+
+
+
 % Setting counters and empty vector for the general loop%
 zCont=1;
 fCont=1;
 Fopt=zeros(1,100);
 ImCont=1;
 iteration=1;
-while iteration<this.maxIter
+
+while iteration<20
 % Setting counters and empty vector for the sampling loop%  
 P0=Z0-R/2;
 Pn=Z0+R/2;
@@ -92,9 +104,9 @@ this.gantry.MoveTo(this.zAxis,z,this.velocity);
 this.gantry.WaitForMotion(this.zAxis,-1);
 Z(zCont)=this.gantry.GetPosition(this.zAxis);
 % taking picture %
-data=this.cam.retrieveData;
-dimension=size(data);
-image{ImCont}=data(:,:,1,dimension(4));
+this.cam.ResetAdquisitionBuffer;
+[data,~,~]=this.cam.retrieveDataOneFrame;
+image{ImCont}=data;
 % Asking focus parameter %
 FocusValue(fCont)=this.fmeasure(image{ImCont},this.FocusType,[x0,y0,RoiWidth,RoiHeight]);
 % Updating counters %
@@ -123,7 +135,7 @@ end
 
 this.cam.stopAdquisition;
 
-if (iteration<this.maxIter)
+if (iteration<10)
 % Fitting results to a quadratic polynomial (last 4 points) %
 zAll=cell2mat(zAll);
 FocusAll=cell2mat(focusAll);    
@@ -168,9 +180,9 @@ info.Images=image;
 %starting clock to log the total execution time
 total=tic;  
 
-maxIterations=this.maxIter;
+maxIterations=10;
 samplesPerIteration=5;
-range=this.FocusRange;
+range=0.4;
 thresh=0.005;
 
 % Setting counters to 1 and trigger to 0
