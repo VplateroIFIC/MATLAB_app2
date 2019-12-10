@@ -1,12 +1,11 @@
 classdef JOYSTICK
     %JOYSTICK Control over joystick device
-    %   This class provide control over joystick device connected to Gantry
+    %   This class provide control over joystick device connected to setup
     
-    properties (Access=public)
-  
+    properties (SetAccess = protected, GetAccess = public)
+        JoystickIsReady = 0;
     end
     properties (Access=protected)
-        JoystickIsReady=0;
         setup;
         t;
         threshold=0.1;
@@ -18,6 +17,12 @@ classdef JOYSTICK
         z1Axis = -1;
         z2Axis = -1;
         uAxis = -1;
+        inv_xAxis = 1;
+        inv_yAxis = 0;
+        inv_z1Axis = 0;
+        inv_z2Axis = 0;
+        inv_uAxis = 0;        
+                
 %         OWIS = 0;
 %         Gantry = 0;
     end
@@ -25,31 +30,31 @@ classdef JOYSTICK
     methods
         function this = JOYSTICK(setup_obj)
             %JOYSTICK Construct an instance of this class
-            %   receiving gantry object and creating joystick instance
+            %   receiving setup object and creating joystick instance
             this.setup=setup_obj;
             if (this.setup.IsConnected==1)
                 
             else
-                disp('joystick can not be used: gantry is not connected')
+                disp('joystick can not be used: setup is not connected')
             end
             
-            if isprop (this.setup.xAxis)
-                this.xAxis = gantry.xAxis;
+            if isprop (this.setup,'xAxis')
+                this.xAxis = this.setup.xAxis;
             end
-            if isprop (this.setup.yAxis)
-                this.yAxis = gantry.yAxis;
+            if isprop (this.setup,'yAxis')
+                this.yAxis = this.setup.yAxis;
             end
-            if isprop (this.setup.z1Axis)
-                this.z1Axis = gantry.z1Axis;
+            if isprop (this.setup,'z1Axis')
+                this.z1Axis = this.setup.z1Axis;
             end
-            if isprop (this.setup.z2Axis)
-                this.z2Axis = gantry.z2Axis;
+            if isprop (this.setup,'z2Axis')
+                this.z2Axis = this.setup.z2Axis;
             end
-            if isprop (this.setup.z2Axis)
-                this.z2Axis = gantry.z2Axis;
+            if isprop (this.setup,'z2Axis')
+                this.z2Axis = this.setup.z2Axis;
             end
-            if isprop (this.setup.uAxis)
-                this.uAxis = gantry.uAxis;
+            if isprop (this.setup,'uAxis')
+                this.uAxis = this.setup.uAxis;
             end
         end
         
@@ -85,29 +90,38 @@ classdef JOYSTICK
             if (abs(pos(1))> this.threshold)
              vel=-tobj.UserData.Velocity*pos(1);
              fprintf ('X_axis is moving with velocity %f\n',vel);
+             if this.inv_xAxis == 1
+                 vel = -vel;
+             end
              this.setup.FreeRunX(vel);
              tobj.UserData.FlagAxes(1)=1;
             end
             
             if (abs(pos(2))> this.threshold)
-             vel=-tobj.UserData.Velocity*pos(2);
-             fprintf ('Y_axis is moving with velocity %f\n',vel);
-             this.setup.FreeRunY(vel);
-             tobj.UserData.FlagAxes(2)=1;
+                vel=-tobj.UserData.Velocity*pos(2);
+                fprintf ('Y_axis is moving with velocity %f\n',vel);
+                this.setup.FreeRunY(vel);
+                if this.inv_yAxis == 1
+                    vel = -vel;
+                end
+                tobj.UserData.FlagAxes(2)=1;
             end
             
             if (abs(pos(3))> this.threshold) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==0)
-            vel=-tobj.UserData.Velocity*pos(3);
-            fprintf ('Z1_axis is moving with velocity %f\n',vel);
-            this.setup.FreeRunZ1(vel);
-            tobj.UserData.FlagAxes(3)=1;
-            end            
+                vel=-tobj.UserData.Velocity*pos(3);
+                if this.inv_zAxis == 1
+                    vel = -vel;
+                end
+                fprintf ('Z1_axis is moving with velocity %f\n',vel);
+                this.setup.FreeRunZ1(vel);
+                tobj.UserData.FlagAxes(3)=1;
+            end
             
             
             if (abs(pos(3))> this.threshold) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==1)
                 vel=-tobj.UserData.Velocity*pos(3);
                 fprintf ('Z2_axis is moving with velocity %f\n',vel);
-                if ismethod (setup, 'FreeRunZ2')
+                if ismethod (this.setup, 'FreeRunZ2')
                     this.setup.FreeRunZ2(vel);
                     tobj.UserData.FlagAxes(3)=1;
                 else
@@ -119,7 +133,7 @@ classdef JOYSTICK
             if (abs(pos(3))> this.threshold) && (tobj.UserData.FlagAxes(5)==1)
                 vel=-tobj.UserData.Velocity*pos(3);
                 fprintf ('Z2_axis is moving with velocity %f\n',vel);
-                if ismethod (setup, 'FreeRunU')
+                if ismethod (this.setup, 'FreeRunU')
                     this.setup.FreeRunU(vel);
                     tobj.UserData.FlagAxes(3)=1;
                 else
@@ -145,7 +159,7 @@ classdef JOYSTICK
             end
             
             if (abs(pos(3))<this.threshold) && (tobj.UserData.FlagAxes(3)==1) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==1)
-                if ismethod (setup, 'FreeRunZ2')
+                if ismethod (this.setup, 'FreeRunZ2')
                     this.setup.MotionStop(this.z2Axis);
                     tobj.UserData.FlagAxes(3)=0;
                 else
@@ -154,7 +168,7 @@ classdef JOYSTICK
             end
             
             if (abs(pos(3))<this.threshold) && (tobj.UserData.FlagAxes(3)==1) && (tobj.UserData.FlagAxes(5)==1)
-                if ismethod (setup, 'FreeRunZ2')
+                if ismethod (this.setup, 'FreeRunZ2')
                     this.setup.MotionStop(this.uAxis);
                     tobj.UserData.FlagAxes(3)=0;
                 else
@@ -222,8 +236,8 @@ classdef JOYSTICK
         function stopAll(this,tobj,event)
             % safe stop in case timer stopped %
             
-            if ismethod(setup,'MotionStopAll')
-                setup.MotionStopAll;
+            if ismethod(this.setup,'MotionStopAll')
+                this.setup.MotionStopAll;
             end
             
             if this.xAxis >= 0
