@@ -11,7 +11,8 @@ classdef OWIS_STAGES
     
         %% Connection Properties  %%
     properties (Constant, Access = public)
-        ID = 'OWIS';
+        Type = 'OWIS';
+        OWIS = 1;
         Interface = 0;      % 0-> ComPort or USB; 1-> NET
         nComPort=int32(3);  % 0(COM0), 1(COM1), ... 255(COM255), default: 1
         Baud = 9600;        % 9600,19200,38400,57600,115200, default: 9600
@@ -29,7 +30,7 @@ classdef OWIS_STAGES
         Index = 1;    %// PS-90 INDEX    %search for reference switch and release switch
         xAxis = 1.;
         yAxis = 2.;
-        zAxis = 3.;
+        z1Axis = 3.;
         Axis = [1,2,3];
         AxisName = [{'X_axis'},{'Y_axis'},{'Z_axis'}];
         units = 1;
@@ -531,7 +532,7 @@ classdef OWIS_STAGES
             %function  FreeRunX(this,velocity)
             % Arguments: object OWIS (this),double velocity%
             % Returns: none %
-            axis = this.zAxis;
+            axis = this.z1Axis;
             if this.CriticalError == true
                 fprintf ('\n Critital Error in %s', this.AxisName(axis));
                 return;
