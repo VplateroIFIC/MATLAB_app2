@@ -83,11 +83,14 @@ classdef OWIS_STAGES
             end
             error = calllib('ps90', 'PS90_Connect', this.Index, this.Interface, this.nComPort, this.Baud, this.Handshake, this.Parity, this.dataBits, this.stopBits);
             this.ConnectError(error);
+            if error == 0
+                this.IsConnected = 1;
+            end
         end
         
         %% Showing errors  %%
         
-        function ConnectError(error)
+        function ConnectError(this, error)
             switch error
                 case 0
                     fprintf('\t OK\n');
@@ -161,11 +164,12 @@ classdef OWIS_STAGES
             
             for i=1:3
                 State = this.AxisState(i);
-                if State ~= 0
-                    fprintf ('Wrong state on axis %s : %d\n', this.AxisName(i), State);
+                if State ~= 2
+                    fprintf ('Wrong state on axis %s : %d\n', this.AxisName{i}, State);
                 end
             end
             error = calllib ('ps90', 'PS90_Disconnect', this.Index);
+            fprintf (' Disconnecting OWIS driver ->');
             if error == 0
                 this.IsConnected = 0;
             end
@@ -243,7 +247,7 @@ classdef OWIS_STAGES
                 this.showError(error);
             end
             Position = this.GetPosition(axis);
-            fprintf (' Moving %s from %3.3f to %3.3f mm at ', this.AxisName{axis}, Position , target);
+            fprintf (' Moving %s from %3.3f to %3.3f mm at %.1f mm/s ->', this.AxisName{axis}, Position, target, velocity);
             error = calllib ('ps90', 'PS90_SetTargetEx', this.Index, axis, target);
             if error ~= 0
                 this.showError(error);
@@ -286,7 +290,7 @@ classdef OWIS_STAGES
             end
             
             for i=1:3
-                fprintf('Setting %s --> ', this.AxisName{i});
+                fprintf('Setting %s -> ', this.AxisName{i});
                 error = calllib('ps90', 'PS90_SetMotorType', this.Index, this.Axis(i), this.motor_type(i));
                 error = error + calllib('ps90', 'PS90_SetLimitSwitch', this.Index, this.Axis(i),this.limit_switch(i));
                 error = error + calllib('ps90', 'PS90_SetLimitSwitchMode', this.Index, this.Axis(i),this.limit_switch_mode(i));
@@ -333,7 +337,7 @@ classdef OWIS_STAGES
             % Returns: none %
             error = calllib('ps90','PS90_MotorInit', this.Index, axis);
             if error ~= 0
-                fprintf('Error Activating Motor: %s \n', this.AxisName(axis));
+                fprintf('Error Activating Motor: %s ->', this.AxisName{axis});
                 this.showError(error);
             end
         end
@@ -357,7 +361,7 @@ classdef OWIS_STAGES
             % Returns: none %
             error = calllib ('ps90', 'PS90_MotorOff', this.Index, axis);
             if error ~= 0
-                fprintf('Error Desactivating Motor: %s \n', this.AxisName(axis));
+                fprintf('Error Desactivating Motor: %s ->', this.AxisName{axis});
                 this.showError(error);
             end
         end
@@ -366,10 +370,10 @@ classdef OWIS_STAGES
         
         function  MotorDisableAll(this)
             %function  MotorDisableAll(this)
-            % Arguments: object OWIS (this), axis int,%
+            % Arguments: object OWIS (this) %
             % Returns: none %
             for i=1:3
-                this.MotorDisable(this,this.Axis(i));
+                this.MotorDisable(this.Axis(i));
             end
         end
         
@@ -382,7 +386,7 @@ classdef OWIS_STAGES
             % Returns: none %
             
             if this.CriticalError == true
-                fprintf ('\n Critital Error in %s', this.AxisName(axis));
+                fprintf ('\n Critital Error in %s', this.AxisName{axis});
                 return;
             end
             
@@ -407,7 +411,7 @@ classdef OWIS_STAGES
                 this.showError(error);
             end
             Position = this.GetPosition(axis);
-            fprintf (' Moving %s from %3.3f to %3.3f mm ', this.AxisName{axis}, Position , Position + delta);
+            fprintf (' Moving %s from %3.3f to %3.3f mm at %.1f mm/s ->', this.AxisName{axis}, Position , Position + delta, velocity);
             error = calllib ('ps90', 'PS90_MoveEx', this.Index, axis, delta, this.units);
             this.showError(error);
         end
@@ -421,19 +425,14 @@ classdef OWIS_STAGES
             % Arguments: object OWIS (this),int Axis%
             % Returns: array with the current state of the motor %
             
-            if this.CriticalError == true
-                fprintf ('\n Critital Error in %s', this.AxisName(axis));
-                return;
-            end
-            
             State = calllib ('ps90', 'PS90_GetAxisState', this.Index, axis);
             switch State
                 case 0
-                    fprintf('Axis %s is not active', this.AxisName{axis});
+                    fprintf('Axis %s is not active ->', this.AxisName{axis});
                 case 1
-                    fprintf('Axis %s not initialized', this.AxisName{axis});
+                    fprintf('Axis %s not initialized ->', this.AxisName{axis});
                 case 2
-                    fprintf('Axis %s is switched off', this.AxisName{axis});
+                    fprintf('Axis %s is switched off ->', this.AxisName{axis});
                 case 3
                     fprintf('Axis %s is ready', this.AxisName{axis});
             end
@@ -502,7 +501,7 @@ classdef OWIS_STAGES
             
             axis = this.xAxis;
             if this.CriticalError == true
-                fprintf ('\n Critital Error in %s', this.AxisName(axis));
+                fprintf ('\n Critital Error in %s', this.AxisName{axis});
                 return;
             end
             error = calllib ('ps90', 'PS90_SetFEx', this.Index, axis, velocity);
@@ -518,7 +517,7 @@ classdef OWIS_STAGES
             % Returns: none %
             axis = this.yAxis;
             if this.CriticalError == true
-                fprintf ('\n Critital Error in %s', this.AxisName(axis));
+                fprintf ('\n Critital Error in %s', this.AxisName{axis});
                 return;
             end
             error = calllib ('ps90', 'PS90_SetFEx', this.Index, axis, velocity);
@@ -534,7 +533,7 @@ classdef OWIS_STAGES
             % Returns: none %
             axis = this.z1Axis;
             if this.CriticalError == true
-                fprintf ('\n Critital Error in %s', this.AxisName(axis));
+                fprintf ('\n Critital Error in %s', this.AxisName{axis});
                 return;
             end
             error = calllib ('ps90', 'PS90_SetFEx', this.Index, axis, velocity);
