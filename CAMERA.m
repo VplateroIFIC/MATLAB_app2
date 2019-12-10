@@ -218,7 +218,7 @@ classdef CAMERA
             end
         end
         
-        %%  retrieveDataOneFrame retrieve the current logged data. Used during adquisition is ON  %%
+        %%  retrieveDataNFrames retrieve the current logged data. Used during adquisition is ON  %%
         function [data, time, metadata]=retrieveDataNFrames(this,N)
             [data, time, metadata] =getdata(this.cam,N);
             while isempty(data)==1
