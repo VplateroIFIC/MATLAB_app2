@@ -16,13 +16,7 @@ classdef JOYSTICK
         yAxis = -1;
         z1Axis = -1;
         z2Axis = -1;
-        uAxis = -1;
-        inv_xAxis = 1;
-        inv_yAxis = 0;
-        inv_z1Axis = 0;
-        inv_z2Axis = 0;
-        inv_uAxis = 0;        
-                
+        uAxis = -1;                
 %         OWIS = 0;
 %         Gantry = 0;
     end
@@ -90,9 +84,6 @@ classdef JOYSTICK
             if (abs(pos(1))> this.threshold)
              vel=-tobj.UserData.Velocity*pos(1);
              fprintf ('X_axis is moving with velocity %f\n',vel);
-             if this.inv_xAxis == 1
-                 vel = -vel;
-             end
              this.setup.FreeRunX(vel);
              tobj.UserData.FlagAxes(1)=1;
             end
@@ -101,17 +92,11 @@ classdef JOYSTICK
                 vel=-tobj.UserData.Velocity*pos(2);
                 fprintf ('Y_axis is moving with velocity %f\n',vel);
                 this.setup.FreeRunY(vel);
-                if this.inv_yAxis == 1
-                    vel = -vel;
-                end
                 tobj.UserData.FlagAxes(2)=1;
             end
             
             if (abs(pos(3))> this.threshold) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==0)
                 vel=-tobj.UserData.Velocity*pos(3);
-                if this.inv_zAxis == 1
-                    vel = -vel;
-                end
                 fprintf ('Z1_axis is moving with velocity %f\n',vel);
                 this.setup.FreeRunZ1(vel);
                 tobj.UserData.FlagAxes(3)=1;

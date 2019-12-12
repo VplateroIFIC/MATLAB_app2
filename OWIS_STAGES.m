@@ -499,6 +499,7 @@ classdef OWIS_STAGES
             % Arguments: object OWIS (this),double velocity%
             % Returns: none %
             
+            velocity = -velocity;
             axis = this.xAxis;
             if this.CriticalError == true
                 fprintf ('\n Critital Error in %s', this.AxisName{axis});
