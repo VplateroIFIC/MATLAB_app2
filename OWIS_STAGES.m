@@ -492,6 +492,26 @@ classdef OWIS_STAGES
             disp ('Movement finished');
         end
         
+        %% FreeSwitch
+        function FreeSwitch (this, axis)
+            %function  FreeSwitch(this,axis)
+            % Arguments: object OWIS (this), axis int%
+            % Returns: none %
+            fprintf ('Release axis %s -> ', this.AxisName{axis});
+            error = calllib ('ps90', 'PS90_FreeSwitch', this.Index, axis);
+            this.showError(error); 
+        end
+        
+        function FreeSwitchALL (this)
+            %function  FreeSwitch(this,axis)
+            % Arguments: object OWIS (this), axis int%
+            % Returns: none %
+            
+            for i=1:3
+                this.FreeSwitch(i)
+            end
+        end
+        
         %% FreeRun %%
         
         function  FreeRunX(this,velocity)
