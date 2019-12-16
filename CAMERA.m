@@ -74,6 +74,7 @@ end
                 this.ImageOutput=ImageOutput;
                 this.triggerConfig=triggerConfig;
                 this.videoAdaptor=videoAdaptor;
+                
                 this.ExposureAuto=ExposureAuto;
                 this.GainAuto=GainAuto;
 
@@ -127,6 +128,7 @@ end
                src = getselectedsource(this.cam);
                src.ExposureAuto = this.ExposureAuto;
                src.GainAuto = this.GainAuto; 
+%                src.ExposureTime = 4000;
                set(this.cam, 'TriggerFrameDelay', 25);
                set(this.cam, 'FramesPerTrigger', 1);
                set(this.cam, 'TriggerRepeat', Inf);
