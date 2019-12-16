@@ -16,9 +16,9 @@ classdef JOYSTICK
         yAxis = -1;
         z1Axis = -1;
         z2Axis = -1;
-        uAxis = -1;                
-%         OWIS = 0;
-%         Gantry = 0;
+        uAxis = -1;
+        %         OWIS = 0;
+        %         Gantry = 0;
     end
     
     methods
@@ -55,37 +55,37 @@ classdef JOYSTICK
         function this = Connect(this)
             %Connect Connecting joystick
             % starting timer to manage the joystick input
-        this.setup.MotorEnableAll;     
-        this.t = timer('Name','JoyTimer','ExecutionMode','fixedSpacing','StartDelay', 0,'Period',0.01);
-        this.t.UserData = struct('FlagAxes',zeros(5,1),'FlagBut',zeros(16,1),'maxVelocity',this.maxVel,'minVelocity',this.minVel,'Velocity',this.CurrentVel);
-        this.t.BusyMode='queue';
-        
-        this.t.TimerFcn = {@this.joyControl};
-        this.t.ErrorFcn = {@this.stopAll};
-        this.t.StopFcn = {@this.stopAll};
-        start(this.t);
-        disp('Joystick is ready to be used')
-        this.JoystickIsReady=1;
+            this.setup.MotorEnableAll;
+            this.t = timer('Name','JoyTimer','ExecutionMode','fixedSpacing','StartDelay', 0,'Period',0.01);
+            this.t.UserData = struct('FlagAxes',zeros(5,1),'FlagBut',zeros(16,1),'maxVelocity',this.maxVel,'minVelocity',this.minVel,'Velocity',this.CurrentVel);
+            this.t.BusyMode='queue';
+            
+            this.t.TimerFcn = {@this.joyControl};
+            this.t.ErrorFcn = {@this.stopAll};
+            this.t.StopFcn = {@this.stopAll};
+            start(this.t);
+            disp('Joystick is ready to be used')
+            this.JoystickIsReady=1;
         end
         
         function this = Disconnect(this)
             %Disconnect Disconnect joystick
             % Stopping timer
-        stop(this.t);
+            stop(this.t);
         end
         
         function joyControl(this,tobj,event)
             % calling the joystick inpput %
-
+            
             [pos, but] = mat_joy(0);
             
-           % Controling of the axes: moving %
-           
+            % Controling of the axes: moving %
+            
             if (abs(pos(1))> this.threshold)
-             vel=-tobj.UserData.Velocity*pos(1);
-             fprintf ('X_axis is moving with velocity %f\n',vel);
-             this.setup.FreeRunX(vel);
-             tobj.UserData.FlagAxes(1)=1;
+                vel=-tobj.UserData.Velocity*pos(1);
+                fprintf ('X_axis is moving with velocity %f\n',vel);
+                this.setup.FreeRunX(vel);
+                tobj.UserData.FlagAxes(1)=1;
             end
             
             if (abs(pos(2))> this.threshold)
@@ -97,6 +97,7 @@ classdef JOYSTICK
             
             if (abs(pos(3))> this.threshold) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==0)
                 vel=-tobj.UserData.Velocity*pos(3);
+                vel = vel/3;
                 fprintf ('Z1_axis is moving with velocity %f\n',vel);
                 this.setup.FreeRunZ1(vel);
                 tobj.UserData.FlagAxes(3)=1;
@@ -105,6 +106,7 @@ classdef JOYSTICK
             
             if (abs(pos(3))> this.threshold) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==1)
                 vel=-tobj.UserData.Velocity*pos(3);
+                vel = vel/10;
                 fprintf ('Z2_axis is moving with velocity %f\n',vel);
                 if ismethod (this.setup, 'FreeRunZ2')
                     this.setup.FreeRunZ2(vel);
@@ -127,15 +129,15 @@ classdef JOYSTICK
             end
             
             % Controling of the axes: stopping %
-
+            
             if (abs(pos(1))<this.threshold) && (tobj.UserData.FlagAxes(1)==1)
-            this.setup.MotionStop(this.xAxis);
-            tobj.UserData.FlagAxes(1)=0;
+                this.setup.MotionStop(this.xAxis);
+                tobj.UserData.FlagAxes(1)=0;
             end
             
             if (abs(pos(2))<this.threshold) && (tobj.UserData.FlagAxes(2)==1)
-            this.setup.MotionStop(this.yAxis);
-            tobj.UserData.FlagAxes(2)=0;
+                this.setup.MotionStop(this.yAxis);
+                tobj.UserData.FlagAxes(2)=0;
             end
             
             if (abs(pos(3))<this.threshold) && (tobj.UserData.FlagAxes(3)==1) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==0)
@@ -162,59 +164,59 @@ classdef JOYSTICK
             end
             
             % Checking the buttons %
-
+            
             % Button 11: change between ZZ axis %
             
-             if (but(11)==1) && (tobj.UserData.FlagBut(11)==0)
-             switch tobj.UserData.FlagAxes(4)
-                 case 0
-                     tobj.UserData.FlagAxes(4)=1;
-                 case 1
-                     tobj.UserData.FlagAxes(4)=0;
-             end
-             tobj.UserData.FlagBut(11)=1;
-             end
-             
-             if (but(11)==0) && (tobj.UserData.FlagBut(11)==1)
-             tobj.UserData.FlagBut(11)=0;
-             end
-             
-             % Button 12: change Z axis --> rotative platform %
-             
-             if (but(12)==1) && (tobj.UserData.FlagBut(12)==0)
-             switch tobj.UserData.FlagAxes(5)
-                 case 0
-                     tobj.UserData.FlagAxes(5)=1;
-                 case 1
-                     tobj.UserData.FlagAxes(5)=0;
-             end
-             tobj.UserData.FlagBut(12)=1;
-             end
-             if (but(12)==0) && (tobj.UserData.FlagBut(12)==1)
-             tobj.UserData.FlagBut(12)=0;
-             end
-             
-              % Button 1: decrease velocity %
-              
-             if (but(1)==1) && (tobj.UserData.FlagBut(1)==0)
-             tobj.UserData.Velocity=max(tobj.UserData.minVelocity,tobj.UserData.Velocity-0.05*tobj.UserData.maxVelocity);
-             tobj.UserData.FlagBut(1)=1; 
-             fprintf('Velocity Value: %2.4f\n',tobj.UserData.Velocity);
-             end    
-             if (but(1)==0) && (tobj.UserData.FlagBut(1)==1)
-             tobj.UserData.FlagBut(1)=0;
-             end
-             
-             % Button 2: Increase Velocity %
-             
-              if (but(2)==1) && (tobj.UserData.FlagBut(2)==0)
-             tobj.UserData.Velocity=min(tobj.UserData.maxVelocity,tobj.UserData.Velocity+0.05*tobj.UserData.maxVelocity);
-             tobj.UserData.FlagBut(2)=1;    
-             fprintf('Velocity Value: %2.4f\n',tobj.UserData.Velocity);
-             end    
-             if (but(2)==0) && (tobj.UserData.FlagBut(2)==1)
-             tobj.UserData.FlagBut(2)=0;
-             end
+            if (but(11)==1) && (tobj.UserData.FlagBut(11)==0)
+                switch tobj.UserData.FlagAxes(4)
+                    case 0
+                        tobj.UserData.FlagAxes(4)=1;
+                    case 1
+                        tobj.UserData.FlagAxes(4)=0;
+                end
+                tobj.UserData.FlagBut(11)=1;
+            end
+            
+            if (but(11)==0) && (tobj.UserData.FlagBut(11)==1)
+                tobj.UserData.FlagBut(11)=0;
+            end
+            
+            % Button 12: change Z axis --> rotative platform %
+            
+            if (but(12)==1) && (tobj.UserData.FlagBut(12)==0)
+                switch tobj.UserData.FlagAxes(5)
+                    case 0
+                        tobj.UserData.FlagAxes(5)=1;
+                    case 1
+                        tobj.UserData.FlagAxes(5)=0;
+                end
+                tobj.UserData.FlagBut(12)=1;
+            end
+            if (but(12)==0) && (tobj.UserData.FlagBut(12)==1)
+                tobj.UserData.FlagBut(12)=0;
+            end
+            
+            % Button 1: decrease velocity %
+            
+            if (but(1)==1) && (tobj.UserData.FlagBut(1)==0)
+                tobj.UserData.Velocity=max(tobj.UserData.minVelocity,tobj.UserData.Velocity-0.05*tobj.UserData.maxVelocity);
+                tobj.UserData.FlagBut(1)=1;
+                fprintf('Velocity Value: %2.4f\n',tobj.UserData.Velocity);
+            end
+            if (but(1)==0) && (tobj.UserData.FlagBut(1)==1)
+                tobj.UserData.FlagBut(1)=0;
+            end
+            
+            % Button 2: Increase Velocity %
+            
+            if (but(2)==1) && (tobj.UserData.FlagBut(2)==0)
+                tobj.UserData.Velocity=min(tobj.UserData.maxVelocity,tobj.UserData.Velocity+0.05*tobj.UserData.maxVelocity);
+                tobj.UserData.FlagBut(2)=1;
+                fprintf('Velocity Value: %2.4f\n',tobj.UserData.Velocity);
+            end
+            if (but(2)==0) && (tobj.UserData.FlagBut(2)==1)
+                tobj.UserData.FlagBut(2)=0;
+            end
         end
         
         
@@ -241,6 +243,6 @@ classdef JOYSTICK
                 this.setup.MotionStop(this.uAxis);
             end
         end
-
-end
+        
+    end
 end
