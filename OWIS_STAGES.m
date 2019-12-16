@@ -238,7 +238,7 @@ classdef OWIS_STAGES
                     fprintf ('Invalid number of arguments: (obj, axis, delta)\n');
             end
             
-            error = calllib('ps90', 'PS90_SetPosFEx', this.Index, axis, velocity);
+            error = calllib ('ps90', 'PS90_SetTargetEx', this.Index, axis, target);
             if error ~= 0
                 this.showError(error);
             end
@@ -248,7 +248,7 @@ classdef OWIS_STAGES
             end
             Position = this.GetPosition(axis);
             fprintf (' Moving %s from %3.3f to %3.3f mm at %.1f mm/s ->', this.AxisName{axis}, Position, target, velocity);
-            error = calllib ('ps90', 'PS90_SetTargetEx', this.Index, axis, target);
+            error = calllib('ps90', 'PS90_SetPosFEx', this.Index, axis, velocity);
             if error ~= 0
                 this.showError(error);
             end
@@ -258,19 +258,27 @@ classdef OWIS_STAGES
         
         %% Getposition %%
         
+        function Position = GetAllPositions(this)
+            for i=1:3
+                Position(i) = GetPosition(this,i);
+            end
+        end
+        
         function  value = GetPosition(this,axis)
             % function  value = GetPosition(this,axis)
             % Arguments: object STAGES (this),axis int ()%
             % Returns: double %
+         
             value = calllib ('ps90', 'PS90_GetPositionEx', this.Index, axis);
             error = (calllib('ps90','PS90_GetReadError' , this.Index));
             if error ~= 0
-                fprintf('Error reading %s position: %d\n', this.AxisName{axis}, error);
-                showError (error);
-                return
+                fprintf('Error reading %s position: %d ', this.AxisName{axis}, error);
+                this.showError (error);
+                value = 'E';
             else
-                %                 fprintf('Current %s position: %3.3f\n', this.AxisName{axis}, value);
-            end
+%                 fprintf('Current %s position: %3.3f\n', this.AxisName{axis}, value);
+            end            
+
             return
         end
         
@@ -402,11 +410,12 @@ classdef OWIS_STAGES
                 otherwise
                     fprintf ('Invalid number of arguments: (obj, axis, delta)\n');
             end
-            error = (calllib('ps90', 'PS90_SetPosFEx', this.Index, this.xAxis, velocity));
+            error = calllib('ps90','PS90_SetTargetMode', this.Index, axis, this.relative); %Relative movement
+            
             if error ~= 0
                 this.showError(error);
             end
-            error = calllib('ps90','PS90_SetTargetMode', this.Index, axis, this.relative); %Relative movement
+            error = (calllib('ps90', 'PS90_SetPosFEx', this.Index, axis, velocity));
             if error ~= 0
                 this.showError(error);
             end
@@ -498,6 +507,7 @@ classdef OWIS_STAGES
             % Arguments: object OWIS (this), axis int%
             % Returns: none %
             fprintf ('Release axis %s -> ', this.AxisName{axis});
+            this.MotorEnable(axis);
             error = calllib ('ps90', 'PS90_FreeSwitch', this.Index, axis);
             this.showError(error); 
         end
@@ -553,6 +563,7 @@ classdef OWIS_STAGES
             % Arguments: object OWIS (this),double velocity%
             % Returns: none %
             axis = this.z1Axis;
+%             velocity = velocity / 10;      %Reducing Z axis velocity
             if this.CriticalError == true
                 fprintf ('\n Critital Error in %s', this.AxisName{axis});
                 return;
