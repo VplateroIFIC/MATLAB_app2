@@ -31,57 +31,7 @@ classdef CAMERA
     
     methods
         function this=CAMERA(cameraType)
-<<<<<<< HEAD
- %% CAMERA constructor %%
- % generates instance and load properties script %
 
-           addpath('cameras_config')
-        switch cameraType
-            case 1
-                CAMERA_properties_Gantry_old_camera        %Imaging source DFK
-                this.ReturnedColor=ReturnedColor; 
-                this.ROIPos=ROIPos;     
-                this.ExposureM =ExposureM;        
-                this.ImageOutput=ImageOutput;  
-                this.calibration=calibration; 
-                this.trigger=trigger;      
-                this.videoAdaptor=videoAdaptor;
-            case 2
-                CAMERA_properties_visual_inspection     % 050-IR
-                this.ROIPos=ROIPos;
-                this.ImageOutput=ImageOutput;
-                this.triggerConfig=triggerConfig;
-                this.videoAdaptor=videoAdaptor;
-                this.ExposureAuto=ExposureAuto;
-                this.GainAuto=GainAuto;
-            case 3
-                CAMERA_properties_OWIS              % Net gige cam
-                this.ROIPos=ROIPos;
-                this.ImageOutput=ImageOutput;
-                this.triggerConfig=triggerConfig;
-                this.videoAdaptor=videoAdaptor;
-                this.ExposureAuto=ExposureAuto;
-            case 4
-                CAMERA_properties_visual_inspection         % 050-IR
-                this.ROIPos=ROIPos;
-                this.ImageOutput=ImageOutput;
-                this.triggerConfig=triggerConfig;
-                this.videoAdaptor=videoAdaptor;
-                this.ExposureAuto=ExposureAuto;
-                this.GainAuto=GainAuto;
-            case 5
-                CAMERA_properties_Gantry        % 040-IR
-                this.ROIPos=ROIPos;
-                this.ImageOutput=ImageOutput;
-                this.triggerConfig=triggerConfig;
-                this.videoAdaptor=videoAdaptor;
-                
-                this.ExposureAuto=ExposureAuto;
-                this.GainAuto=GainAuto;
-
-        end
-        this.cameraType=cameraType;
-=======
             %% CAMERA constructor %%
             % generates instance and load properties script %
             
@@ -130,7 +80,6 @@ classdef CAMERA
                     
             end
             this.cameraType=cameraType;
->>>>>>> a238262edad230055d1a30dd34446ea42e9a62b3
             
         end
         
@@ -138,56 +87,7 @@ classdef CAMERA
         function this=Connect(this)
             imaqreset
             switch this.cameraType
-<<<<<<< HEAD
-               case 1
-               % creating camera object, opening preview %
-               this.cam = videoinput(this.videoAdaptor,1);
-               % settting properties of camera object %
-               src = getselectedsource(this.cam);
-               this.cam.ReturnedColorSpace=this.ReturnedColor;
-               this.cam.ROIPosition=this.ROIPos;
-               src.ExposureMode = this.ExposureM;
-               % seting manual trigger (better performance %)
-               triggerconfig(this.cam, this.trigger);
-               start(this.cam)
-               this.IsConnected=1;
-               case 2
-               this.cam = videoinput(this.videoAdaptor,2); 
-               triggerconfig(this.cam, this.triggerConfig);
-               src = getselectedsource(this.cam);
-               src.ExposureAuto = this.ExposureAuto;
-               src.GainAuto = this.GainAuto;
-               this.IsConnected=1;
-               case 3
-               this.cam = videoinput(this.videoAdaptor,1); 
-               triggerconfig(this.cam, this.triggerConfig);
-               src = getselectedsource(this.cam);
-               src.ExposureAuto = this.ExposureAuto;
-%                src.GainAuto = this.GainAuto;
-               this.IsConnected=1;
-               case 4
-               this.cam = videoinput(this.videoAdaptor, 2, 'RGB8Packed');
-%               this.cam = videoinput(this.videoAdaptor,2); 
-               triggerconfig(this.cam, this.triggerConfig);
-               src = getselectedsource(this.cam);
-               src.ExposureAuto = this.ExposureAuto;
-               src.GainAuto = this.GainAuto; 
-               this.IsConnected=1;
-               case 5
-               this.cam = videoinput(this.videoAdaptor, 2);
-               this.cam.ROIPosition=this.ROIPos;
-               triggerconfig(this.cam, this.triggerConfig);
-               src = getselectedsource(this.cam);
-               src.ExposureAuto = this.ExposureAuto;
-               src.GainAuto = this.GainAuto; 
-%                src.ExposureTime = 4000;
-               set(this.cam, 'TriggerFrameDelay', 25);
-               set(this.cam, 'FramesPerTrigger', 1);
-               set(this.cam, 'TriggerRepeat', Inf);
-               src.TriggerDelay = 15;
-               
-                this.IsConnected=1;
-=======
+
                 case 1
                     % creating camera object, opening preview %
                     this.cam = videoinput(this.videoAdaptor,1);
@@ -235,7 +135,7 @@ classdef CAMERA
                     src.TriggerDelay = 15;
                     
                     this.IsConnected=1;
->>>>>>> a238262edad230055d1a30dd34446ea42e9a62b3
+
             end
             disp('Camera connection done');
         end
