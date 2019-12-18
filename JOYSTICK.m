@@ -10,6 +10,7 @@ classdef JOYSTICK
         t;
         threshold=0.1;
         maxVel=15;
+        maxVel2 = [10, 10, 10, 10, 10, 10]
         minVel=0.1;
         CurrentVel=5;
         xAxis = -1;
@@ -49,6 +50,12 @@ classdef JOYSTICK
             end
             if isprop (this.setup,'uAxis')
                 this.uAxis = this.setup.uAxis;
+            end
+            if isprop (this.setup, 'joy_vel_slow_pos')
+                
+            end
+            if isprop (this.setup, 'joy_vel_fast_pos')
+                this.maxVel2 = this.setup.joy_vel_fast_pos;
             end
         end
         
@@ -95,7 +102,7 @@ classdef JOYSTICK
             
             if (abs(pos(3))> this.threshold) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==0)
                 vel=-tobj.UserData.Velocity*pos(3);
-                vel = vel/3;
+%                 vel = vel/3;
                 if ismethod (this.setup, 'FreeRunZ1')
                     this.setup.FreeRunZ1(vel);
                     tobj.UserData.FlagAxes(3)=1;
@@ -107,7 +114,6 @@ classdef JOYSTICK
             
             if (abs(pos(3))> this.threshold) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==1)
                 vel=-tobj.UserData.Velocity*pos(3);
-                vel = vel/10;
                 if ismethod (this.setup, 'FreeRunZ2')
                     this.setup.FreeRunZ2(vel);
                     tobj.UserData.FlagAxes(3)=1;
