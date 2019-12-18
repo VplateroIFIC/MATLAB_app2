@@ -83,14 +83,12 @@ classdef JOYSTICK
             
             if (abs(pos(1))> this.threshold)
                 vel=-tobj.UserData.Velocity*pos(1);
-                fprintf ('X_axis is moving with velocity %f\n',vel);
                 this.setup.FreeRunX(vel);
                 tobj.UserData.FlagAxes(1)=1;
             end
             
             if (abs(pos(2))> this.threshold)
                 vel=-tobj.UserData.Velocity*pos(2);
-                fprintf ('Y_axis is moving with velocity %f\n',vel);
                 this.setup.FreeRunY(vel);
                 tobj.UserData.FlagAxes(2)=1;
             end
@@ -98,16 +96,18 @@ classdef JOYSTICK
             if (abs(pos(3))> this.threshold) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==0)
                 vel=-tobj.UserData.Velocity*pos(3);
                 vel = vel/3;
-                fprintf ('Z1_axis is moving with velocity %f\n',vel);
-                this.setup.FreeRunZ1(vel);
-                tobj.UserData.FlagAxes(3)=1;
+                if ismethod (this.setup, 'FreeRunZ1')
+                    this.setup.FreeRunZ1(vel);
+                    tobj.UserData.FlagAxes(3)=1;
+                else
+                    disp ('No Z2 axis available');
+                end
             end
             
             
             if (abs(pos(3))> this.threshold) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==1)
                 vel=-tobj.UserData.Velocity*pos(3);
                 vel = vel/10;
-                fprintf ('Z2_axis is moving with velocity %f\n',vel);
                 if ismethod (this.setup, 'FreeRunZ2')
                     this.setup.FreeRunZ2(vel);
                     tobj.UserData.FlagAxes(3)=1;
@@ -119,7 +119,6 @@ classdef JOYSTICK
             
             if (abs(pos(3))> this.threshold) && (tobj.UserData.FlagAxes(5)==1)
                 vel=-tobj.UserData.Velocity*pos(3);
-                fprintf ('Z2_axis is moving with velocity %f\n',vel);
                 if ismethod (this.setup, 'FreeRunU')
                     this.setup.FreeRunU(vel);
                     tobj.UserData.FlagAxes(3)=1;
