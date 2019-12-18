@@ -68,7 +68,8 @@ classdef OWIS_STAGES
         joy_vel_fast_neg = [-10,-7,-3];
         joy_vel_slow_neg = [-1,-1,-1];
         joy_vel_fast_pos = [10,7,3];
-        free_vel  = [29802,29802,47683];
+%         free_vel  = [29802,29802,47683];
+        free_vel_FEx = [10,7,3];
     end
     
     methods
@@ -236,13 +237,12 @@ classdef OWIS_STAGES
                     velocity = this.pos_vel(axis);
                 otherwise
                     fprintf ('Invalid number of arguments: (obj, axis, delta)\n');
-            end
-            
-            error = calllib ('ps90', 'PS90_SetTargetEx', this.Index, axis, target);
+            end           
+            error = calllib('ps90','PS90_SetTargetMode', this.Index, axis, this.absolute); %Absolute movement          
             if error ~= 0
                 this.showError(error);
             end
-            error = calllib('ps90','PS90_SetTargetMode', this.Index, axis, this.absolute); %Absolute movement
+            error = calllib ('ps90', 'PS90_SetTargetEx', this.Index, axis, target);
             if error ~= 0
                 this.showError(error);
             end
@@ -325,10 +325,12 @@ classdef OWIS_STAGES
                 error = error + calllib('ps90', 'PS90_SetPosFEx', this.Index, this.Axis(i), this.pos_vel(i));
                 error = error + calllib('ps90', 'PS90_SetSlowRefFEx', this.Index, this.Axis(i), this.ref_vel_slow(i));
                 error = error + calllib('ps90', 'PS90_SetFastRefFEx', this.Index, this.Axis(i), this.ref_vel_fast(i));
-                error = error + calllib('ps90', 'PS90_SetFreeVel', this.Index, this.Axis(i), this.free_vel(i));
+%                 error = error + calllib('ps90', 'PS90_SetFreeVel', this.Index, this.Axis(i), this.free_vel(i));
+                error = error + calllib('ps90', 'PS90_SetFreeFEx', this.Index, this.Axis(i), this.free_vel_FEx(i));
                 error = error + calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axis(i), this.ref_switch(i));
                 if error == 0           %There are no error in all axis
-                    fprintf('OK\n');
+                    fprintf('OK, ');
+                    this.MotorEnable(i);
                     this.GetPosition(i);
                 else
                     this.showError (error);
@@ -563,6 +565,9 @@ classdef OWIS_STAGES
             % Arguments: object OWIS (this),double velocity%
             % Returns: none %
             axis = this.z1Axis;
+            if velocity >= max_velocity(z1Axis)
+                velocity = max_velocity;
+            end
 %             velocity = velocity / 10;      %Reducing Z axis velocity
             if this.CriticalError == true
                 fprintf ('\n Critital Error in %s', this.AxisName{axis});
