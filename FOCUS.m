@@ -144,6 +144,11 @@ classdef FOCUS
                 end
             else
                 disp('Maximum iterations number reached');
+                Zfinal=0;
+                FocusAll=0;
+                zAll=0;
+                TotalTime=0;
+               
             end
             
             TotalTime=toc(total);
