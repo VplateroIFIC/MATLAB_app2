@@ -164,7 +164,7 @@ classdef CAMERA
         function DispCam(this)
             figure('Name', 'Camera Display');
             uicontrol('String', 'Close', 'Callback', 'close(gcf)');
-            vidRes = this.cam.VideoResolution;
+            vidRes = [this.ROIPos(3),this.ROIPos(4)];
             nBands = this.cam.NumberOfBands;
             hImage = image( zeros(vidRes(2), vidRes(1), nBands) );
             preview(this.cam, hImage);
