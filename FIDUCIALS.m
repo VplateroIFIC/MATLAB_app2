@@ -59,9 +59,12 @@ binaryFilterKernel_calibration;
 %             
 %             addpath('F:\mexopencv');
 %             addpath('F:\mexopencv\opencv_contrib');
-            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
-            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
+%%%%            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
+%%%%            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
 
+            
+            
+            
 % Loading corresponding properties to the class
 
 switch setup
@@ -120,9 +123,15 @@ this.binaryFilterKernel_calibration=binaryFilterKernel_calibration;
      
         
 function mytest = test(this)
+image = imread("/Users/cescobar/cernbox_MoC/GANTRY-IFIC/Pictures_general/images_mini_camera_calibration/mitutoyo/imagen_3.tif");
+imshow(image);
+
+
+
+
 %image = imread("hybrid_circle_fid_1.png");
 %image = imresize(image, 0.1);
-image = imread("detectcirclesexample_01_es.png");
+%image = imread("detectcirclesexample_01_es.png");
 %imshow(image);
 %imshow(image);
 
@@ -137,23 +146,23 @@ image = imread("detectcirclesexample_01_es.png");
 
 % d = imdistline;
 
-image = rgb2gray(image);
+%image = rgb2gray(image);
 % imshow(image2);
 %image = imsharpen(image,'Radius',10,'Amount',10);
 %image2 = cv.medianBlur(botHatImage);
 % imshow(imagen2);
 % imshowpair(botHatImage,image2,'montage');
 
-level = graythresh(image)
-BW = imbinarize(image,level);
+%level = graythresh(image)
+%BW = imbinarize(image,level);
 % BW = imbinarize(image,'adaptive','ForegroundPolarity','bright','Sensitivity',0.2);
 % BW = imbinarize(image,'adaptive','ForegroundPolarity','dark','Sensitivity',0.3);
 %imshowpair(image2,BW,'montage');
 % imshow(BW)
 
-[centers,radii] = imfindcircles(BW,[20 25],'ObjectPolarity','bright','Sensitivity',0.95)
-imshow(BW)
-h = viscircles(centers,radii);
+%[centers,radii] = imfindcircles(BW,[20 25],'ObjectPolarity','bright','Sensitivity',0.95)
+%imshow(BW)
+%h = viscircles(centers,radii);
 
 
 

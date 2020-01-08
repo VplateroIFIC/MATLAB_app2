@@ -167,7 +167,7 @@ classdef CAMERA
         function DispCam(this)
             figure('Name', 'Camera Display');
             uicontrol('String', 'Close', 'Callback', 'close(gcf)');
-            vidRes = this.cam.VideoResolution;
+            vidRes = [this.ROIPos(3),this.ROIPos(4)];
             nBands = this.cam.NumberOfBands;
             hImage = image( zeros(vidRes(2), vidRes(1), nBands) );
             preview(this.cam, hImage);
@@ -221,7 +221,7 @@ classdef CAMERA
             end
         end
         
-        %%  retrieveDataOneFrame retrieve the current logged data. Used during adquisition is ON  %%
+        %%  retrieveDataNFrames retrieve the current logged data. Used during adquisition is ON  %%
         function [data, time, metadata]=retrieveDataNFrames(this,N)
             [data, time, metadata] =getdata(this.cam,N);
             while isempty(data)==1
