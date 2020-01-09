@@ -129,13 +129,16 @@ classdef FOCUS
             
             if (iteration<10)
                 % Fitting results to a quadratic polynomial (last 4 points) %
-                zAll=cell2mat(zAll);
-                FocusAll=cell2mat(focusAll);
+%                 zAll=cell2mat(zAll);
+%                 FocusAll=cell2mat(focusAll);
+                zAll=zAll{iteration};
+                FocusAll=focusAll{iteration};
                 X=Z;
                 Y=FocusValue;
                 p=polyfit(X,Y,2);
                 Zfinal=-(p(2)/(2*p(1)));
-                if (Zfinal>=Zini-this.FocusRange/2 || Zfinal<=Zini+this.FocusRange/2)
+%                 if (Zfinal>=Zini-this.FocusRange/2 || Zfinal<=Zini+this.FocusRange/2)
+                if (Zfinal>=P0 || Zfinal<=Pn)    
                     % Moving to Zfinal  %
                     this.gantry.MoveTo(this.zAxis,Zfinal,this.velocity);
                     this.gantry.WaitForMotion(this.zAxis,-1);
@@ -147,8 +150,7 @@ classdef FOCUS
                 Zfinal=0;
                 FocusAll=0;
                 zAll=0;
-                TotalTime=0;
-               
+                TotalTime=0;  
             end
             
             TotalTime=toc(total);
