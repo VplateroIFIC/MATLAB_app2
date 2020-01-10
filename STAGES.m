@@ -171,7 +171,7 @@ classdef STAGES
                    case 1
                      value=GetFPosition(this.GantryObj,this.yAxis);
                    case 4
-                     value=GetFPosition(this.GantryObj,this.z1Axis); 
+                     value=GetRPosition(this.GantryObj,this.z1Axis); 
                    case 5
                      value=GetFPosition(this.GantryObj,this.z2Axis);   
                    case 6
