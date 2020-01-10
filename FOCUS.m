@@ -6,7 +6,7 @@ classdef FOCUS
         
         %AutoFocus
         maxIter=10;
-        FocusRange=0.2;
+        FocusRange=0.4;
         velocity=2;
         threshold=0.02;
         splits=5;   
@@ -66,18 +66,20 @@ classdef FOCUS
             % Setting initial values
             Zini=this.gantry.GetPosition(this.zAxis);
             R=this.FocusRange;
+            generalRange=[Zini-R/2,Zini+R/2];
             div=this.splits;
             x0=round(ImageSize(1)/2);
             y0=round(ImageSize(2)/2);
             RoiWidth=this.RoiSize;
             RoiHeight=this.RoiSize;
             Z0=Zini;
+            Nsamples=this.splits;
+            
             image=cell(1,20);
             
             % Setting counters and empty vector for the general loop%
             zCont=1;
             fCont=1;
-            Fopt=zeros(1,100);
             ImCont=1;
             iteration=1;
             
@@ -85,29 +87,20 @@ classdef FOCUS
                 % Setting counters and empty vector for the sampling loop%
                 P0=Z0-R/2;
                 Pn=Z0+R/2;
-                z=P0;
-                Nsamples=this.splits; 
+                if P0 < generalRange(1)*0.9 || Pn > generalRange(2)*1.1
+                    
+                    this.cam.stopAdquisition;
+                    disp('Optimal focus point is out of range');
+                    info.Zoptim=0;
+                    info.Foptim=0;
+                    info.Zvalues=0;
+                    info.Fvalues=0;
+                    info.time=0;
+                    info.Images=0;
+                    return
+                end    
+                 
                 [Z{iteration},FocusValue{iteration},image{iteration}]=this.scanRange(P0,Pn,Nsamples);
-                
-%                 while (samples<=div+1)
-%                     % moving gantry at new position %
-%                     this.gantry.MoveTo(this.zAxis,z,this.velocity);
-%                     this.gantry.WaitForMotion(this.zAxis,-1);
-%                     Z(zCont)=this.gantry.GetPosition(this.zAxis);
-%                     % taking picture %
-%                     this.cam.ResetAdquisitionBuffer;
-%                     [data,~,~]=this.cam.retrieveDataOneFrame;
-%                     image{ImCont}=data;
-%                     % Asking focus parameter %
-%                     FocusValue(fCont)=this.fmeasure(image{ImCont},this.FocusType,[x0,y0,RoiWidth,RoiHeight]);
-%                     % Updating counters %
-%                     zCont=zCont+1;
-%                     ImCont=ImCont+1;
-%                     fCont=fCont+1;
-%                     z=z+delta;
-%                     samples=samples+1;
-%                 end
-
                 %  Finding local optimal %
                 focusCurrentVector=FocusValue{iteration};
                 ZCurrentVector=Z{iteration};
@@ -115,7 +108,8 @@ classdef FOCUS
                 index=find(focusCurrentVector==max(focusCurrentVector));
                 Zopt(iteration)=ZCurrentVector(index);
                 % new range and centered Z
-                R=max([abs(Zopt(iteration)-P0),abs(Zopt(iteration)-Pn)]);
+%                 R=max([abs(Zopt(iteration)-P0),abs(Zopt(iteration)-Pn)]);
+                R=(Pn-P0)/(Nsamples-1);
                 Z0=Zopt(iteration);
                 if iteration>1 && abs(Zopt(iteration)-Zopt(iteration-1))<this.threshold
                     break
@@ -124,28 +118,42 @@ classdef FOCUS
             end
             
             this.cam.stopAdquisition;
+            zAll=cell2mat(Z');
+            FocusAll=cell2mat(FocusValue');
+            
             
             if (iteration<10)
                 % Fitting results to a quadratic polynomial (last 4 points) %
-                zAll=zAll{iteration};
-                FocusAll=focusAll{iteration};
-                X=Z;
-                Y=FocusValue;
+                X=Z{iteration};
+                Y=FocusValue{iteration};
                 p=polyfit(X,Y,2);
                 Zfinal=-(p(2)/(2*p(1)));
                 if (Zfinal>=P0 || Zfinal<=Pn)    
+                    % checking distance
+                    currentPos=this.gantry.GetPosition(4);
+                    deltaFinal=Zfinal-currentPos;
                     % Moving to Zfinal  %
-                    this.gantry.MoveTo(this.zAxis,Zfinal,this.velocity);
+                    this.gantry.MoveBy(this.zAxis,deltaFinal,this.velocity);
                     this.gantry.WaitForMotion(this.zAxis,-1);
                 else
                     disp('Optimal focus point is out of range');
+                    info.Zoptim=0;
+                    info.Foptim=0;
+                    info.Zvalues=0;
+                    info.Fvalues=0;
+                    info.time=0;
+                    info.Images=0;
+                    return
                 end
             else
                 disp('Maximum iterations number reached');
-                Zfinal=0;
-                FocusAll=0;
-                zAll=0;
-                TotalTime=0;  
+                info.Zoptim=0;
+                info.Foptim=0;
+                info.Zvalues=0;
+                info.Fvalues=0;
+                info.time=0;
+                info.Images=0;
+                return  
             end
             
             TotalTime=toc(total);
@@ -176,13 +184,16 @@ classdef FOCUS
            
             %increment
             delta=(Zn-Z0)/(n-1);
+            % current position
+            Zini=this.gantry.GetPosition(4);
+            deltaZ=Z0-Zini;
             % moving gantry to initial position %
-            this.gantry.MoveTo(this.zAxis,Z0,this.velocity);
+            this.gantry.MoveBy(this.zAxis,deltaZ,this.velocity);
             this.gantry.WaitForMotion(this.zAxis,-1);
             %prelocating memory
             images=cell(n,1);
-            Z=cell(n,1);
-            Fvalues=cell(n,1);
+            Z=zeros(n,1);
+            Fvalues=zeros(n,1);
              
             for i=1:n
             %saving current position    
@@ -192,7 +203,7 @@ classdef FOCUS
             [data,~,~]=this.cam.retrieveDataOneFrame;
             images{i}=data;
             % Asking focus parameter %
-            Fvalues{i}=this.fmeasure(images{i},this.FocusType);
+            Fvalues(i)=this.fmeasure(images{i},this.FocusType,[]);
             % moving gantry to next position %
             this.gantry.MoveBy(this.zAxis,delta,this.velocity);
             this.gantry.WaitForMotion(this.zAxis,-1); 
