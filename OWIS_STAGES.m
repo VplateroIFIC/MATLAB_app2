@@ -68,6 +68,8 @@ classdef OWIS_STAGES
         joy_vel_fast_neg = [-10,-7,-3];
         joy_vel_slow_neg = [-1,-1,-1];
         joy_vel_fast_pos = [10,7,3];
+        max_velocity = [15, 15, 5];
+        max_velocity_neg = [-15, -15, -5];
 %         free_vel  = [29802,29802,47683];
         free_vel_FEx = [1,1,1];
     end
@@ -535,6 +537,14 @@ classdef OWIS_STAGES
             
             velocity = -velocity;
             axis = this.xAxis;
+            
+            %Limiting Axis velocity
+            if velocity > this.max_velocity(axis)
+                velocity = this.max_velocity(axis);
+            elseif velocity < this.max_velocity_neg(axis)
+                velocity = this.max_velocity_neg(axis);    
+            end
+            
             if this.CriticalError == true
                 fprintf ('\n Critital Error in %s', this.AxisName{axis});
                 return;
@@ -552,6 +562,14 @@ classdef OWIS_STAGES
             % Arguments: object OWIS (this),double velocity%
             % Returns: none %
             axis = this.yAxis;
+            
+            %Limiting Axis velocity
+            if velocity > this.max_velocity(axis)
+                velocity = this.max_velocity(axis);
+            elseif velocity < this.max_velocity_neg(axis)
+                velocity = this.max_velocity_neg(axis);    
+            end
+            
             if this.CriticalError == true
                 fprintf ('\n Critital Error in %s', this.AxisName{axis});
                 return;
@@ -569,9 +587,13 @@ classdef OWIS_STAGES
             % Arguments: object OWIS (this),double velocity%
             % Returns: none %
             axis = this.z1Axis;
-%             if velocity >= max_velocity(this.z1Axis)
-%                 velocity = max_velocity;
-%             end
+            
+            %Limiting Axis velocity
+            if velocity > this.max_velocity(axis)
+                velocity = this.max_velocity(axis);
+            elseif velocity < this.max_velocity_neg(axis)
+                velocity = this.max_velocity_neg(axis);    
+            end
 %             velocity = velocity / 10;      %Reducing Z axis velocity
 
             if this.CriticalError == true
