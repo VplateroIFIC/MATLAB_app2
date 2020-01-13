@@ -45,8 +45,8 @@ classdef JOYSTICK
             if isprop (this.setup,'z2Axis')
                 this.z2Axis = this.setup.z2Axis;
             end
-            if isprop (this.setup,'z2Axis')
-                this.z2Axis = this.setup.z2Axis;
+%             if isprop (this.setup,'z2Axis')
+%                 this.z2Axis = this.setup.z2Axis;
             end
             if isprop (this.setup,'uAxis')
                 this.uAxis = this.setup.uAxis;
