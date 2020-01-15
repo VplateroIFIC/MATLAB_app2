@@ -6,7 +6,7 @@ classdef FOCUS
         
         %AutoFocus
         maxIter=10;
-        FocusRange=0.4;
+        FocusRange=0.2;
         velocity=2;
         threshold=0.02;
         splits=5;   
@@ -108,8 +108,8 @@ classdef FOCUS
                 index=find(focusCurrentVector==max(focusCurrentVector));
                 Zopt(iteration)=ZCurrentVector(index);
                 % new range and centered Z
-%                 R=max([abs(Zopt(iteration)-P0),abs(Zopt(iteration)-Pn)]);
-                R=(Pn-P0)/(Nsamples-1);
+                R=max([abs(Zopt(iteration)-P0),abs(Zopt(iteration)-Pn)]);
+%                 R=(Pn-P0)/(Nsamples-1);
                 Z0=Zopt(iteration);
                 if iteration>1 && abs(Zopt(iteration)-Zopt(iteration-1))<this.threshold
                     break
