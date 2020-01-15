@@ -117,6 +117,20 @@ classdef STAGES
             end
         end
         
+        %% runBuffer %%
+        
+         function  runBuffer(this,nBuffer)
+        % function  runBuffer(this)   
+        % Arguments: object STAGES %
+        % Returns: none %
+        
+        bufferID=['this.GantryObj,ACS.SPiiPlusNET.ProgramBuffer.ACSC_BUFFER_',num2str(nBuffer)];
+        RunBuffer(this.GantryObj,bufferID,[]);
+        WaitProgramEnd(this.GantryObj,ACS.SPiiPlusNET.ProgramBuffer.ACSC_BUFFER_10,inf);
+          
+%         object.GetProgramError (ProgramBuffer buffer)
+        end
+        
         %% Disconnect  %%
         
         function  this = Disconnect(this)
@@ -171,7 +185,7 @@ classdef STAGES
                    case 1
                      value=GetFPosition(this.GantryObj,this.yAxis);
                    case 4
-                     value=GetRPosition(this.GantryObj,this.z1Axis); 
+                     value=GetFPosition(this.GantryObj,this.z1Axis); 
                    case 5
                      value=GetFPosition(this.GantryObj,this.z2Axis);   
                    case 6
@@ -180,7 +194,37 @@ classdef STAGES
             end
         end
 
-         
+     
+                 %% GetPositionAll. %%
+        
+        function  value = GetPositionAll(this,axis) 
+        % function  value = GetPosition(this,axis)   
+        % Arguments: object STAGES (this),axis int ()%
+        % Returns: double %
+            switch this.GantryType
+                case 0
+
+                case 1
+                 switch axis
+                   case 0
+                     value(1)=GetFPosition(this.GantryObj,this.xAxis);
+                     value(2)=GetRPosition(this.GantryObj,this.xAxis);
+                   case 1
+                     value(1)=GetFPosition(this.GantryObj,this.yAxis);
+                     value(2)=GetRPosition(this.GantryObj,this.yAxis);
+                   case 4
+                     value(1)=GetFPosition(this.GantryObj,this.z1Axis);
+                     value(2)=GetRPosition(this.GantryObj,this.z1Axis);
+                   case 5
+                     value(1)=GetFPosition(this.GantryObj,this.z2Axis);
+                     value(2)=GetRPosition(this.GantryObj,this.z2Axis);
+                   case 6
+                     value(1)=GetFPosition(this.GantryObj,this.uAxis);
+                     value(2)=GetRPosition(this.GantryObj,this.uAxis);
+                 end
+            end
+        end
+        
          %% GetVelocity %%
         
         function  value = GetVelocity(this,axis)
@@ -232,6 +276,30 @@ classdef STAGES
             end
         end
 
+%           %% GetAPOS %%
+%         
+%         function  value = GetAPOS(this,axis) 
+%         % function  value = GetCurrentFeedback(this,axis) 
+%         % Arguments: object ALIO (this),axis int%
+%         % Returns: double %
+%             switch this.GantryType
+%                 case 0
+%                 %insert here GetCurrentFeedback with AEROTECH gantry %
+%                 case 1
+%                  switch axis
+%                    case 0
+%                      value=ReadVariable(this.GantryObj,'APOS',this.Absolute,this.xAxis,this.xAxis,this.xAxis,this.xAxis); % if error, tray send 0 (or ACSC_NONE) after GantryObj pointer
+%                    case 1
+%                      value=ReadVariable(this.GantryObj,'APOS',this.Absolute,this.yAxis,this.yAxis);
+%                    case 4
+%                      value=ReadVariable(this.GantryObj,'APOS',this.Absolute,this.z1Axis,this.z1Axis,this.z1Axis,this.z1Axis); 
+%                    case 5
+%                      value=ReadVariable(this.GantryObj,'APOS',this.Absolute,this.z1Axis,this.z2Axis);  
+%                    case 6
+%                      value=ReadVariable(this.GantryObj,'APOS',this.Absolute,this.uAxis,this.uAxis);
+%                  end
+%             end
+%         end
 
         
         
