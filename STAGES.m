@@ -149,6 +149,29 @@ classdef STAGES
             end
         end
         
+                %% HomeAll %%
+        
+         function  HomeAll(this)
+        % function  HomeAll(this) This function run the buffer 10 with the initialization homing routine provided by ALIO  
+        % Arguments: object STAGES %
+        % Returns: none %       
+        RunBuffer(this.GantryObj,ACS.SPiiPlusNET.ProgramBuffer.ACSC_BUFFER_10,[]);
+        WaitProgramEnd(this.GantryObj,ACS.SPiiPlusNET.ProgramBuffer.ACSC_BUFFER_10,inf);
+         end
+        
+        
+         %% loadBuffer %%
+         
+         function  loadBuffer(this)
+        % function  runBuffer(this)   
+        % Arguments: object STAGES %
+        % Returns: none %
+
+        LoadBuffersFromFile(this.GantryObj,'D:\Code\MATLAB_app\ALIO_buffers\Buffer_11_homing_routines.txt');
+        
+         end
+         
+         
           %% getting assembly info in display (just for ALIO gantry) %%
         
           function  AssemblyMethodsInfo(this)
@@ -160,25 +183,12 @@ classdef STAGES
         
         
         
-         %% GetPosition. %%
+         %% GetFPosition. %%
         
-        function  value = GetPosition(this,axis) 
+        function  value = GetFPosition(this,axis) 
         % function  value = GetPosition(this,axis)   
         % Arguments: object STAGES (this),axis int ()%
         % Returns: double %
-            switch this.GantryType
-                case 0
-                switch axis
-                   case 0
-                     value=GetFPosition(this.GantryObj,this.xAxis);
-                   case 1
-                     value=GetFPosition(this.GantryObj,this.yAxis);
-                   case 4
-                     value=GetFPosition(this.GantryObj,this.z1Axis); 
-                   case 5
-                     value=GetFPosition(this.GantryObj,this.uAxis);   
-                 end
-                case 1
                  switch axis
                    case 0
                      value=GetFPosition(this.GantryObj,this.xAxis);
@@ -191,8 +201,51 @@ classdef STAGES
                    case 6
                      value=GetFPosition(this.GantryObj,this.uAxis);
                  end
-            end
         end
+
+               %% GetRPosition. %%
+        
+        function  value = GetRPosition(this,axis) 
+        % function  value = GetRposition(this,axis)   
+        % Arguments: object STAGES (this),axis int ()%
+        % Returns: double %
+                 switch axis
+                   case 0
+                     value=GetRPosition(this.GantryObj,this.xAxis);
+                   case 1
+                     value=GetRPosition(this.GantryObj,this.yAxis);
+                   case 4
+                     value=GetRPosition(this.GantryObj,this.z1Axis); 
+                   case 5
+                     value=GetRPosition(this.GantryObj,this.z2Axis);   
+                   case 6
+                     value=GetRPosition(this.GantryObj,this.uAxis);
+                 end
+        end  
+        
+                 %% GetPosition. %%
+        
+        function  value = GetPosition(this,axis) 
+        % function  value = GetPosition(this,axis)   
+        % Arguments: object STAGES (this),axis int ()%
+        % Returns: double %
+        
+        positionVector=ReadVariableAsVector(this.GantryObj,'APOS', ACS.SPiiPlusNET.ProgramBuffer.ACSC_NONE, ACS.SPiiPlusNET.Api.ACSC_NONE, ACS.SPiiPlusNET.Api.ACSC_NONE, ACS.SPiiPlusNET.Api.ACSC_NONE, ACS.SPiiPlusNET.Api.ACSC_NONE);
+        % index position in positionVector array does not fit with the oficial number assigned to the stages. Take care!        
+          switch axis
+                   case 0
+                     value=positionVector(1);
+                   case 1
+                     value=positionVector(2);
+                   case 4
+                     value=positionVector(5); 
+                   case 5
+                     value=positionVector(6);   
+                   case 6
+                     value=positionVector(7);
+          end
+        end
+<<<<<<< HEAD
 
      
                  %% GetPositionAll. %%
@@ -224,6 +277,9 @@ classdef STAGES
                  end
             end
         end
+=======
+        
+>>>>>>> master
         
          %% GetVelocity %%
         
