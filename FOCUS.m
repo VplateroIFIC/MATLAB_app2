@@ -66,8 +66,13 @@ classdef FOCUS
             % Setting initial values
             Zini=this.gantry.GetPosition(this.zAxis);
             R=this.FocusRange;
+<<<<<<< HEAD
             generalRange=[Zini-R/2,Zini+R/2];
             div=this.splits;
+=======
+%             div=this.splits;
+            div=10;
+>>>>>>> master
             x0=round(ImageSize(1)/2);
             y0=round(ImageSize(2)/2);
             RoiWidth=this.RoiSize;
