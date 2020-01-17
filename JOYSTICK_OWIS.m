@@ -1,4 +1,4 @@
-classdef JOYSTICK
+classdef JOYSTICK_OWIS
     %JOYSTICK Control over joystick device
     %   This class provide control over joystick device connected to setup
     
@@ -23,7 +23,7 @@ classdef JOYSTICK
     end
     
     methods
-        function this = JOYSTICK(setup_obj)
+        function this = JOYSTICK_OWIS(setup_obj)
             %JOYSTICK Construct an instance of this class
             %   receiving setup object and creating joystick instance
             this.setup=setup_obj;
@@ -47,7 +47,7 @@ classdef JOYSTICK
             end
 %             if isprop (this.setup,'z2Axis')
 %                 this.z2Axis = this.setup.z2Axis;
-            end
+%             end
             if isprop (this.setup,'uAxis')
                 this.uAxis = this.setup.uAxis;
             end
@@ -78,6 +78,7 @@ classdef JOYSTICK
         function this = Disconnect(this)
             %Disconnect Disconnect joystick
             % Stopping timer
+            this.JoystickIsReady = 0;
             stop(this.t);
         end
         
