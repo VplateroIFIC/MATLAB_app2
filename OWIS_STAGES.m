@@ -172,7 +172,7 @@ classdef OWIS_STAGES
                 end
             end
             error = calllib ('ps90', 'PS90_Disconnect', this.Index);
-            fprintf (' Disconnecting OWIS driver ->');
+            fprintf (' Disconnecting OWIS driver -> ');
             if error == 0
                 this.IsConnected = 0;
             end
@@ -201,7 +201,7 @@ classdef OWIS_STAGES
             % Returns: none %
             
             for i=1:3
-                 fprintf ('Stopping Motor %s',  this.AxisName{i});
+                 fprintf ('Stopping Motor %s\n',  this.AxisName{i});
                 this.MotionStop(this.Axis(i));
             end
         end
@@ -224,11 +224,10 @@ classdef OWIS_STAGES
         %% WaitEndMovement %% Wait until Axis movement finishes %%
         function  WaitEndMovement(this,axis) 
             % function  WaitEndMovement(this,axis)
-            % function  MoveTo(this,axis,target) Default axis velocity
             % Arguments: object OWIS (this), axis int, target double, velocity double%
             % Returns: none %
             
-            while (calllib ('ps90', 'PS90_GetMoveState', this.Index, axis) ~= 0)
+            while (calllib ('ps90', 'PS90_GetMoveState', this.Index, axis) ~= 0)  
             end
         end
         
@@ -252,7 +251,15 @@ classdef OWIS_STAGES
                     velocity = this.pos_vel(axis);
                 otherwise
                     fprintf ('Invalid number of arguments: (obj, axis, delta)\n');
-            end           
+            end 
+            
+            %Limiting Axis velocity
+            if velocity > this.max_velocity(axis)
+                velocity = this.max_velocity(axis);
+            elseif velocity < this.max_velocity_neg(axis)
+                velocity = this.max_velocity_neg(axis);    
+            end
+            
             error = calllib('ps90','PS90_SetTargetMode', this.Index, axis, this.absolute); %Absolute movement          
             if error ~= 0
                 this.showError(error);
@@ -429,6 +436,14 @@ classdef OWIS_STAGES
                 otherwise
                     fprintf ('Invalid number of arguments: (obj, axis, delta)\n');
             end
+            
+            %Limiting Axis velocity
+            if velocity > this.max_velocity(axis)
+                velocity = this.max_velocity(axis);
+            elseif velocity < this.max_velocity_neg(axis)
+                velocity = this.max_velocity_neg(axis);    
+            end
+            
             error = calllib('ps90','PS90_SetTargetMode', this.Index, axis, this.relative); %Relative movement
             
             if error ~= 0
