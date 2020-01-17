@@ -56,8 +56,8 @@ classdef OWIS_STAGES
         gear_reduction_ratio  = [1.0,1.0,1.0];
         lin_res  = [0.0001,0.0001,0.0001];
         ini_target_mode  = [0,0,0];
-        acc  = [20,20,10];
-        dacc  = [20,20,10];
+        acc  = [80,80,80];
+        dacc  = [80,80,80];
         jacc  = [200000,200000,200000];
         ref_dacc  = [80,80,80];
         vel  = [0,0,0];
@@ -201,7 +201,7 @@ classdef OWIS_STAGES
             % Returns: none %
             
             for i=1:3
-                fprintf ('Stopping Motor %s', this.AxisName(i));
+                 fprintf ('Stopping Motor %s',  this.AxisName{i});
                 this.MotionStop(this.Axis(i));
             end
         end
@@ -221,6 +221,17 @@ classdef OWIS_STAGES
             end
         end
         
+        %% WaitEndMovement %% Wait until Axis movement finishes %%
+        function  WaitEndMovement(this,axis) 
+            % function  WaitEndMovement(this,axis)
+            % function  MoveTo(this,axis,target) Default axis velocity
+            % Arguments: object OWIS (this), axis int, target double, velocity double%
+            % Returns: none %
+            
+            while (calllib ('ps90', 'PS90_GetMoveState', this.Index, axis) ~= 0)
+            end
+        end
+        
         %% MoveTo %% Absolute movements %%
         
         function  MoveTo(this,axis,target,velocity)
@@ -231,6 +242,7 @@ classdef OWIS_STAGES
             
             if calllib ('ps90', 'PS90_GetMoveState', this.Index, axis) ~= 0
                 this.MotionStop(axis);          % If axis is currently moving stop it first
+                this.WaitEndMovement(axis);
             end
             
             switch nargin
@@ -406,6 +418,7 @@ classdef OWIS_STAGES
             
             if calllib ('ps90', 'PS90_GetMoveState', this.Index, axis) ~= 0
                 this.MotionStop(axis);        % If axis is currently moving stop it first
+                this.WaitEndMovement(axis);
             end
             
             switch nargin
