@@ -20,7 +20,7 @@ filter_size;
 sizeParticles;
 
 % FROIbuilder
-pixelAreaF;  
+pixelAreaF;
 deltaArea;
 perimeterF; 
 deltaPerimeter;
@@ -120,14 +120,154 @@ this.binaryFilterKernel_calibration=binaryFilterKernel_calibration;
 
 
         end
-     
-        
-function mytest = test(this)
-image = imread("/Users/cescobar/cernbox_MoC/GANTRY-IFIC/Pictures_general/images_mini_camera_calibration/mitutoyo/imagen_3.tif");
-imshow(image);
+
+% 
+
+function calibrate_camera(this)
+    
+% close all open figures
+close all
+    
+%imfilename = ("/Users/cescobar/Nextcloud/ITk/Petals/Assembly/Pictures_general/images_mini_camera_calibration/mitutoyo/imagen_3.tif");
+%imfilename = ("/Users/cescobar/Nextcloud/ITk/Petals/Assembly/Pictures_general/images_mini_camera_calibration/mitutoyo/imagen_3.tif");
+%imfilename = ("/Users/cescobar/Desktop/imagen_3_3.jpeg");
+imfilename = ("/Users/cescobar/Desktop/horizontal_1.png");
+% read and show the image
+imageIn = imread(imfilename);
+%figure, imshow(imageIn)
+
+% passing to gray image if necessary
+if size(imageIn,3)==3
+imageIn = rgb2gray(imageIn);
+end
+% now it is gray scale with range of 0 to 255
+
+% get information (imtool)
+info = imfinfo(imfilename);
+image_width = info.Width;
+image_height = info.Height;
+
+% apply median blur
+medianFilter = cv.medianBlur(imageIn,'KSize',this.binaryFilterKernel);
+%figure, imshow(medianFilter)
+imageBW = imbinarize(medianFilter,'adaptive','ForegroundPolarity','bright','Sensitivity',0.3);
+%figure, imshow(imageBW)
+
+% apply canny edge detectors to the image to detect edges prior to the application of Hough transform
+BWEd = edge(imageBW, 'canny');
+% figure, imshow(BWEd);
+% figure, imshow(imageIn);
+
+% create the Hough transform using the binary image. 
+% (source: https://www.mathworks.com/help/images/ref/houghlines.html)
+[H,T,R] = hough(BWEd);
+%imshow(H,[],'XData',T,'YData',R,'InitialMagnification','fit');
+%xlabel('\theta'), ylabel('\rho');
+%axis on, axis normal, hold on;
+
+% find peaks in the Hough transform of the image
+% need to change number e.g., 15 to increase the lines
+P  = houghpeaks(H,20,'threshold',ceil(0.3*max(H(:))));
+x = T(P(:,2)); y = R(P(:,1));
+%plot(x,y,'s','color','white');
+
+% find lines and plot them over the initial image
+lines = houghlines(imageIn,T,R,P,'FillGap',5,'MinLength',7);
+figure, imshow(imageIn), hold on
+max_len = 0;
+
+for k = 1:length(lines)
+    k
+    lines(k)
+    xy = [lines(k).point1; lines(k).point2];
+    
+    % plot line
+    plot(xy(:,1),xy(:,2),'LineWidth',2,'Color','green');
+    
+    % get the angle wrt the horizontal
+    %slope = diff(lines(k).point2) ./ diff(lines(k).point1)
+    %rot_angle = atan(slope)
+
+    % plot beginnings and ends of lines
+    plot(xy(1,1),xy(1,1),'x','LineWidth',2,'Color','yellow');
+    plot(xy(1,1),xy(1,1),'x','LineWidth',2,'Color','red');
+    
+    % plot reference line
+    % reflines = refline([0 -lines(k).rho]); reflines.Color = 'r'; reflines.LineWidth = 2;
+    % reflines
+
+    % compute the slope and rotating angle
+    % slope = (xy(2,2) - xy(1,2)) / (xy(2,1) - xy(1,1))
+    % angle = atan(slope) * 180/pi
+    
+    % xmin = xy(2,2) - reflines.YData(1,1);
+    % ymin = xmin;
+    
+    % image_width
+    % image_height
+    % image_rotated = imrotate(imageIn,angle,'bilinear','crop'); 
+    % figure, imshow(image_rotated)
+    % image_cropped = imcrop(image_rotated,[xmin ymin image_width-2*xmin image_height-2*ymin]);
+    % figure, imshow(image_cropped)
+    % return
+    
+    xmean(k) = (xy(2,1)-xy(1,1))/2;
+    ymean(k) = xy(1,2);
+    
+    %xmean = [ (xy(2,1)-xy(1,1))/2 xy(1,2) ]
+    
+end
+
+
+xmean
+ymean
+return
+
+mytable = table(xmean,ymean);
 
 
 
+
+
+
+
+
+for m = 1:length(mytable)
+    mytable(m)
+end
+return
+Be = sortrows(mytable);
+Be
+return
+
+
+
+for k = 1:length(lines)/2
+    
+    xy1 = [lines(k).point1; lines(k).point2];
+    xy2 = [lines(k+1).point1; lines(k+1).point2];
+    
+    xy1
+    xy2
+end
+end
+
+
+
+
+
+
+
+
+
+%% apply canny edge detectors to the image to  detect edges prior to the
+%% application of Hough transform
+%BW1 = edge(image, 'Canny');
+% figure, imshow(image);
+%BW2 = edge(image,'Prewitt');
+%imshowpair(BW1,BW2,'montage')
+%imshowpair(image,BW2,'montage')
+%lines = houghlines(BW,T,R,P,'FillGap',5,'MinLength',7); 
 
 %image = imread("hybrid_circle_fid_1.png");
 %image = imresize(image, 0.1);
@@ -226,7 +366,7 @@ imshow(image);
 %    R(i)=circles{i}(3);
 %end
 
-end        
+%end        
         
         
         
