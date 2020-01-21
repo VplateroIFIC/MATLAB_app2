@@ -110,16 +110,26 @@ classdef CAMERA
                     triggerconfig(this.cam, this.triggerConfig);
                     src = getselectedsource(this.cam);
                     src.ExposureAuto = this.ExposureAuto;
-                    %                src.GainAuto = this.GainAuto;
+%                     src.GainAuto = this.GainAuto;
                     this.IsConnected=1;
+                    set(this.cam, 'TriggerFrameDelay', 25);
+                    set(this.cam, 'FramesPerTrigger', 1);
+                    set(this.cam, 'TriggerRepeat', Inf);
+                    src.TriggerDelay = 15;
+%                     src.TriggerMode = 'On';
                 case 4
-                    this.cam = videoinput(this.videoAdaptor, 2, 'RGB8Packed');
-                    %               this.cam = videoinput(this.videoAdaptor,2);
+                    this.cam = videoinput(this.videoAdaptor, 1, 'RGB8Packed');
                     triggerconfig(this.cam, this.triggerConfig);
                     src = getselectedsource(this.cam);
                     src.ExposureAuto = this.ExposureAuto;
                     src.GainAuto = this.GainAuto;
+                    this.cam.ReturnedColorspace = 'grayscale';
+                    set(this.cam, 'TriggerFrameDelay', 25);
+                    set(this.cam, 'FramesPerTrigger', 1);
+                    set(this.cam, 'TriggerRepeat', Inf);
+                    warning('off','imaq:gentl:hardwareTriggerTriggerModeOff');
                     this.IsConnected=1;
+                     
                 case 5
                     this.cam = videoinput(this.videoAdaptor, 2);
                     this.cam.ROIPosition=this.ROIPos;
@@ -147,16 +157,18 @@ classdef CAMERA
         
         %%  OneFrame return current frame of the camera (image)   %%
         function Image = OneFrame(this)
-            start(this.cam);
-            [Image,time,metadata]=this.retrieveDataOneFrame;
-            stop(this.cam);
+            this.startAdquisition;
+            [data, ~, ~]=this.retrieveDataOneFrame;
+            this.stopAdquisition;
+            Image=data;
         end
         
         %%  DispFrame Display current frame in a figure   %%
         function DispFrame(this)
-            start(this.cam);
-            pic=getdata(this.cam);
-            stop(this.cam);
+            this.startAdquisition;
+            [data, ~, ~]=this.retrieveDataOneFrame;
+            this.stopAdquisition;
+            pic=data;
             imshow(pic);
         end
         

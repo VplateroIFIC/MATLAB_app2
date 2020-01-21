@@ -4,7 +4,7 @@
 
 
 ROIPos=[0 0 1920 1200];     % resolution of the camera
-ImageOutput='D:\Gantry\cernbox\GANTRY-IFIC\Pictures_general\F_images_newLighting\';  % folder to save the images    
+ImageOutput='C:\Users\leon0\Desktop\test_output\';  % folder to save the images    
 calibration=3.62483;  %um/pixel calibration of the camera
 videoAdaptor='gentl';    % Matlab video adaptor used
 triggerConfig='hardware';

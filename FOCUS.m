@@ -13,17 +13,18 @@ classdef FOCUS
         RoiSize=500;
         ReadyToFocus=0;
         FocusType='BREN';
-        zAxis=4;
+        zAxis;
         gantry;
         cam;  
     end
     
     methods
         
-        function this = FOCUS(gantry_obj,camera_obj)
+        function this = FOCUS(gantry_obj,camera_obj,setup)
             %FOCUS Construct an instance of this class
             % Inputs 1: STAGES object. Object has to be connected and the axis enabled
             % Input 2: CAMERA obj. Camera has to be connected.
+            % input 3: setup 1 for gantry, setup 2 for OWIS.
             this.gantry=gantry_obj;
             this.cam=camera_obj;
             if (this.gantry.IsConnected==1) && (this.cam.IsConnected==1)
@@ -38,6 +39,13 @@ classdef FOCUS
                 if (cam.IsConnected==0)
                     disp('Autofocus can not be performed: Camera is not connected')
                 end
+            end
+            
+            switch setup
+                case 1
+                    this.zAxis=4;
+                case 2
+                    this.zAxis=3;
             end
         end
         
