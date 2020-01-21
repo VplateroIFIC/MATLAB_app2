@@ -14,4 +14,4 @@ cam= CAMERA(5);
 cam = cam.Connect;
 cam.DispCam
 
-focus = FOCUS(gantry, cam);
+focus = FOCUS(gantry, cam,1);
