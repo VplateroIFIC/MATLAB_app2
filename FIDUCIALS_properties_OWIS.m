@@ -5,7 +5,7 @@
 % matchSURF
 
 binaryFilterKernel=9;
-adaptativeThreshold=41;
+adaptativeThreshold=21;
 SURF_Extended=false;   %false 
 SURF_HessianThreshold=300;   %300 to 500 (the larger, the less keypoints we get)
 SURF_NOctaveLayers=2;       %2
@@ -17,7 +17,7 @@ filter_size=50;   % minimum size for the feature
 
 % prepareImage
 
-sizeParticles=9500;
+sizeParticles=3000;
 
 % FROIbuilder
 
@@ -32,12 +32,12 @@ ROIsize=600;
 
 % FmatchSURF
 
-FtemplatePath=('templates\F.jpg');
+FtemplatePath=('templates\F_OWIS.jpg');
 
 % CirclesFinder
 
-camCalibration=3.62483; %um/pixel % Daniele
-% camCalibration=3.5739; %um/pixel % sensor CNM
+camCalibration=1/0.7551; %um/pixel
+
 
 binaryFilterKernel_circles=81;
 
@@ -53,3 +53,4 @@ binaryFilterKernel_calibrationPlate=9;
 % calibrationFidFinder
 
 binaryFilterKernel_calibration=5;
+minDist=50;
