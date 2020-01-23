@@ -6,3 +6,4 @@ joy = joy.Connect;
 cam=CAMERA(4);
 cam=cam.Connect;
 cam.DispCam
+focus=FOCUS(eje,cam,2);
