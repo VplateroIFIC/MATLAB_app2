@@ -7,3 +7,4 @@ cam=CAMERA(4);
 cam=cam.Connect;
 cam.DispCam
 focus=FOCUS(eje,cam,2);
+fid=FICUCIALS(2);
