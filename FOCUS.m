@@ -74,13 +74,9 @@ classdef FOCUS
             % Setting initial values
             Zini=this.gantry.GetPosition(this.zAxis);
             R=this.FocusRange;
-<<<<<<< HEAD
-            generalRange=[Zini-R/2,Zini+R/2];
+            generalRange=[min(Zini-R/2,Zini+R/2),max(Zini-R/2,Zini+R/2)];
+%           generalRange=[Zini-R/2,Zini+R/2];
             div=this.splits;
-=======
-%             div=this.splits;
-            div=10;
->>>>>>> master
             x0=round(ImageSize(1)/2);
             y0=round(ImageSize(2)/2);
             RoiWidth=this.RoiSize;
@@ -98,9 +94,9 @@ classdef FOCUS
             
             while iteration<10
                 % Setting counters and empty vector for the sampling loop%
-                P0=Z0-R/2;
-                Pn=Z0+R/2;
-                if P0 < generalRange(1)*0.9 || Pn > generalRange(2)*1.1
+                P0=min(Z0-R/2,Z0+R/2);
+                Pn=max(Z0-R/2,Z0+R/2);
+                if P0 < generalRange(1)-0.1*abs(generalRange(1)) || Pn > generalRange(2)+0.1*abs(generalRange(2))
                     
                     this.cam.stopAdquisition;
                     disp('Optimal focus point is out of range');
@@ -141,12 +137,9 @@ classdef FOCUS
                 Y=FocusValue{iteration};
                 p=polyfit(X,Y,2);
                 Zfinal=-(p(2)/(2*p(1)));
-                if (Zfinal>=P0 || Zfinal<=Pn)    
-                    % checking distance
-                    currentPos=this.gantry.GetPosition(4);
-                    deltaFinal=Zfinal-currentPos;
+                if (Zfinal>=P0 || Zfinal<=Pn)
                     % Moving to Zfinal  %
-                    this.gantry.MoveBy(this.zAxis,deltaFinal,this.velocity);
+                    this.gantry.MoveTo(this.zAxis,Zfinal,this.velocity);
                     this.gantry.WaitForMotion(this.zAxis,-1);
                 else
                     disp('Optimal focus point is out of range');
@@ -196,12 +189,9 @@ classdef FOCUS
             %   n,  number of measurements in the range. >2, initial and final points included.
            
             %increment
-            delta=(Zn-Z0)/(n-1);
-            % current position
-            Zini=this.gantry.GetPosition(4);
-            deltaZ=Z0-Zini;
+            delta=abs(Zn-Z0)/(n-1);
             % moving gantry to initial position %
-            this.gantry.MoveBy(this.zAxis,deltaZ,this.velocity);
+            this.gantry.MoveTo(this.zAxis,Z0,this.velocity);
             this.gantry.WaitForMotion(this.zAxis,-1);
             %prelocating memory
             images=cell(n,1);
