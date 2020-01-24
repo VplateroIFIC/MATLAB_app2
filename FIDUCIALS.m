@@ -45,6 +45,7 @@ binaryFilterKernel_calibrationPlate;
 
 % calibrationFidFinder
 binaryFilterKernel_calibration;
+minDist;
 
     end
     
@@ -117,7 +118,7 @@ this.binaryFilterKernel_calibrationPlate=binaryFilterKernel_calibrationPlate;
 
 % calibrationFidFinder
 this.binaryFilterKernel_calibration=binaryFilterKernel_calibration;
-
+this.minDist=minDist;
 
         end
 
@@ -475,6 +476,7 @@ medianFilter=cv.medianBlur(imageIn,'KSize',kernel);
 BinaryFilter=cv.threshold(medianFilter,'Otsu','Type','Binary','MaxValue',255);
 adapLocalThres=cv.adaptiveThreshold(BinaryFilter,'MaxValue',255,'Method','Gaussian','Type','BinaryInv','BlockSize',threshold,'C',2);
 particlesRemoved=bwareaopen(adapLocalThres,this.sizeParticles);
+% particlesRemoved=bwareaopen(adapLocalThres,3000);
 imuint8=im2uint8(particlesRemoved);
 resizeIm=imresize(imuint8,1);
 
@@ -960,7 +962,7 @@ end
 
 % looking for circles
 medianFilter=cv.medianBlur(ROI,'KSize',kernel);
-circles = cv.HoughCircles(medianFilter,'MinDist',100,'Param1',100,'Param2',5,'MinRadius',10.5*calibration,'MaxRadius',12*calibration);
+circles = cv.HoughCircles(medianFilter,'MinDist',this.minDist,'Param1',100,'Param2',5,'MinRadius',10.5*calibration,'MaxRadius',12*calibration);
 [m,n]=size(circles);
 
 % calculating center of the fiducial depending on number of fiducials detected %
