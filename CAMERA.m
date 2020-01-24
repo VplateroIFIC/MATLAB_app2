@@ -120,7 +120,7 @@ classdef CAMERA
                     src.TriggerDelay = 15;
 %                     src.TriggerMode = 'On';
                 case 4
-                    this.cam = videoinput(this.videoAdaptor, 1, 'RGB8Packed');
+                    this.cam = videoinput(this.videoAdaptor, 1, 'Mono8');
                     triggerconfig(this.cam, this.triggerConfig);
                     src = getselectedsource(this.cam);
                     src.ExposureAuto = this.ExposureAuto;
