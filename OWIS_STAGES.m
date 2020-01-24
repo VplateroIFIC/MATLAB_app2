@@ -15,7 +15,7 @@ classdef OWIS_STAGES
         OWIS = 1;
         Interface = 0;      % 0-> ComPort or USB; 1-> NET
         nComPort=int32(3);  % 0(COM0), 1(COM1), ... 255(COM255), default: 1
-        Baud = 9600;        % 9600,19200,38400,57600,115200, default: 9600
+        Baud = 115200;        % 9600,19200,38400,57600,115200, default: 9600
         Handshake = 0;      % 0(CR), 1(CR+LF), 2(LF), default: 0
         Parity = 0;         % 0-> No parity; 1-> OddParity; 2-> EvenParity
         dataBits = 8;
@@ -96,7 +96,7 @@ classdef OWIS_STAGES
         function ConnectError(this, error)
             switch error
                 case 0
-                    fprintf('\t OK\n');
+%                     fprintf('\t OK\n');
                 case 1
                     fprintf('\tfunction error ( invalid parameters )\n');
                 case 2
@@ -141,7 +141,7 @@ classdef OWIS_STAGES
         function showError (this, error)
             switch error
                 case 0
-                    fprintf('\t OK\n');
+%                     fprintf('\t OK\n');
                 case -1
                     fprintf(' Function error\n');
                 case -2
@@ -269,7 +269,7 @@ classdef OWIS_STAGES
                 this.showError(error);
             end
             Position = this.GetPosition(axis);
-            fprintf (' Moving %s from %3.3f to %3.3f mm at %.1f mm/s ->', this.AxisName{axis}, Position, target, velocity);
+%             fprintf (' Moving %s from %3.3f to %3.3f mm at %.1f mm/s ->', this.AxisName{axis}, Position, target, velocity);
             error = calllib('ps90', 'PS90_SetPosFEx', this.Index, axis, velocity);
             if error ~= 0
                 this.showError(error);
@@ -454,7 +454,7 @@ classdef OWIS_STAGES
                 this.showError(error);
             end
             Position = this.GetPosition(axis);
-            fprintf (' Moving %s from %3.3f to %3.3f mm at %.1f mm/s ->', this.AxisName{axis}, Position , Position + delta, velocity);
+%             fprintf (' Moving %s from %3.3f to %3.3f mm at %.1f mm/s ->', this.AxisName{axis}, Position , Position + delta, velocity);
             error = calllib ('ps90', 'PS90_MoveEx', this.Index, axis, delta, this.units);
             this.showError(error);
         end
@@ -471,13 +471,13 @@ classdef OWIS_STAGES
             State = calllib ('ps90', 'PS90_GetAxisState', this.Index, axis);
             switch State
                 case 0
-                    fprintf('Axis %s is not active ->', this.AxisName{axis});
+%                     fprintf('Axis %s is not active ->', this.AxisName{axis});
                 case 1
-                    fprintf('Axis %s not initialized ->', this.AxisName{axis});
+%                     fprintf('Axis %s not initialized ->', this.AxisName{axis});
                 case 2
-                    fprintf('Axis %s is switched off ->', this.AxisName{axis});
+%                     fprintf('Axis %s is switched off ->', this.AxisName{axis});
                 case 3
-                    fprintf('Axis %s is ready', this.AxisName{axis});
+%                     fprintf('Axis %s is ready', this.AxisName{axis});
             end
             error = calllib ('ps90', 'PS90_GetReadError', this.Index);
             this.showError(error);
@@ -488,6 +488,34 @@ classdef OWIS_STAGES
             error = calllib ('ps90', 'PS90_GetReadError', this.Index);
             this.showError(error);
         end
+        
+        
+                %% AxisMoveState %%
+        
+        function  State = AxisMoveState(this,axis)
+            %The method retrieves the current axis state.
+            %function  AxisState(this,axis)
+            % Arguments: object OWIS (this),int Axis%
+            % Returns: array with the current state of the motor %
+            % 0  axis stands still
+            % 1 axis runs in trapezoidal profile
+            % 2 axis runs in S-curve profile
+            % 3 axis runs to reference position
+            % 4 axis releases active limit switches
+            % 5 axis works in velocity mode
+            % 6 axis works in joystick mode
+            % 7 axis runs in trapezoidal profile with WMS (way measuring system)
+            % 8 axis runs in S-curve profile with WMS
+            % 9 axis works in velocity mode with WMS
+            % 10 axis works in velocity mode with continuous-path control
+            % 11 axis works in hybrid mode with WMS 
+            
+            State = calllib ('ps90', 'PS90_GetMoveState', this.Index, axis);
+            error = calllib ('ps90', 'PS90_GetReadError', this.Index);
+            this.showError(error);
+        end
+        
+        
         
         %% Home %%
         
@@ -520,7 +548,7 @@ classdef OWIS_STAGES
             switch nargin
                 case 3
                     
-                case 4
+                case 2
                     time = -1;  %If no time is especified it will wait infinite
                 otherwise
                     fprintf ('Invalid number of arguments: (obj, axis, delta)\n');
@@ -577,7 +605,7 @@ classdef OWIS_STAGES
                 fprintf ('\n Critital Error in %s', this.AxisName{axis});
                 return;
             end
-            fprintf ('Manual movement of %s at %f mm/s', this.AxisName{axis}, velocity);
+%             fprintf ('Manual movement of %s at %f mm/s', this.AxisName{axis}, velocity);
             error = calllib ('ps90', 'PS90_SetFEx', this.Index, axis, velocity);
             if error == 0
                 error = calllib ('ps90', 'PS90_GoVel', this.Index, axis);
@@ -602,7 +630,7 @@ classdef OWIS_STAGES
                 fprintf ('\n Critital Error in %s', this.AxisName{axis});
                 return;
             end
-            fprintf ('Manual movement of %s at %f mm/s', this.AxisName{axis}, velocity);
+%             fprintf ('Manual movement of %s at %f mm/s', this.AxisName{axis}, velocity);
             error = calllib ('ps90', 'PS90_SetFEx', this.Index, axis, velocity);
             if error == 0
                 error = calllib ('ps90', 'PS90_GoVel', this.Index, axis);
@@ -628,7 +656,7 @@ classdef OWIS_STAGES
                 fprintf ('\n Critital Error in %s', this.AxisName{axis});
                 return;
             end
-            fprintf ('Manual movement of %s at %f mm/s', this.AxisName{axis}, velocity);
+%             fprintf ('Manual movement of %s at %f mm/s', this.AxisName{axis}, velocity);
             error = calllib ('ps90', 'PS90_SetFEx', this.Index, axis, velocity);
             if error == 0
                 error = calllib ('ps90', 'PS90_GoVel', this.Index, axis);
