@@ -141,6 +141,7 @@ classdef CAMERA
                     set(this.cam, 'FramesPerTrigger', 1);
                     set(this.cam, 'TriggerRepeat', Inf);
                     src.TriggerDelay = 15;
+%                     src.ExposureTime = 1200;
                     
                     this.IsConnected=1;
             end
