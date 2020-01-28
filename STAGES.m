@@ -45,12 +45,10 @@ classdef STAGES
      Relative;
      GantryObj;
      JogVFlag;
+     bufferNoneLabel;
+     apiNoneLabel;
      
-    % AEROTECH properties %
-     
-     zAxis;
-     yyAxis;
-     
+
      
     end
   properties (Access=public)
@@ -92,6 +90,8 @@ classdef STAGES
                  this.Relative=ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_RELATIVE;
                  this.Absolute=ACS.SPiiPlusNET.MotionFlags.ACSC_NONE;
                  this.JogVFlag=ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_VELOCITY;
+                 this.bufferNoneLabel=ACS.SPiiPlusNET.ProgramBuffer.ACSC_NONE;
+                 this.apiNoneLabel=ACS.SPiiPlusNET.Api.ACSC_NONE;
 
             end
         end
@@ -216,7 +216,7 @@ classdef STAGES
         % Arguments: object STAGES (this),axis int ()%
         % Returns: double %
         
-        positionVector=ReadVariableAsVector(this.GantryObj,'APOS', ACS.SPiiPlusNET.ProgramBuffer.ACSC_NONE, ACS.SPiiPlusNET.Api.ACSC_NONE, ACS.SPiiPlusNET.Api.ACSC_NONE, ACS.SPiiPlusNET.Api.ACSC_NONE, ACS.SPiiPlusNET.Api.ACSC_NONE);
+        positionVector=ReadVariableAsVector(this.GantryObj,'APOS',this.bufferNoneLabel, this.apiNoneLabel, this.apiNoneLabel, this.apiNoneLabel,this.apiNoneLabel);
         % index position in positionVector array does not fit with the oficial number assigned to the stages. Take care!        
           switch axis
                    case 0
@@ -265,23 +265,19 @@ classdef STAGES
         % function  value = GetCurrentFeedback(this,axis) 
         % Arguments: object ALIO (this),axis int%
         % Returns: double %
-            switch this.GantryType
-                case 0
-                %insert here GetCurrentFeedback with AEROTECH gantry %
-                case 1
-                 switch axis
+         RMS=ReadVariable(this.GantryObj,'RMS',this.bufferNoneLabel, this.apiNoneLabel, this.apiNoneLabel, this.apiNoneLabel,this.apiNoneLabel); 
+        switch axis
                    case 0
-                     value=ReadVariable(this.GantryObj,'RMS',this.xAxis,this.xAxis); % if error, tray send 0 (or ACSC_NONE) after GantryObj pointer
+                     value=RMS(1);
                    case 1
-                     value=ReadVariable(this.GantryObj,'RMS',this.yAxis,this.yAxis);
+                     value=RMS(2);
                    case 4
-                     value=ReadVariable(this.GantryObj,'RMS',this.z1Axis,this.z1Axis); 
+                     value=RMS(5); 
                    case 5
-                     value=ReadVariable(this.GantryObj,'RMS',this.z1Axis,this.z2Axis);  
+                     value=RMS(6);   
                    case 6
-                     value=ReadVariable(this.GantryObj,'RMS',this.uAxis,this.uAxis);
-                 end
-            end
+                     value=RMS(7);
+        end
         end
 
 
