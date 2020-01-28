@@ -36,7 +36,14 @@ FtemplatePath=('templates\F.jpg');
 
 % CirclesFinder
 
+<<<<<<< HEAD
 camCalibration=3.62483; %um/pixel
+=======
+camCalibration=1.8947; %p/um % calibration fiducial
+% camCalibration=3.5739; %p/um % sensor CNM
+% camCalibration=3.5739; %p/um % sensor CNM
+
+>>>>>>> master
 binaryFilterKernel_circles=81;
 
 % CalibrationFiducialROIBuilder
@@ -51,3 +58,4 @@ binaryFilterKernel_calibrationPlate=9;
 % calibrationFidFinder
 
 binaryFilterKernel_calibration=5;
+minDist=100;
