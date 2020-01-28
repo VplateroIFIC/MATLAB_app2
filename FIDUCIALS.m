@@ -60,8 +60,8 @@ minDist;
 %             
 %             addpath('F:\mexopencv');
 %             addpath('F:\mexopencv\opencv_contrib');
-%%%%            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
-%%%%            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
+           addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
+           addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
 
             
             
