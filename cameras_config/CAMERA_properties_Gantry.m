@@ -4,12 +4,12 @@
 
 resolution=[2048,1536];
 ROIwidth=resolution(1)/2;
-ROIheight=resolution(1)/2;
+ROIheight=resolution(2)/2;
 center=resolution/2;
 % ROIPos=[0 0 2048 1536];     % resolution of the camera
-ROIPos=[center(1)-ROIwidth/2 center(2)-ROIheight/2   ROIheight ROIwidth];     % resolution of the camera
+ROIPos=[ resolution(1)/4 resolution(2)/4  ROIwidth ROIheight];     % resolution of the camera [ XOffset YOffset Width Height]
 ImageOutput='C:\Users\Pablo\Desktop\output_images_results_Gantry\';  % folder to save the images    
-calibration=3.62483;  %um/pixel calibration of the camera
+calibration=1.8947;  %um/pixel calibration of the camera
 videoAdaptor='gentl';    % Matlab video adaptor used
 triggerConfig='hardware';
 ExposureAuto='Continuous';
