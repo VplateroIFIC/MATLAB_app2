@@ -90,6 +90,7 @@ binaryFilterKernel_calibrationPlate;
 
 % calibrationFidFinder
 binaryFilterKernel_calibration;
+minDist;
 
 >>>>>>> master
     end
@@ -175,8 +176,8 @@ binaryFilterKernel_calibration;
 %             
 %             addpath('F:\mexopencv');
 %             addpath('F:\mexopencv\opencv_contrib');
-%%%%            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
-%%%%            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
+           addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
+           addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
 
             
             
@@ -233,7 +234,7 @@ this.binaryFilterKernel_calibrationPlate=binaryFilterKernel_calibrationPlate;
 
 % calibrationFidFinder
 this.binaryFilterKernel_calibration=binaryFilterKernel_calibration;
-
+this.minDist=minDist;
 
         end
 
@@ -263,11 +264,15 @@ info = imfinfo(imfilename);
 image_width = info.Width;
 image_height = info.Height;
 
+%imageIn = imsharpen(imageIn,'Radius',10,'Amount',5,'Threshold',0.7);
+figure, imshow(imageIn)
+
 % apply median blur
 medianFilter = cv.medianBlur(imageIn,'KSize',this.binaryFilterKernel);
-%figure, imshow(medianFilter)
+% figure, imshow(medianFilter)
+
 imageBW = imbinarize(medianFilter,'adaptive','ForegroundPolarity','bright','Sensitivity',0.3);
-%figure, imshow(imageBW)
+% figure, imshow(imageBW)
 
 % apply canny edge detectors to the image to detect edges prior to the application of Hough transform
 BWEd = edge(imageBW, 'canny');
@@ -277,15 +282,15 @@ BWEd = edge(imageBW, 'canny');
 % create the Hough transform using the binary image. 
 % (source: https://www.mathworks.com/help/images/ref/houghlines.html)
 [H,T,R] = hough(BWEd);
-%imshow(H,[],'XData',T,'YData',R,'InitialMagnification','fit');
-%xlabel('\theta'), ylabel('\rho');
-%axis on, axis normal, hold on;
+% imshow(H,[],'XData',T,'YData',R,'InitialMagnification','fit');
+% xlabel('\theta'), ylabel('\rho');
+% axis on, axis normal, hold on;
 
 % find peaks in the Hough transform of the image
 % need to change number e.g., 15 to increase the lines
 P  = houghpeaks(H,20,'threshold',ceil(0.3*max(H(:))));
 x = T(P(:,2)); y = R(P(:,1));
-%plot(x,y,'s','color','white');
+% plot(x,y,'s','color','white');
 
 % find lines and plot them over the initial image
 lines = houghlines(imageIn,T,R,P,'FillGap',5,'MinLength',7);
@@ -293,8 +298,8 @@ figure, imshow(imageIn), hold on
 max_len = 0;
 
 for k = 1:length(lines)
-    k
-    lines(k)
+    %k
+    %lines(k)
     xy = [lines(k).point1; lines(k).point2];
     
     % plot line
@@ -305,11 +310,13 @@ for k = 1:length(lines)
     %rot_angle = atan(slope)
 
     % plot beginnings and ends of lines
-    plot(xy(1,1),xy(1,1),'x','LineWidth',2,'Color','yellow');
-    plot(xy(1,1),xy(1,1),'x','LineWidth',2,'Color','red');
-    
+    % plot(xy(1,1),xy(1,1),'x','LineWidth',2,'Color','yellow');
+    % plot(xy(1,1),xy(1,1),'x','LineWidth',2,'Color','red');
+    plot(xy(1,1),xy(1,2),'x','LineWidth',2,'Color','yellow');
+    plot(xy(2,1),xy(2,2),'x','LineWidth',2,'Color','red');
+     
     % plot reference line
-    % reflines = refline([0 -lines(k).rho]); reflines.Color = 'r'; reflines.LineWidth = 2;
+    % reflines = refline([0 -lines(k).rho]); reflines.Color = 'r'; reflines.LineWidth = 2; reflines.LineStyle = '--';
     % reflines
 
     % compute the slope and rotating angle
@@ -325,35 +332,15 @@ for k = 1:length(lines)
     % figure, imshow(image_rotated)
     % image_cropped = imcrop(image_rotated,[xmin ymin image_width-2*xmin image_height-2*ymin]);
     % figure, imshow(image_cropped)
-    % return
+    %return
     
-    xmean(k) = (xy(2,1)-xy(1,1))/2;
-    ymean(k) = xy(1,2);
+    %xmean(k) = (xy(2,1)-xy(1,1))/2;
+    %ymean(k) = xy(1,2);
     
     %xmean = [ (xy(2,1)-xy(1,1))/2 xy(1,2) ]
     
 end
 
-
-xmean
-ymean
-return
-
-mytable = table(xmean,ymean);
-
-
-
-
-
-
-
-
-for m = 1:length(mytable)
-    mytable(m)
-end
-return
-Be = sortrows(mytable);
-Be
 return
 
 
@@ -587,6 +574,7 @@ end
         end
         
         function [imageOut,images] = prepareImage(this,imageIn,kernel,threshold)
+<<<<<<< HEAD
             % prepareImage pre processing image before matching
             %    inputs:
             %         this: instance which calls the method
@@ -617,6 +605,39 @@ end
             images{4}=particlesRemoved;
             images{5}=resizeIm;
             
+=======
+% prepareImage pre processing image before matching
+%    inputs: 
+%         this: instance which calls the method
+%         imageIn: reference image to preprocess
+% 
+%    outputs:
+%         imageOut: preprocessed image
+%         images: cell array with all steps of processing
+
+% passing to gray image if necessary
+if size(imageIn,3)==3
+imageIn = rgb2gray(imageIn);
+end
+
+% Processing image
+medianFilter=cv.medianBlur(imageIn,'KSize',kernel);
+BinaryFilter=cv.threshold(medianFilter,'Otsu','Type','Binary','MaxValue',255);
+adapLocalThres=cv.adaptiveThreshold(BinaryFilter,'MaxValue',255,'Method','Gaussian','Type','BinaryInv','BlockSize',threshold,'C',2);
+particlesRemoved=bwareaopen(adapLocalThres,this.sizeParticles);
+% particlesRemoved=bwareaopen(adapLocalThres,3000);
+imuint8=im2uint8(particlesRemoved);
+resizeIm=imresize(imuint8,1);
+
+imageOut=resizeIm;
+
+images{1}=medianFilter;
+images{2}=BinaryFilter;
+images{3}=adapLocalThres;
+images{4}=particlesRemoved;
+images{5}=resizeIm;
+
+>>>>>>> master
         end
         
         function goodMatches = ratioTest(this,matches,keypoints1,keypoints2,sizeThreshold, ratio)
@@ -1152,7 +1173,7 @@ end
 
 % looking for circles
 medianFilter=cv.medianBlur(ROI,'KSize',kernel);
-circles = cv.HoughCircles(medianFilter,'MinDist',100,'Param1',100,'Param2',5,'MinRadius',10.5*calibration,'MaxRadius',12*calibration);
+circles = cv.HoughCircles(medianFilter,'MinDist',this.minDist,'Param1',100,'Param2',5,'MinRadius',10.5*calibration,'MaxRadius',12*calibration);
 [m,n]=size(circles);
 
 % calculating center of the fiducial depending on number of fiducials detected %
