@@ -5,7 +5,7 @@
 % matchSURF
 
 binaryFilterKernel=9;
-adaptativeThreshold=41;
+adaptativeThreshold=21;
 SURF_Extended=false;   %false 
 SURF_HessianThreshold=300;   %300 to 500 (the larger, the less keypoints we get)
 SURF_NOctaveLayers=2;       %2
@@ -17,33 +17,30 @@ filter_size=50;   % minimum size for the feature
 
 % prepareImage
 
-sizeParticles=9500;
+sizeParticles=5000;
 
 % FROIbuilder
 
-pixelAreaF=74000;  % nominal value of the F Area in pixels in IFIC setup
-deltaArea=10000;
-perimeterF=2500;   % nominal value of the F Perimeter in pixels in IFIC setup
-deltaPerimeter=500;
+pixelAreaF=17000;  % nominal value of the F Area in pixels in IFIC setup
+deltaArea=2000;
+perimeterF=900;   % nominal value of the F Perimeter in pixels in IFIC setup
+deltaPerimeter=200;
 
 % ROIbuilder
 
-ROIsize=1000;
+ROIsize=500;
 
 % FmatchSURF
 
-FtemplatePath=('templates\F.jpg');
+FtemplatePath=('templates\F_gantry.jpg');
 
 % CirclesFinder
 
-<<<<<<< HEAD
-camCalibration=3.62483; %um/pixel
-=======
 camCalibration=1.8947; %p/um % calibration fiducial
 % camCalibration=3.5739; %p/um % sensor CNM
 % camCalibration=3.5739; %p/um % sensor CNM
 
->>>>>>> master
+
 binaryFilterKernel_circles=81;
 
 % CalibrationFiducialROIBuilder
@@ -58,4 +55,4 @@ binaryFilterKernel_calibrationPlate=9;
 % calibrationFidFinder
 
 binaryFilterKernel_calibration=5;
-minDist=100;
+minDist=50;
