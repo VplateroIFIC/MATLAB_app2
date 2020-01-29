@@ -42,10 +42,11 @@ classdef TOUCHDOWN < handle
          this.currentVector=0;
          timerCounter=1;
          if (plot==1)
-             figure (1)
+             close(gcf)
+             figure(1);
              title('CURRENT VALUE Z AXIS');
          end
-         this.timerLogging = timer('Name','JoyTimer','ExecutionMode','fixedSpacing','StartDelay', 0,'Period',0.01);
+         this.timerLogging = timer('Name','logCurrent','ExecutionMode','fixedSpacing','StartDelay', 0,'Period',0.1);
          this.timerLogging.UserData = struct('counter',timerCounter,'plotFlag',plot);
          this.timerLogging.TimerFcn = {@this.logCurrent};
          this.timerLogging.ErrorFcn = {@this.stopLogging};
@@ -55,7 +56,7 @@ classdef TOUCHDOWN < handle
         
 %%  logCurrent
 
-        function logCurrent(this)
+        function logCurrent(this,tobj,event)
             %startLogging Logging the current of the Z axis
             % input: instance of the class
             
@@ -71,8 +72,9 @@ classdef TOUCHDOWN < handle
 
             % ploting in live figure current value if necessary
             if tobj.UserData.plotFlag==1
+%                 counterVector(tobj.UserData.counter)=tobj.UserData.counter;
                 hold on
-                plot(tobj.UserData.counter,currentValue);
+                plot(tobj.UserData.counter,currentValue,'*');
             end
 
             % increment counter
@@ -81,7 +83,7 @@ classdef TOUCHDOWN < handle
 
 %% stopLogging
 
-  function currentLog = stopLogging(this)
+  function currentLog = stopLogging(this,tobj,event)
             %stopLogging finish the logging of the Z axis current
             % input: instance of the class
             % output: vector with the current values logged
