@@ -9,7 +9,7 @@ classdef OWIS_STAGES
         CriticalError = false;
     end
     
-        %% Connection Properties  %%
+    %% Connection Properties  %%
     properties (Constant, Access = public)
         Type = 'OWIS';
         OWIS = 1;
@@ -25,7 +25,7 @@ classdef OWIS_STAGES
         dDistance=10.0;
     end
     
-            %% Fixed properties for our OWIS controller  %%
+    %% Fixed properties for our OWIS controller  %%
     properties (Constant, Access = public)
         Index = 1;    %// PS-90 INDEX    %search for reference switch and release switch
         xAxis = 1.;
@@ -70,7 +70,7 @@ classdef OWIS_STAGES
         joy_vel_fast_pos = [10,7,3];
         max_velocity = [15, 15, 5];
         max_velocity_neg = [-15, -15, -5];
-%         free_vel  = [29802,29802,47683];
+        %         free_vel  = [29802,29802,47683];
         free_vel_FEx = [1,1,1];
     end
     
@@ -89,6 +89,29 @@ classdef OWIS_STAGES
             if error == 0
                 this.IsConnected = 1;
             end
+        end
+        %% Low level commands %%
+        function error=commands(this)
+%             pszCmd = libpointer ('cstring','?BAUDRATE');
+%             pszAns = libpointer ('cstring','Answer String');
+            pszCmd = ('?BAUDRATE');
+            pszAns = ('Answer String');
+            len = 15;
+            nRequest = 1;
+            nBreak = 30;
+%             long PS90_CmdAnsEx (long Index, const char* pszCmd, char* pszAns, long Len, long nRequest, long nBreak)
+%             Index     --> control unit index (1-10)
+%             pszCmd    --> command from the command reference
+%             pszAns    --> buffer for an answer string
+%             Len       --> buffer length
+%             nRequest  --> 0 – send command to the control unit, 1 – send command and after that read answer
+%             nBreak    --> delay value for communication (nBreak>0), else the pre-setting value is used
+            
+            AnswerLength = calllib('ps90', 'PS90_CmdAnsEx', this.Index, pszCmd, pszAns, len, nRequest, nBreak);
+            error = (calllib('ps90','PS90_GetReadError' , this.Index));
+            this.showError (error); 
+            disp (AnswerLength);
+            disp (pszAns);
         end
         
         %% Showing errors  %%
@@ -155,7 +178,7 @@ classdef OWIS_STAGES
             end
         end
         
-        %% Disconnect%%    
+        %% Disconnect%%
         
         function this = Disconnect(this)
             if this.IsConnected  == 0
@@ -185,7 +208,7 @@ classdef OWIS_STAGES
             %function  MotionAbort(this,axis)
             % stop motion with full decceleration profile
             % Arguments: object OWIS (this),int Axis%
-            % Returns: none %            
+            % Returns: none %
             error = (calllib('ps90', 'PS90_Stop', this.Index, axis));
             if error ~= 0
                 this.showError(error);
@@ -201,7 +224,7 @@ classdef OWIS_STAGES
             % Returns: none %
             
             for i=1:3
-                 fprintf ('Stopping Motor %s\n',  this.AxisName{i});
+                fprintf ('Stopping Motor %s\n',  this.AxisName{i});
                 this.MotionStop(this.Axis(i));
             end
         end
@@ -222,12 +245,12 @@ classdef OWIS_STAGES
         end
         
         %% WaitEndMovement %% Wait until Axis movement finishes %%
-        function  WaitEndMovement(this,axis) 
+        function  WaitEndMovement(this,axis)
             % function  WaitEndMovement(this,axis)
             % Arguments: object OWIS (this), axis int, target double, velocity double%
             % Returns: none %
             
-            while (calllib ('ps90', 'PS90_GetMoveState', this.Index, axis) ~= 0)  
+            while (calllib ('ps90', 'PS90_GetMoveState', this.Index, axis) ~= 0)
             end
         end
         
@@ -251,16 +274,16 @@ classdef OWIS_STAGES
                     velocity = this.pos_vel(axis);
                 otherwise
                     fprintf ('Invalid number of arguments: (obj, axis, delta)\n');
-            end 
+            end
             
             %Limiting Axis velocity
             if velocity > this.max_velocity(axis)
                 velocity = this.max_velocity(axis);
             elseif velocity < this.max_velocity_neg(axis)
-                velocity = this.max_velocity_neg(axis);    
+                velocity = this.max_velocity_neg(axis);
             end
             
-            error = calllib('ps90','PS90_SetTargetMode', this.Index, axis, this.absolute); %Absolute movement          
+            error = calllib('ps90','PS90_SetTargetMode', this.Index, axis, this.absolute); %Absolute movement
             if error ~= 0
                 this.showError(error);
             end
@@ -291,7 +314,7 @@ classdef OWIS_STAGES
             % function  value = GetPosition(this,axis)
             % Arguments: object STAGES (this),axis int ()%
             % Returns: double %
-         
+            
             value = calllib ('ps90', 'PS90_GetPositionEx', this.Index, axis);
             error = (calllib('ps90','PS90_GetReadError' , this.Index));
             if error ~= 0
@@ -299,9 +322,9 @@ classdef OWIS_STAGES
                 this.showError (error);
                 value = 'E';
             else
-%                 fprintf('Current %s position: %3.3f\n', this.AxisName{axis}, value);
-            end            
-
+                %                 fprintf('Current %s position: %3.3f\n', this.AxisName{axis}, value);
+            end
+            
             return
         end
         
@@ -348,7 +371,7 @@ classdef OWIS_STAGES
                 error = error + calllib('ps90', 'PS90_SetPosFEx', this.Index, this.Axis(i), this.pos_vel(i));
                 error = error + calllib('ps90', 'PS90_SetSlowRefFEx', this.Index, this.Axis(i), this.ref_vel_slow(i));
                 error = error + calllib('ps90', 'PS90_SetFastRefFEx', this.Index, this.Axis(i), this.ref_vel_fast(i));
-%                 error = error + calllib('ps90', 'PS90_SetFreeVel', this.Index, this.Axis(i), this.free_vel(i));
+                %                 error = error + calllib('ps90', 'PS90_SetFreeVel', this.Index, this.Axis(i), this.free_vel(i));
                 error = error + calllib('ps90', 'PS90_SetFreeFEx', this.Index, this.Axis(i), this.free_vel_FEx(i));
                 error = error + calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axis(i), this.ref_switch(i));
                 if error == 0           %There are no error in all axis
@@ -441,7 +464,7 @@ classdef OWIS_STAGES
             if velocity > this.max_velocity(axis)
                 velocity = this.max_velocity(axis);
             elseif velocity < this.max_velocity_neg(axis)
-                velocity = this.max_velocity_neg(axis);    
+                velocity = this.max_velocity_neg(axis);
             end
             
             error = calllib('ps90','PS90_SetTargetMode', this.Index, axis, this.relative); %Relative movement
@@ -543,7 +566,7 @@ classdef OWIS_STAGES
             fprintf ('Release axis %s -> ', this.AxisName{axis});
             this.MotorEnable(axis);
             error = calllib ('ps90', 'PS90_FreeSwitch', this.Index, axis);
-            this.showError(error); 
+            this.showError(error);
         end
         
         function FreeSwitchALL (this)
@@ -570,7 +593,7 @@ classdef OWIS_STAGES
             if velocity > this.max_velocity(axis)
                 velocity = this.max_velocity(axis);
             elseif velocity < this.max_velocity_neg(axis)
-                velocity = this.max_velocity_neg(axis);    
+                velocity = this.max_velocity_neg(axis);
             end
             
             if this.CriticalError == true
@@ -595,7 +618,7 @@ classdef OWIS_STAGES
             if velocity > this.max_velocity(axis)
                 velocity = this.max_velocity(axis);
             elseif velocity < this.max_velocity_neg(axis)
-                velocity = this.max_velocity_neg(axis);    
+                velocity = this.max_velocity_neg(axis);
             end
             
             if this.CriticalError == true
@@ -620,10 +643,10 @@ classdef OWIS_STAGES
             if velocity > this.max_velocity(axis)
                 velocity = this.max_velocity(axis);
             elseif velocity < this.max_velocity_neg(axis)
-                velocity = this.max_velocity_neg(axis);    
+                velocity = this.max_velocity_neg(axis);
             end
-%             velocity = velocity / 10;      %Reducing Z axis velocity
-
+            %             velocity = velocity / 10;      %Reducing Z axis velocity
+            
             if this.CriticalError == true
                 fprintf ('\n Critital Error in %s', this.AxisName{axis});
                 return;
