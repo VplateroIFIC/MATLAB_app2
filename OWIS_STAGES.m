@@ -91,13 +91,13 @@ classdef OWIS_STAGES
             end
         end
         %% Low level commands %%
-        function error=commands(this)
+        function AnswerLength=commands(this)
 %             pszCmd = libpointer ('cstring','?BAUDRATE');
 %             pszAns = libpointer ('cstring','Answer String');
             pszCmd = ('?BAUDRATE');
             pszAns = ('Answer String');
             len = 15;
-            nRequest = 1;
+            nRequest = 1;  %1-> Read answer; 0-> Just send command
             nBreak = 30;
 %             long PS90_CmdAnsEx (long Index, const char* pszCmd, char* pszAns, long Len, long nRequest, long nBreak)
 %             Index     --> control unit index (1-10)
@@ -107,10 +107,10 @@ classdef OWIS_STAGES
 %             nRequest  --> 0 – send command to the control unit, 1 – send command and after that read answer
 %             nBreak    --> delay value for communication (nBreak>0), else the pre-setting value is used
             
-            AnswerLength = calllib('ps90', 'PS90_CmdAnsEx', this.Index, pszCmd, pszAns, len, nRequest, nBreak);
+            AnswerLength = calllib('ps90', 'PS90_CmdAns', this.Index, pszCmd, pszAns, len, nRequest);
+%             AnswerLength = calllib('ps90', 'PS90_CmdAnsEx', this.Index, pszCmd, pszAns, len, nRequest, nBreak);
             error = (calllib('ps90','PS90_GetReadError' , this.Index));
             this.showError (error); 
-            disp (AnswerLength);
             disp (pszAns);
         end
         
