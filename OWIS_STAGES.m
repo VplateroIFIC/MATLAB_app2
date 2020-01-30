@@ -15,7 +15,7 @@ classdef OWIS_STAGES
         OWIS = 1;
         Interface = 0;      % 0-> ComPort or USB; 1-> NET
         nComPort=int32(3);  % 0(COM0), 1(COM1), ... 255(COM255), default: 1
-        Baud = 9600;        % 9600,19200,38400,57600,115200, default: 9600
+        Baud = 19200;        % 9600,19200,38400,57600,115200, default: 9600
         Handshake = 0;      % 0(CR), 1(CR+LF), 2(LF), default: 0
         Parity = 0;         % 0-> No parity; 1-> OddParity; 2-> EvenParity
         dataBits = 8;
@@ -90,13 +90,11 @@ classdef OWIS_STAGES
                 this.IsConnected = 1;
             end
         end
-        %% Low level commands %%
-        function AnswerLength=commands(this)
-%             pszCmd = libpointer ('cstring','?BAUDRATE');
-%             pszAns = libpointer ('cstring','Answer String');
-            pszCmd = ('?BAUDRATE');
-            pszAns = ('Answer String');
-            len = 15;
+        %% Low level Commands %%
+        function CMD(this,cmd)
+            pszCmd = '?BAUDRATE';
+            pszAns = ' ';
+            len = 1;
             nRequest = 1;  %1-> Read answer; 0-> Just send command
             nBreak = 30;
 %             long PS90_CmdAnsEx (long Index, const char* pszCmd, char* pszAns, long Len, long nRequest, long nBreak)
@@ -107,11 +105,36 @@ classdef OWIS_STAGES
 %             nRequest  --> 0 – send command to the control unit, 1 – send command and after that read answer
 %             nBreak    --> delay value for communication (nBreak>0), else the pre-setting value is used
             
-            AnswerLength = calllib('ps90', 'PS90_CmdAns', this.Index, pszCmd, pszAns, len, nRequest);
-%             AnswerLength = calllib('ps90', 'PS90_CmdAnsEx', this.Index, pszCmd, pszAns, len, nRequest, nBreak);
+%             [AnswerLength, A, B] = calllib('ps90', 'PS90_CmdAns', this.Index, pszCmd, pszAns, len, nRequest);
+            [AnswerLength, A, B] = calllib('ps90', 'PS90_CmdAnsEx', this.Index, cmd, pszAns, len, nRequest, nBreak);
             error = (calllib('ps90','PS90_GetReadError' , this.Index));
             this.showError (error); 
             disp (pszAns);
+            disp (A);
+            disp (B);
+        end
+        
+                function SetBaud(this,cmd);
+            pszCmd = 'BAUDRATE=19200';
+            pszAns = ' ';
+            len = 1;
+            nRequest = 1;  %1-> Read answer; 0-> Just send command
+            nBreak = 30;
+%             long PS90_CmdAnsEx (long Index, const char* pszCmd, char* pszAns, long Len, long nRequest, long nBreak)
+%             Index     --> control unit index (1-10)
+%             pszCmd    --> command from the command reference
+%             pszAns    --> buffer for an answer string
+%             Len       --> buffer length
+%             nRequest  --> 0 – send command to the control unit, 1 – send command and after that read answer
+%             nBreak    --> delay value for communication (nBreak>0), else the pre-setting value is used
+            
+%             [AnswerLength, A, B] = calllib('ps90', 'PS90_CmdAns', this.Index, pszCmd, pszAns, len, nRequest);
+            [AnswerLength, A, B] = calllib('ps90', 'PS90_CmdAnsEx', this.Index, cmd, pszAns, len, nRequest, nBreak);
+            error = (calllib('ps90','PS90_GetReadError' , this.Index));
+            this.showError (error); 
+            disp (pszAns);
+            disp (A);
+            disp (B);
         end
         
         %% Showing errors  %%
