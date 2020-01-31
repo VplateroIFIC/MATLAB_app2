@@ -15,3 +15,5 @@ cam = cam.Connect;
 cam.DispCam
 
 focus = FOCUS(gantry, cam,1);
+
+touch=TOUCHDOWN(gantry);
