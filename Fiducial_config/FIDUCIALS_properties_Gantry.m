@@ -5,7 +5,7 @@
 % matchSURF
 
 binaryFilterKernel=9;
-adaptativeThreshold=21;
+adaptativeThreshold=31;
 SURF_Extended=false;   %false 
 SURF_HessianThreshold=300;   %300 to 500 (the larger, the less keypoints we get)
 SURF_NOctaveLayers=2;       %2
