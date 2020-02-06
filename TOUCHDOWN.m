@@ -8,11 +8,9 @@ classdef TOUCHDOWN < handle
         timerLogging;
         currentVector;
         positionVector;
-<<<<<<< HEAD
-=======
 %         lowVelocity;
 %         highVelocity;
->>>>>>> da6dd96b1aecd2669eca0d6c007f0f30f7433779
+
     end
     
     methods
@@ -74,14 +72,9 @@ classdef TOUCHDOWN < handle
             %this: instance of the class
             
             %asking current value
-<<<<<<< HEAD
-            currentValue=this.getCurrentValue;
-            positionValue=this.gantry.GetPosition(this.z1Axis);
-            
-=======
             currentValue=this.getCurrentValue(tobj.UserData.counter);
             positionValue=this.gantry.GetPosition(tobj.UserData.axis);
->>>>>>> da6dd96b1aecd2669eca0d6c007f0f30f7433779
+
             % saving value in the corresponding vector
             if tobj.UserData.counter~=1
              this.currentVector=[this.currentVector currentValue];
@@ -94,15 +87,12 @@ classdef TOUCHDOWN < handle
             % ploting in live figure current value if necessary
             if tobj.UserData.plotFlag==1
                 hold on
-<<<<<<< HEAD
                 subplot(2,1,1) 
                 plot(tobj.UserData.counter,currentValue,'*');
                 hold on
                 subplot(2,1,2)
                 plot(tobj.UserData.counter,positionValue,'*');
-=======
-                plot(positionValue,currentValue,'*');
->>>>>>> da6dd96b1aecd2669eca0d6c007f0f30f7433779
+
             end
             
             
@@ -112,12 +102,10 @@ classdef TOUCHDOWN < handle
         end       
 
 %% stopLogging
-<<<<<<< HEAD
+
 
   function [current,position] = stopLogging(this,tobj,event)
-=======
-  function currentLog = stopLogging(this,tobj,event)
->>>>>>> da6dd96b1aecd2669eca0d6c007f0f30f7433779
+
             %stopLogging finish the logging of the Z axis current
             % input:
             % this: instance of the class
