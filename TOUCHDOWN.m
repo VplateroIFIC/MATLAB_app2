@@ -8,11 +8,14 @@ classdef TOUCHDOWN < handle
         timerLogging;
         currentVector;
         positionVector;
-<<<<<<< HEAD
-=======
+        timeVector;
+        sampleSize=0.1;
+        principalTrigger=0;
+        secondaryTrigger=0;
+        thresholdSlope=0.6;
 %         lowVelocity;
 %         highVelocity;
->>>>>>> da6dd96b1aecd2669eca0d6c007f0f30f7433779
+
     end
     
     methods
@@ -59,8 +62,8 @@ classdef TOUCHDOWN < handle
              figure(1);
              title('CURRENT VALUE Z AXIS');
          end
-         this.timerLogging = timer('Name','logCurrent','ExecutionMode','fixedSpacing','StartDelay', 0,'Period',0.1);
-         this.timerLogging.UserData = struct('counter',timerCounter,'axis',stage,'plotFlag',plot);
+         this.timerLogging = timer('Name','logCurrent','ExecutionMode','fixedSpacing','StartDelay', 0,'Period',this.sampleSize);
+         this.timerLogging.UserData = struct('counter',timerCounter,'axis',axis,'plotFlag',plot);
          this.timerLogging.TimerFcn = {@this.logCurrent};
          this.timerLogging.ErrorFcn = {@this.stopLogging};
          this.timerLogging.StopFcn = {@this.stopLogging};
@@ -73,51 +76,80 @@ classdef TOUCHDOWN < handle
             % input:
             %this: instance of the class
             
-            %asking current value
-<<<<<<< HEAD
-            currentValue=this.getCurrentValue;
-            positionValue=this.gantry.GetPosition(this.z1Axis);
-            
-=======
-            currentValue=this.getCurrentValue(tobj.UserData.counter);
+            %asking current and position values
+            currentValue=this.gantry.GetCurrentFeedback(tobj.UserData.axis);
             positionValue=this.gantry.GetPosition(tobj.UserData.axis);
->>>>>>> da6dd96b1aecd2669eca0d6c007f0f30f7433779
+            timeValue=tobj.UserData.counter/this.sampleSize;
+            
+            
             % saving value in the corresponding vector
             if tobj.UserData.counter~=1
              this.currentVector=[this.currentVector currentValue];
              this.positionVector=[this.positionVector positionValue];
+             this.timeVector=[this.timeVector timeValue];
             else
               this.currentVector=currentValue;
               this.positionVector=positionValue;
+              this.timeVector=timeValue;
             end
+
+             %principal trigger: based in the slope of the last 5 measured points
+            if tobj.UserData.counter>5
+            y=this.currentVector(end-5+1:end);
+            x=this.timeVector(end-5+1:end);
+            P = polyfit(x,y,1);
+            if P(1)>this.thresholdSlope
+                this.principalTrigger=1;
+                disp('principal Trigger');
+            else
+                this.principalTrigger=0;
+            end
+            end
+            
+               % secondary trigger: based in the absolute value of the RMS
+             if currentValue>5
+                 this.secondaryTrigger=1;
+                 disp('secondary trigger');
+             else
+                 this.secondaryTrigger=0;
+             end
 
             % ploting in live figure current value if necessary
             if tobj.UserData.plotFlag==1
                 hold on
-<<<<<<< HEAD
-                subplot(2,1,1) 
-                plot(tobj.UserData.counter,currentValue,'*');
+                subplot(4,1,1)
+                title('RMS Current')
+                plot(timeValue,currentValue,'*');
                 hold on
-                subplot(2,1,2)
-                plot(tobj.UserData.counter,positionValue,'*');
-=======
-                plot(positionValue,currentValue,'*');
->>>>>>> da6dd96b1aecd2669eca0d6c007f0f30f7433779
-            end
-            
-            
+                subplot(4,1,2)
+                title('Z position')
+                plot(timeValue,positionValue,'*');
+                hold on
+                if tobj.UserData.counter>5
+                subplot(4,1,3)
+                title('slope 5 last points')
+                plot(timeValue,atan(P(1))*180/pi,'*');
+                hold on
+                subplot(4,1,4)
+                title('triggers')
+                plot(timeValue,this.principalTrigger,timeValue,this.secondaryTrigger,'*');
+                end
 
+            end
             % increment counter
             tobj.UserData.counter=tobj.UserData.counter+1;
+            
+           
+            
+            
+            
+         
+            
         end       
 
 %% stopLogging
-<<<<<<< HEAD
-
   function [current,position] = stopLogging(this,tobj,event)
-=======
-  function currentLog = stopLogging(this,tobj,event)
->>>>>>> da6dd96b1aecd2669eca0d6c007f0f30f7433779
+
             %stopLogging finish the logging of the Z axis current
             % input:
             % this: instance of the class
@@ -129,21 +161,24 @@ classdef TOUCHDOWN < handle
   end        
 
 %% runTouchdown
- function info = runTouchdown(this,axis, expectedContactPosition)
+ function info = runTouchdown(this,axis,expectedContactPosition)
             %runTouchdown this methods move the corresponding z axis in negative direction until contact
             % input
             % this: instance of the class
             % axis: axis to perform touchdown [Z1,Z2]=[4,5]
-            % expectedContactPosition: expectev value of the height where contact will happen. If no argument, the full movement will be done at low velocity.
+            % expectedContactPosition: expected value of the height where contact will happen. If no argument, the full movement will be done at low velocity.
             % output
             % info: structure with information [time, currentLog]
             
-            % launch counter
+            % launch timer
             tic
             
+            % time (s) to get the permanent in current response after launch movement
+            timePermanent=3;
+            
             %setting velocity for the movement
-            lowVelocity=0.05;
-            highVelocity=5;
+            lowVelocity=-0.05;
+            highVelocity=-5;
             
             % getting current position of the axis
             currentPosition=this.gantry.GetPosition(axis);
@@ -153,10 +188,38 @@ classdef TOUCHDOWN < handle
                 gap=1; %1 mm over expected contact height
                 finalPosition=expectedContactPosition+gap;
                 this.gantry.MoveTo(axis,finalPosition,highVelocity);
+                this.gantry.WaitForMotion(axis,-1);
             end
             
+            % setting the initial Z position. We start movement upwards from here.
+            Zini=this.gantry.GetPosition(axis);
             
-                
+            %calculating the security distance (vertical movement previous to the down movement)
+            deltaPositive=lowVelocity*timePermanent;
+            
+            %Moving to starting point. We start moving downwards from here.
+            this.gantry.MoveBy(axis,deltaPositive,highVelocity);
+            this.gantry.WaitForMotion(axis,-1);
+            
+            % launch current logging
+            this.startLogging(axis,1);
+            
+            %Starting aproach
+            this.gantry.FreeRunX(axis,lowVelocity);
+            
+            % Activation of secondary trigger
+            this.secondaryTrigger=1;
+            
+            %waiting until current position = initial position
+            while(1)
+                Zposition=this.gantry.GetPosition(axis);
+                if (Zposition<Zini)
+                    break
+                end
+            end
+            
+            % activation of principal trigger
+            this.secondaryTrigger=1;    
             
   end 
 
