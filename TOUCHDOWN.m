@@ -8,14 +8,12 @@ classdef TOUCHDOWN < handle
         timerLogging;
         currentVector;
         positionVector;
-<<<<<<< HEAD
-=======
         timeVector;
         sampleSize=0.1;
         principalTrigger=0;
         secondaryTrigger=0;
         thresholdSlope=0.6;
->>>>>>> e3abd2fafc28252ce4fdda480968af39ea86e03f
+
 %         lowVelocity;
 %         highVelocity;
 
@@ -79,19 +77,12 @@ classdef TOUCHDOWN < handle
             % input:
             %this: instance of the class
             
-<<<<<<< HEAD
-            %asking current value
-            currentValue=this.getCurrentValue(tobj.UserData.counter);
-            positionValue=this.gantry.GetPosition(tobj.UserData.axis);
-
-=======
             %asking current and position values
             currentValue=this.gantry.GetCurrentFeedback(tobj.UserData.axis);
             positionValue=this.gantry.GetPosition(tobj.UserData.axis);
             timeValue=tobj.UserData.counter/this.sampleSize;
             
             
->>>>>>> e3abd2fafc28252ce4fdda480968af39ea86e03f
             % saving value in the corresponding vector
             if tobj.UserData.counter~=1
              this.currentVector=[this.currentVector currentValue];
@@ -127,17 +118,7 @@ classdef TOUCHDOWN < handle
             % ploting in live figure current value if necessary
             if tobj.UserData.plotFlag==1
                 hold on
-<<<<<<< HEAD
-                subplot(2,1,1) 
-                plot(tobj.UserData.counter,currentValue,'*');
-                hold on
-                subplot(2,1,2)
-                plot(tobj.UserData.counter,positionValue,'*');
 
-            end
-            
-            
-=======
                 subplot(4,1,1)
                 title('RMS Current')
                 plot(timeValue,currentValue,'*');
@@ -155,26 +136,15 @@ classdef TOUCHDOWN < handle
                 title('triggers')
                 plot(timeValue,this.principalTrigger,timeValue,this.secondaryTrigger,'*');
                 end
->>>>>>> e3abd2fafc28252ce4fdda480968af39ea86e03f
 
             end
             % increment counter
-            tobj.UserData.counter=tobj.UserData.counter+1;
-            
-           
-            
-            
-            
-         
+            tobj.UserData.counter=tobj.UserData.counter+1;  
             
         end       
 
 %% stopLogging
-<<<<<<< HEAD
 
-
-=======
->>>>>>> e3abd2fafc28252ce4fdda480968af39ea86e03f
   function [current,position] = stopLogging(this,tobj,event)
 
             %stopLogging finish the logging of the Z axis current
