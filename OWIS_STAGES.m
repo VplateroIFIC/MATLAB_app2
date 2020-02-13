@@ -540,7 +540,7 @@ classdef OWIS_STAGES
         
         function  Home(this,axis)
             % function  Home(this,axis)
-            % Arguments: object ALIO (this), axis int,%
+            % Arguments: object OWIS (this), axis int,%
             % Returns: none %
             
             if calllib ('ps90', 'PS90_GetMoveState', this.Index, axis) ~= 0
@@ -555,6 +555,15 @@ classdef OWIS_STAGES
             this.WaitForMotion(axis,-1);
             error = calllib ('ps90', 'PS90_SetPositionEx', this.Index, axis, 0);
             this.showError(error);
+        end
+        
+        function  HomeAll(this)
+            % function  Home(this,axis)
+            % Arguments: object OWIS (this), axis int,%
+            % Returns: none %
+            this.Home(3)
+            this.Home(2)
+            this.Home(1)
         end
         
         %% WaitForMotion %% wait until movement is complete%%
