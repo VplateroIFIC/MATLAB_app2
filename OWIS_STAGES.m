@@ -14,7 +14,7 @@ classdef OWIS_STAGES
         Type = 'OWIS';
         OWIS = 1;
         Interface = 0;      % 0-> ComPort or USB; 1-> NET
-        nComPort=int32(3);  % 0(COM0), 1(COM1), ... 255(COM255), default: 1
+        nComPort=int32(5);  % 0(COM0), 1(COM1), ... 255(COM255), default: 1
         Baud = 9600;        % 9600,19200,38400,57600,115200, default: 9600
         Handshake = 0;      % 0(CR), 1(CR+LF), 2(LF), default: 0
         Parity = 0;         % 0-> No parity; 1-> OddParity; 2-> EvenParity
