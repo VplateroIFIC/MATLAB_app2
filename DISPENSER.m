@@ -8,6 +8,7 @@ classdef DISPENSER
     %   To change the initialization parameters, please adjust the Connect function.
  
     properties (Access=protected)
+        ComPort = 'COM1';
     IsConnected=0;
     ENQ=5;
     STX=2;
@@ -27,10 +28,9 @@ classdef DISPENSER
             %   Dispensing Pressure: 50
             %   Dispensing time window: 1 s
             %   Dispensing vacuum: 0.5
-            fclose(this.s1);
             delete(instrfindall);   %closing all ports 
             
-            this.s1 = serial('COM4','BaudRate',115200,'DataBits',8,'Terminator','CR','BytesAvailableFcnMode','byte'); %creating serial port object
+            this.s1 = serial(this.ComPort,'BaudRate',115200,'DataBits',8,'Terminator','CR','BytesAvailableFcnMode','byte'); %creating serial port object
             set(this.s1, 'BaudRate', 115200);          % set BaudRate to 115200
             set(this.s1, 'Parity','none');             % set Parity Bit to None
             set(this.s1, 'DataBits', 8);               % set DataBits to 8
@@ -38,7 +38,7 @@ classdef DISPENSER
             out1 = instrfind('Port','COM4');
             this.SetUltimus('E6  00');   %Setting pressure units
             this.SetUltimus('TT  ');   %Setting Temporized mode
-            this.SetUltimus('PS  0500');   %Dispensing Pressure: 50
+            this.SetUltimus('PS  0500');   %Dispensing Pressure: 50 psi
             this.SetUltimus('DS  T10000');   %Dispensing time window: 1 s
             this.SetUltimus('VS  0050');   %Setting vacuum: 0.5
             this.IsConnected=1;
