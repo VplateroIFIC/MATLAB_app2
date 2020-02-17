@@ -165,7 +165,7 @@ classdef DISPENSER
             
             input2=this.readPort(this.s1);
             %         if (double(input2)~=double('A0'))
-            if (strcmp(input2,'A2') ~= 0)
+            if (strcmp(input2,'A0') ~= 0)
                 disp('error in the communication: A2 was returned')
                 return
             end
@@ -307,7 +307,7 @@ classdef DISPENSER
             
             input2=this.readPort(this.s1);               % reading ETX
             % if (double(input2)~=double('A0'))
-            if (strcmp(input2,'A2') ~= 0)
+            if (strcmp(input2,'A0') ~= 0)
                 disp('error in the communication: A2 was returned')
                 return
             end
