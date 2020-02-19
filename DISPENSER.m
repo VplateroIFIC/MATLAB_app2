@@ -38,7 +38,7 @@ classdef DISPENSER
             set(this.s1, 'Parity','none');             % set Parity Bit to None
             set(this.s1, 'DataBits', 8);               % set DataBits to 8
             set(this.s1, 'StopBit', 1);                % set StopBit to 1
-            out1 = instrfind('Port',ComPort);
+            out1 = instrfind('Port','COM1');
             this.SetUltimus('E6  00');   %Setting pressure units
             this.SetUltimus('TT  ');   %Setting Temporized mode
             this.SetUltimus('PS  0500');   %Dispensing Pressure: 50 psi
@@ -168,7 +168,7 @@ classdef DISPENSER
             
             input2=this.readPort(this.s1);
             %         if (double(input2)~=double('A0'))
-            if (strcmp(input2,'A0') ~= 0)
+            if (strcmp(input2,'A0') == 0)
                 disp('error in the communication: A2 was returned')
                 return
             end
@@ -303,14 +303,14 @@ classdef DISPENSER
             
             package=[this.STX double(OrderComplete) this.ETX];
             for i=1:length(package)
-                fwrite(this.s1,package(i));
+                fwrite(this.s1,package(i))
             end
             
             % Reading confirmation A0-->ok  A2-->error %
             
-            input2=this.readPort(this.s1);               % reading ETX
+            input2=this.readPort(this.s1)               % reading ETX
             % if (double(input2)~=double('A0'))
-            if (strcmp(input2,'A0') ~= 0)
+            if (strcmp(input2,'A0') == 0);
                 disp('error in the communication: A2 was returned')
                 return
             end
