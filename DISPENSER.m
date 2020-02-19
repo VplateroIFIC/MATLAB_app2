@@ -7,14 +7,17 @@ classdef DISPENSER
     %   To get parameters from the dispenser (feedback order) getUltimus function is used.
     %   To change the initialization parameters, please adjust the Connect function.
     
-    properties (Access=public)
-        ComPort = 'COM1';
-        IsConnected=0;
+    properties (Constant, Access = public)
         ENQ=5;
         STX=2;
         ETX=3;
         EOT=4;
         ACK=6;
+    end
+    
+    properties (Access=public)
+        ComPort = 'COM1';
+        IsConnected=0;  
         s1;
     end
     
@@ -35,7 +38,7 @@ classdef DISPENSER
             set(this.s1, 'Parity','none');             % set Parity Bit to None
             set(this.s1, 'DataBits', 8);               % set DataBits to 8
             set(this.s1, 'StopBit', 1);                % set StopBit to 1
-            out1 = instrfind('Port','COM4');
+            out1 = instrfind('Port',ComPort);
             this.SetUltimus('E6  00');   %Setting pressure units
             this.SetUltimus('TT  ');   %Setting Temporized mode
             this.SetUltimus('PS  0500');   %Dispensing Pressure: 50 psi
