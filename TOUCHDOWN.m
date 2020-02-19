@@ -1,7 +1,8 @@
 classdef TOUCHDOWN < handle
-    %TOUCHDOWN This class manage the contact between the Z axis and the pick up tool.
-    %   I order to identify when the pick up platform of the gantry is in contact with the corresponding tool, the current of the Z stage is controled. This class
-    % Provide the methods that manage the contact.
+    %TOUCHDOWN This class manages the contact between the Z axis and the pick up tool.
+    % In order to identify when the pick up platform of the gantry is in contact with the
+    % corresponding tool, the current of the Z stage is controlled. This class provides
+    % the methods that manage the contact.
     
     properties (Access=protected)
         gantry;
@@ -9,10 +10,11 @@ classdef TOUCHDOWN < handle
         currentVector;
         positionVector;
         timeVector;
+        slopeVector;
         sampleSize=0.1;
         principalTrigger=0;
         secondaryTrigger=0;
-        thresholdSlope=0.6;
+        thresholdSlope=0.0005;
 
 %         lowVelocity;
 %         highVelocity;
@@ -57,6 +59,7 @@ classdef TOUCHDOWN < handle
             % plot: show a live plot with the current value (1 for on, 0 for off)
          this.currentVector=0;
          this.positionVector=0;
+         this.slopeVector=0;
          timerCounter=1;
          if (plot==1)
              close(gcf)
@@ -82,7 +85,6 @@ classdef TOUCHDOWN < handle
             positionValue=this.gantry.GetPosition(tobj.UserData.axis);
             timeValue=tobj.UserData.counter/this.sampleSize;
             
-            
             % saving value in the corresponding vector
             if tobj.UserData.counter~=1
              this.currentVector=[this.currentVector currentValue];
@@ -94,11 +96,26 @@ classdef TOUCHDOWN < handle
               this.timeVector=timeValue;
             end
 
-             %principal trigger: based in the slope of the last 5 measured points
+            %principal trigger: based on the slope of the last 5 measured points
             if tobj.UserData.counter>5
             y=this.currentVector(end-5+1:end);
             x=this.timeVector(end-5+1:end);
             P = polyfit(x,y,1);
+            
+            % saving slope in the corresponding vector
+            deltaSlope = 0;
+            tobj.UserData.counter
+            if tobj.UserData.counter~=1
+             this.slopeVector=[this.slopeVector P(1)];
+            else
+                disp("fill slope...")
+              this.slopeVector=P(1);
+              deltaSlope=P(1)
+            end
+            %disp("deltaSlope")
+            %deltaSlope
+            
+            
             if P(1)>this.thresholdSlope
                 this.principalTrigger=1;
                 disp('principal Trigger');
@@ -108,7 +125,7 @@ classdef TOUCHDOWN < handle
             end
             
                % secondary trigger: based in the absolute value of the RMS
-             if currentValue>5
+             if currentValue>1.5
                  this.secondaryTrigger=1;
                  disp('secondary trigger');
              else
@@ -130,11 +147,15 @@ classdef TOUCHDOWN < handle
                 if tobj.UserData.counter>5
                 subplot(4,1,3)
                 title('slope 5 last points')
-                plot(timeValue,atan(P(1))*180/pi,'*');
+                plot(timeValue,P(1),'*');
                 hold on
                 subplot(4,1,4)
                 title('triggers')
-                plot(timeValue,this.principalTrigger,timeValue,this.secondaryTrigger,'*');
+                plot(timeValue,this.principalTrigger,'*');
+                %hold on
+                %subplot(4,1,5)
+                %title('triggers')
+                %plot(timeValue,this.principalTrigger,'*');
                 end
 
             end
@@ -159,7 +180,7 @@ classdef TOUCHDOWN < handle
 
 %% runTouchdown
  function info = runTouchdown(this,axis,expectedContactPosition)
-            %runTouchdown this methods move the corresponding z axis in negative direction until contact
+            %runTouchdown this methods move the corresponding Z axis in negative direction until contact
             % input
             % this: instance of the class
             % axis: axis to perform touchdown [Z1,Z2]=[4,5]
@@ -173,12 +194,12 @@ classdef TOUCHDOWN < handle
             % time (s) to get the permanent in current response after launch movement
             timePermanent=3;
             
+            %maximum searching time(s)
+            maxSearchingTime=60;
+            
             %setting velocity for the movement
             lowVelocity=-0.05;
             highVelocity=-5;
-            
-            % getting current position of the axis
-            currentPosition=this.gantry.GetPosition(axis);
             
             %moving fast velocity if expected contact position provided 
             if nargin==3
@@ -188,40 +209,59 @@ classdef TOUCHDOWN < handle
                 this.gantry.WaitForMotion(axis,-1);
             end
             
-            % setting the initial Z position. We start movement upwards from here.
-            Zini=this.gantry.GetPosition(axis);
+            % this.gantry.MoveBy(axis,1,5)
             
-            %calculating the security distance (vertical movement previous to the down movement)
-            deltaPositive=lowVelocity*timePermanent;
+            % setting the initial Z position. We start movement upwards from here.
+            Zini=this.gantry.GetPosition(axis)
+            
+            %calculating the security distance (vertical movement previous to the downwards movement)
+            deltaPositive=lowVelocity*timePermanent
             
             %Moving to starting point. We start moving downwards from here.
             this.gantry.MoveBy(axis,deltaPositive,highVelocity);
             this.gantry.WaitForMotion(axis,-1);
+            this.gantry.GetPosition(axis)
             
             % launch current logging
             this.startLogging(axis,1);
+            pause(1)
             
             %Starting aproach
-            this.gantry.FreeRunX(axis,lowVelocity);
-            
-            % Activation of secondary trigger
-            this.secondaryTrigger=1;
-            
-            %waiting until current position = initial position
-            while(1)
-                Zposition=this.gantry.GetPosition(axis);
-                if (Zposition<Zini)
-                    break
-                end
+            this.gantry.FreeRunZ1(lowVelocity);
+
+            %waiting until current position = initial position. Then start search.
+            while(this.gantry.GetPosition(axis)>Zini)
+             pause(0.01)   
             end
             
-            % activation of principal trigger
-            this.secondaryTrigger=1;    
+            %starting counter 
+            disp("start timer...")
+            searchingTime=tic;
+            
+            % searching loop
+            while (toc(searchingTime)<maxSearchingTime)
+                if this.principalTrigger==1 || this.secondaryTrigger==1
+                    break
+                end
+                pause(0.01)
+            end
+            this.gantry.MotionStop(axis)
+           if toc(searchingTime)>maxSearchingTime
+               disp('Maximum time reached')
+           else
+               fprintf( 'Contact reached --> Trig1=%d, Trig2=%d', this.principalTrigger, this.secondaryTrigger);
+           end
+            
+            
+            % stopping logging
+            [info.current,info.position] = this.stopLogging;
+            
+            % total time
+            info.time=toc;
+            
             
   end 
 
-  
- 
     end
 end
 
