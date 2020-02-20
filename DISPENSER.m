@@ -1,4 +1,4 @@
-classdef DISPENSER
+classdef DISPENSER < handle
     %DISPENSER Class which manage the control of the Ultimus V glue dispenser
     %   This class provides full control over Ultimus V glue dispenser.
     %   Communication is based in RS232 protocol.
@@ -57,7 +57,7 @@ classdef DISPENSER
         end
         
         
-        function SetUltimus(this,command)
+        function OK = SetUltimus(this,command)
             
             
             % SetUltimus Download commands to Ultimus
@@ -154,6 +154,7 @@ classdef DISPENSER
             input1=fread(this.s1,1);
             if (input1~=this.ACK)
                 disp('error in the communication: ENQ was not received')
+                OK = 1;
                 return
             end
             
@@ -170,6 +171,7 @@ classdef DISPENSER
             %         if (double(input2)~=double('A0'))
             if (strcmp(input2,'A0') == 0)
                 disp('error in the communication: A2 was returned')
+                OK = 2;
                 return
             end
             
