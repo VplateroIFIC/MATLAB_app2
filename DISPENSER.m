@@ -153,8 +153,8 @@ classdef DISPENSER < handle
             
             input1=fread(this.s1,1);
             if (input1~=this.ACK)
-                disp('error in the communication: ENQ was not received')
-                OK = 1;
+                fprintf ('Error in in command "%s": ENQ was not received', command);
+                OK = -1;
                 return
             end
             
@@ -170,8 +170,8 @@ classdef DISPENSER < handle
             input2=this.readPort(this.s1);
             %         if (double(input2)~=double('A0'))
             if (strcmp(input2,'A0') == 0)
-                disp('error in the communication: A2 was returned')
-                OK = 2;
+                fprintf('Error in command "%s": A2 was returned', command);
+                OK = -2;
                 return
             end
             
@@ -297,7 +297,8 @@ classdef DISPENSER < handle
             
             input1=fread(this.s1,1);
             if (input1~=this.ACK)
-                disp('error in the communication: ACK was not received')
+                feedBack = -1;
+                fprintf ('Error in in command "%s": ENQ was not received', command);
                 return
             end
             
@@ -313,7 +314,8 @@ classdef DISPENSER < handle
             input2=this.readPort(this.s1)               % reading ETX
             % if (double(input2)~=double('A0'))
             if (strcmp(input2,'A0') == 0);
-                disp('error in the communication: A2 was returned')
+                feedBack = -2;
+                fprintf ('Error in in command "%s": A2 was returned', command);
                 return
             end
             
@@ -328,8 +330,6 @@ classdef DISPENSER < handle
             % Sending EOT %
             
             fwrite(this.s1,this.EOT)
-            
-            
         end
         
         
