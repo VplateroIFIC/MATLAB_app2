@@ -11,11 +11,19 @@ classdef TOUCHDOWN < handle
         positionVector;
         timeVector;
         slopeVector;
-        sampleSize=0.1;
-        principalTrigger=0;
-        secondaryTrigger=0;
-        thresholdSlope=0.0005;
+        gradientSlopeVector;
+        sampleSize;
+        principalTrigger;
+        secondaryTrigger;
+        thresholdSlope;
+        thresholdSlopeGradient;
+        thresholdCurrent;
 
+        % time (s) to get the permanent in current response after launch movement
+        timePermanent;
+        % maximum searching time(s)
+        maxSearchingTime;
+        
 %         lowVelocity;
 %         highVelocity;
 
@@ -57,21 +65,35 @@ classdef TOUCHDOWN < handle
             % this: instance of the class
             % axis: int, axis to control the current [X,Y,Z1,Z2,U]=[0 1 4 5 6];
             % plot: show a live plot with the current value (1 for on, 0 for off)
-         this.currentVector=0;
-         this.positionVector=0;
-         this.slopeVector=0;
-         timerCounter=1;
-         if (plot==1)
-             close(gcf)
-             figure(1);
-             title('CURRENT VALUE Z AXIS');
-         end
-         this.timerLogging = timer('Name','logCurrent','ExecutionMode','fixedSpacing','StartDelay', 0,'Period',this.sampleSize);
-         this.timerLogging.UserData = struct('counter',timerCounter,'axis',axis,'plotFlag',plot);
-         this.timerLogging.TimerFcn = {@this.logCurrent};
-         this.timerLogging.ErrorFcn = {@this.stopLogging};
-         this.timerLogging.StopFcn = {@this.stopLogging};
-         start(this.timerLogging);
+            
+            % defaults
+            this.sampleSize=0.1;
+            this.principalTrigger=0;
+            this.secondaryTrigger=0;
+            this.thresholdSlope=0.025;
+            this.thresholdSlopeGradient=0.0;
+            this.thresholdCurrent=1;
+            
+            % initialize vectors
+            this.currentVector=0;
+            this.positionVector=0;
+            this.slopeVector=0;
+            this.gradientSlopeVector=0;
+           
+            % initialize counter
+            timerCounter=1;
+            
+            if (plot==1)
+                close(gcf)
+                figure(1);
+                title('CURRENT VALUE Z AXIS');
+            end
+            this.timerLogging = timer('Name','logCurrent','ExecutionMode','fixedSpacing','StartDelay', 0,'Period',this.sampleSize);
+            this.timerLogging.UserData = struct('counter',timerCounter,'axis',axis,'plotFlag',plot);
+            this.timerLogging.TimerFcn = {@this.logCurrent};
+            this.timerLogging.ErrorFcn = {@this.stopLogging};
+            this.timerLogging.StopFcn = {@this.stopLogging};
+            start(this.timerLogging);
         end
         
 %%  logCurrent
@@ -83,7 +105,7 @@ classdef TOUCHDOWN < handle
             %asking current and position values
             currentValue=this.gantry.GetCurrentFeedback(tobj.UserData.axis);
             positionValue=this.gantry.GetPosition(tobj.UserData.axis);
-            timeValue=tobj.UserData.counter/this.sampleSize;
+            timeValue=tobj.UserData.counter*this.sampleSize;
             
             % saving value in the corresponding vector
             if tobj.UserData.counter~=1
@@ -96,27 +118,28 @@ classdef TOUCHDOWN < handle
               this.timeVector=timeValue;
             end
 
-            %principal trigger: based on the slope of the last 5 measured points
+            % Calculating the slope of the last 5 measured points
             if tobj.UserData.counter>5
             y=this.currentVector(end-5+1:end);
             x=this.timeVector(end-5+1:end);
             P = polyfit(x,y,1);
             
             % saving slope in the corresponding vector
-            deltaSlope = 0;
-            tobj.UserData.counter
-            if tobj.UserData.counter~=1
              this.slopeVector=[this.slopeVector P(1)];
-            else
-                disp("fill slope...")
-              this.slopeVector=P(1);
-              deltaSlope=P(1)
+
+            % saving gradient of slope in the corresponding vector
+            this.gradientSlopeVector=[this.gradientSlopeVector abs(this.slopeVector(end)-this.slopeVector(end-1))];
+
+            % calculating std of gradient slope vector
+            sigma=0.0;
+            if timeValue>=this.timePermanent
+              sigma=std(this.gradientSlopeVector);
+              this.thresholdSlopeGradient = sigma;
             end
-            %disp("deltaSlope")
-            %deltaSlope
-            
-            
-            if P(1)>this.thresholdSlope
+            fprintf( 'INFO --> time=%2.1f, sigma=%2.6f\n', timeValue, sigma);
+
+            % principal trigger: slope + slope variation
+            if P(1)>this.thresholdSlope && sigma>0.0 && this.gradientSlopeVector(end)>this.thresholdSlopeGradient
                 this.principalTrigger=1;
                 disp('principal Trigger');
             else
@@ -124,38 +147,40 @@ classdef TOUCHDOWN < handle
             end
             end
             
-               % secondary trigger: based in the absolute value of the RMS
-             if currentValue>1.5
+            % secondary trigger: based in the absolute value of the RMS
+             if currentValue>this.thresholdCurrent
                  this.secondaryTrigger=1;
                  disp('secondary trigger');
              else
                  this.secondaryTrigger=0;
              end
-
+             
             % ploting in live figure current value if necessary
             if tobj.UserData.plotFlag==1
                 hold on
-
-                subplot(4,1,1)
+                subplot(5,1,1)
                 title('RMS Current')
+                yline(this.thresholdCurrent,'-.r','threshold');
                 plot(timeValue,currentValue,'*');
                 hold on
-                subplot(4,1,2)
+                subplot(5,1,2)
                 title('Z position')
                 plot(timeValue,positionValue,'*');
                 hold on
                 if tobj.UserData.counter>5
-                subplot(4,1,3)
+                subplot(5,1,3)
                 title('slope 5 last points')
                 plot(timeValue,P(1),'*');
+                yline(0.0);
+                yline(this.thresholdSlope,'-.r','threshold');
                 hold on
-                subplot(4,1,4)
+                subplot(5,1,4)
                 title('triggers')
                 plot(timeValue,this.principalTrigger,'*');
-                %hold on
-                %subplot(4,1,5)
-                %title('triggers')
-                %plot(timeValue,this.principalTrigger,'*');
+                hold on
+                subplot(5,1,5)
+                title('slope gradient')
+                plot(timeValue,abs(this.slopeVector(end)-this.slopeVector(end-1)),'*');
                 end
 
             end
@@ -192,14 +217,14 @@ classdef TOUCHDOWN < handle
             tic
             
             % time (s) to get the permanent in current response after launch movement
-            timePermanent=3;
+            this.timePermanent=10;
             
             %maximum searching time(s)
-            maxSearchingTime=60;
+            this.maxSearchingTime=30;
             
             %setting velocity for the movement
             lowVelocity=-0.05;
-            highVelocity=-5;
+            highVelocity=5;
             
             %moving fast velocity if expected contact position provided 
             if nargin==3
@@ -212,18 +237,18 @@ classdef TOUCHDOWN < handle
             % this.gantry.MoveBy(axis,1,5)
             
             % setting the initial Z position. We start movement upwards from here.
-            Zini=this.gantry.GetPosition(axis)
+            Zini=this.gantry.GetPosition(axis);
             
             %calculating the security distance (vertical movement previous to the downwards movement)
-            deltaPositive=lowVelocity*timePermanent
+            deltaPositive=abs(lowVelocity*this.timePermanent);
             
             %Moving to starting point. We start moving downwards from here.
             this.gantry.MoveBy(axis,deltaPositive,highVelocity);
             this.gantry.WaitForMotion(axis,-1);
-            this.gantry.GetPosition(axis)
+            this.gantry.GetPosition(axis);
             
             % launch current logging
-            this.startLogging(axis,1);
+            this.startLogging(axis,0);
             pause(1)
             
             %Starting aproach
@@ -235,18 +260,18 @@ classdef TOUCHDOWN < handle
             end
             
             %starting counter 
-            disp("start timer...")
             searchingTime=tic;
-            
+%             waitbar(toc(searchingTime)/this.maxSearchingTime);
             % searching loop
-            while (toc(searchingTime)<maxSearchingTime)
+            while (toc(searchingTime)<this.maxSearchingTime)
                 if this.principalTrigger==1 || this.secondaryTrigger==1
+%                 if  this.secondaryTrigger==1
                     break
                 end
                 pause(0.01)
             end
             this.gantry.MotionStop(axis)
-           if toc(searchingTime)>maxSearchingTime
+           if toc(searchingTime)>this.maxSearchingTime
                disp('Maximum time reached')
            else
                fprintf( 'Contact reached --> Trig1=%d, Trig2=%d', this.principalTrigger, this.secondaryTrigger);
@@ -259,6 +284,46 @@ classdef TOUCHDOWN < handle
             % total time
             info.time=toc;
             
+            % final Z position
+            info.finalZposition=this.positionVector(end);
+            
+            % final
+            info.finalCurrent=this.currentVector(end);
+            
+            % time vector
+            info.timeVector=this.timeVector;
+            
+            % slope vector
+            info.slopeVector=this.slopeVector;
+            
+            % gradient slope Vector
+            info.gradientSlopeVector=this.gradientSlopeVector;
+            
+            % ploting log
+                f=figure('visible','on');
+                set(gcf, 'Position', get(0, 'Screensize'));
+                subplot1=subplot(4,1,1)
+                yline(this.thresholdCurrent,'-.r','threshold');
+                plot(this.timeVector,this.currentVector,'*');
+%                 ylim=(subplot1,[0 8]);
+                title('RMS Current')
+                subplot(4,1,2)
+                plot(this.timeVector,this.positionVector,'*');
+                title('Z position')
+                subplot(4,1,3)
+                plot(this.timeVector(5:end),this.slopeVector,'*');
+                title('slope 5 last points')
+                yline(0.0);
+                yline(this.thresholdSlope,'-.r','threshold');
+                subplot(4,1,4)
+                this.thresholdSlopeGradient
+                yline(this.thresholdSlopeGradient,'-.r','threshold');
+                plot(this.timeVector(5:end),this.gradientSlopeVector,'*');
+                yline(this.thresholdSlopeGradient,'-.r','threshold');
+                title('slope gradient')
+                
+            info.logPlot=getframe(f);
+               
             
   end 
 
