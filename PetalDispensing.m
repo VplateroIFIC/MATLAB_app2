@@ -63,8 +63,8 @@ classdef PetalDispensing < handle
         
         %% Moving improvements %%
         
-        function zMovePosition(this)
-            % function zMovePosition (this)
+        function zSecurityPosition(this)
+            % function zSecurityPosition (this)
             % Arguments: none
             % Return: none
             % 1- Move all Z axis to the defined safe height
@@ -94,7 +94,7 @@ classdef PetalDispensing < handle
                     return
             end
             
-            this.zMovePosition();
+            this.zSecurityPosition();
             this.robot.MoveTo(this.robot.xAxis, X, this.xyHightSpeed);
             this.robot.MoveTo(this.robot.yAxis, Y, this.xyHightSpeed);
             if mode == 0
