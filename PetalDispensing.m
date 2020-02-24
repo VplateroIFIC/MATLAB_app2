@@ -7,24 +7,20 @@ classdef PetalDispensing < handle
         NumPetals;
         dispenser;
         ready = 0;
-        zSecureHeigh = 20;
-        zDispenseHeigh = 10;
-        axis = [0, 0, 0, 0];
-        xAxis;
-        yAxis;
-        z1Axis;
-        z2Axis;
+        zSecureHeigh = 20;              % Min Z height for fast movements
+        zWorkingHeight = 10;            % Z Position prepared to dispense
+        zDispenseHeigh = 0;             % Z Position while glue dispensing
     end
     
     properties (Constant, Access = public)
         % All units in mm
         Pitch = 3.4;
-        OffGlueStarX = 5;
-        OffGlueStarY = 5;
-        glueOffX = 0;
+        OffGlueStarX = 5;   % Distance from the sensor edge 
+        OffGlueStarY = 5;  
+        glueOffX = 0;       %Offset Between camera and syrenge
         glueoffY = 0;
         TestingZone = [200, 400, 0, 0]; % X,Y,Z1,Z2
-        
+                
         zHighSpeed = 10;
         zLowSpeed = 5;
         
@@ -59,7 +55,10 @@ classdef PetalDispensing < handle
             else
                 this.robot = robot_obj;
             end
-            OK = this.DispenserDefaults();
+            error = this.DispenserDefaults();
+            if error ~= 0
+                fprintf ('Error -> Could not set Dispenser');
+            end
         end
         
         %% Moving improvements %%
@@ -82,8 +81,8 @@ classdef PetalDispensing < handle
             % function MoveToFast (this, X, Y)
             % Arguments: X position, Y position, mode (0-> Wait until movement finishes, 1-> No wait
             % Return: none
-            % 1- Move all Z axis to a safe height
-            % 2- Then move X and Y axis to the desired zone.
+            % Operation:   1- Move all Z axis to a safe height and wait
+            %              2- Then move X and Y axis to the desired zone.
             
             switch nargin
                 case 4
@@ -108,45 +107,45 @@ classdef PetalDispensing < handle
         
         %% Settings %%
         
-        function OK = DispenserDefaults(this)
+        function error = DispenserDefaults(this)
             % DispenserDefaults(this)
             % Arguments: none
-            % Returns: 0 if communication was OK
+            % Returns: 0 if communication was error
             % Set default dispenser setting
             
-            OK = 0;
+            error = 0;
             cmd = fprintf ('E--02');      % Set dispenser units in KPA
-            OK = OK + this.dispenser.SetUltimus(cmd);
+            error = error + this.dispenser.SetUltimus(cmd);
             
             cmd = fprintf('E7-00');      % Set dispenser Vacuum unit KPA
-            OK = OK + this.dispenser.SetUltimus(cmd);
+            error = error + this.dispenser.SetUltimus(cmd);
             
             cmd = fprintf('PS-4000');    % Set dispenser pressure to 40 KPA = 0.4 BAR
-            OK = OK + this.dispenser.SetUltimus(cmd);
+            error = error + this.dispenser.SetUltimus(cmd);
             
-            OK = OK + this.setTime(1000);    % Dispenser in timing mode and t=1000 msec
+            error = error + this.setTime(1000);    % Dispenser in timing mode and t=1000 msec
         end
         
-        function OK = setTime(this, time)
+        function error = setTime(this, time)
             % setTime function (time)
             % Arguments: time -> Dispensing time (mseconds)
             % Returns: 0 if communication was OK
             % Set dispenser in timing mode and preset the desired time
             
-            OK = 0;
+            error = 0;
             cmd = sprintf('TT--');           %Setting timing mode
-            OK = OK + this.dispenser.SetUltimus(cmd);
+            error = error + this.dispenser.SetUltimus(cmd);
             
             cmd = sprintf('DS-T%d',time*10); %Setting time in ms
-            OK = OK + this.dispenser.SetUltimus(cmd);
+            error = error + this.dispenser.SetUltimus(cmd);
         end
         
-        function OK = StartDispensing(this)
+        function error = StartDispensing(this)
             % StartDispensing function
             % Arguments: none
             % Return
             cmd = sprintf('DI--');
-            OK = this.dispenser.SetUltimus(cmd);
+            error = this.dispenser.SetUltimus(cmd);
         end
         
         %% Testing %%
@@ -159,13 +158,13 @@ classdef PetalDispensing < handle
             t1 = 100;  %mseg
             t2 = 300;
             t3 = 1000;
-            OK = 0;
+            error = 0;
             
-            OK = OK + this.DispenserDefaults();
+            error = error + this.DispenserDefaults();
             this.MoveToFast(TestingZone(1), TestingZone(2));
             
-            OK = OK + this.setTime(t1);
-            if OK ~= 0
+            error = error + this.setTime(t1);
+            if error ~= 0
                 fprintf ('\n ERROR \n');
                 return
             else
@@ -226,16 +225,16 @@ classdef PetalDispensing < handle
             t2 = 300;
             t3 = 1000;
             delay = 100;
-            OK = 0;
+            error = 0;
             
             
-            OK = OK + this.DispenserDefaults();
-            StartPointX = this.TestingZone(1)+20;
-            this.MoveToFast(StartPointX, this.TestingZone(2));
+            error = error + this.DispenserDefaults();
+            xStartPoint = this.TestingZone(1)+20;
+            this.MoveToFast(xStartPoint, this.TestingZone(2));
             
             
-            OK = OK + this.setTime(t1);
-            if OK ~= 0
+            error = error + this.setTime(t1);
+            if error ~= 0
                 fprintf ('\n ERROR \n');
                 return
             else
@@ -243,7 +242,7 @@ classdef PetalDispensing < handle
                 LineLength = (t1 + delay) * this.dispSpeed;
                 
                 for i=1:nlines
-                    StartPointX = StartPointX + this.Pitch;
+                    xStartPoint = xStartPoint + this.Pitch;
                     % Lift Down syrenge
                     this.robot.MoveTo(this.robot.z2Axis,0,this.zLowSpeed);
                     this.robot.WaitForMotion(this.robot.z2Axis);
@@ -268,48 +267,82 @@ classdef PetalDispensing < handle
             t = 1000;  %mseg
             nlines = 5;
             delay = 100;
-            OK = 0;
+            error = 0;
+            xStartGluing = Xf1_G;
+            yStartGluing = Yf1_G;
+            xStopGluing = Xf3_G;
+            yStopGluing = Yf3_G;
             
-            OK = OK + this.DispenserDefaults();
-            StartPointX = this.TestingZone(1)+50;
-            StartPointY = this.TestingZone(2);
-            this.MoveToFast(StartPointX, StartPointY);
+            error = error + this.DispenserDefaults();
+            xStartPoint = this.TestingZone(1)+50;
+            yStartPoint = this.TestingZone(2);
+            this.MoveToFast(xStartPoint, yStartPoint);
             
-            OK = OK + this.setTime(t);
-            if OK ~= 0
+            error = error + this.setTime(t);
+            if error ~= 0
                 fprintf ('\n ERROR \n');
                 return
             else
                 % Dispensing Line 0
                 % Lift Down syrenge
-                this.robot.MoveTo(this.robot.z2Axis,0,this.zLowSpeed);
+                this.robot.MoveTo(this.robot.z2Axis,zDispenseHeigh,this.zLowSpeed);
                 this.robot.WaitForMotion(this.robot.z2Axis);
-                % Dispense one glue line
+                % Dispense line 0
                 this.StartDispensing();
-                this.robot.MoveBy(this.robot.yAxis,LineLength,this.dispSpeed;
+                this.robot.MoveTo(this.robot.xAxis,xStopGluing,this.dispSpeed;
+                this.robot.MoveTo(this.robot.yAxis,yStopGluing,this.dispSpeed;                
+%                 this.robot.MoveBy(this.robot.xAxis,LineLength,this.dispSpeed;
+%                 this.robot.MoveBy(this.robot.yAxis,LineLength,this.dispSpeed;
+                this.robot.WaitForMotion(this.robot.xAxis);
                 this.robot.WaitForMotion(this.robot.yAxis);
+
                 % Lift Up syrenge
-                this.robot.MoveTo(this.robot.z2Axis,this.zDispenseHeigh,this.zLowSpeed);
+                this.robot.MoveTo(this.robot.z2Axis,this.zWorkingHeight,this.zLowSpeed);
                 this.robot.WaitForMotion(this.robot.z2Axis);
                 
-                for i=1:6
-                    StartPointX = StartPointX + this.Pitch;
-                    this.MoveToFast(StartPointX, StartPointY)
+                for nLine=1:6
+                    xStartPoint = xStartPoint + this.Pitch*nLine;
+                    xStartGluing = 
+                    this.MoveToFast(xStartPoint, yStartPoint)
                     % Lift Down syrenge
-                    this.robot.MoveTo(this.robot.z2Axis,0,this.zLowSpeed);
+                    this.robot.MoveTo(this.robot.z2Axis,zDispenseHeigh,this.zLowSpeed);
                     this.robot.WaitForMotion(this.robot.z2Axis);
                     % Dispense one glue line
                     this.StartDispensing();
                     this.robot.MoveBy(this.robot.yAxis,LineLength,this.dispSpeed;
                     this.robot.WaitForMotion(this.robot.yAxis);
                     % Lift Up syrenge
-                    this.robot.MoveTo(this.robot.z2Axis,this.zDispenseHeigh,this.zLowSpeed);
+                    this.robot.MoveTo(this.robot.z2Axis,this.zWorkingHeight,this.zLowSpeed);
                     this.robot.WaitForMotion(this.robot.z2Axis);
                 end
                 
             end
             
             
+        end
+        
+        function Line12Start(this)
+            % function Line12Start() 
+            % Arg: none
+            % Return: none
+            % Calculate line equations between F-F: 1-2 and 3-4 in the
+            % petal system
+            
+            mLine12 = (Yf2 - Yf1)/(Xf2 - Xf1)
+            qLine12 = ((Xf2*Yf1) - (Xf1*Yf2)) / (Xf2-Xf1)
+            yStartP = mLine12*xStartP +qLine12
+        end
+        
+        function Line34Stop(this)
+            % function Line12Start() 
+            % Arg: none
+            % Return: none
+            % Calculate line equations between F-F: 1-2 and 3-4 in the
+            % petal system
+            
+            mLine34 = (Yf4 - Yf3)/(Xf4-Xf3)
+            qLine34 = ((Xf4*Yf3) - (Xf3*Yf4)) / (Xf4-Xf3)
+            yStartP = mLine34*xStartP +qLine34
         end
     end
     
