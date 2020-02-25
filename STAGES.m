@@ -59,6 +59,7 @@ classdef STAGES
         zNominalSpeed = 5;
         xyHighSpeed = 20;
         xyNominalSpeed = 10;
+        DefaultTimeOut = 30000;         %Default time out 30 sec
         
     end
     properties (Access=public)
@@ -378,49 +379,44 @@ classdef STAGES
                     end
                     
                     if wait > 0
-                        this.WaitForMotion(axis, -1);
+                        this.WaitForMotion(axis, this.DefaultTimeOut);
                     end
             end
         end
         
         %% MoveToXY %% Absolute movements %%
         
-        function  MoveToXY(this,xtarget,ytarget,velocity, wait)
+        function  MoveToXY(this,xtarget,ytarget,velocity)
             % function  MoveTo(this,axis,target,velocity, wait)
             % Arguments: object ALIO (this), axis int, target double, velocity double, wait int
             % (0-> Wait until movement finishes, 1-> No wait
             % Returns: none %
             %
-            axis = {this.xAxis, this.yAxis, ACS.SPiiPlusNET.Axis.ACSC_NONE};
-            points = {xtarget,ytarget};
+%             [{'X_axis'},{'Y_axis'},{'Z_axis'}]
+% array = NET.createArray(typeName,[m,n,p,...])
+axis = NET.createArray(axes,[1,3])
+axis(1) = this.xAxis
+axis (2) = this.yAxis
+axis
+%              axis = [{this.xAxis}, {this.yAxis}, {ACS.SPiiPlusNET.Axis.ACSC_NONE}]
+% axis = { ACS.SPiiPlusNET.Axis.ACSC_AXIS_0, ACS.SPiiPlusNET.Axis.ACSC_AXIS_1, ACS.SPiiPlusNET.Axis.ACSC_NONE }
+points = [xtarget,ytarget]
             %Lineal interpolation "NONE", Cubit interpolation
             %"MotionFlags.ACSC_AMF_CUBIC"
-            interpolation = ACS.SPiiPlusNET.MotionFlags.ACSC_NONE;
+            %             interpolation = ACS.SPiiPlusNET.MotionFlags.ACSC_NONE;
             
-            switch nargin
-                case 5
-                    
-                case 4
-                    wait = 0;
-                otherwise
-                    disp('\n Improper number of arguments ');
-                    return
-            end
             
-            switch this.GantryType
-                case 0
-                    %insert here MoveTo with AEROTECH gantry %
-                case 1
-                    %                             SetVelocity(this.GantryObj,this.xAxis,velocity)
-                    %                             ToPointM(this.GantryObj,this.Absolute,this.xAxis,target);
-                    
-                    %                             AddPVTPointM (Axis] [] , axes, double] [] , point, double] [] , velocity, e [double timeInterval])
-                    SplineM (interpolation, Axis, 1000); % Linear interpolation, Axis array, 100mseg.
-                    Ch.AddPVPointM(axis, points, points,1000);
-                    if wait > 0
-                        this.WaitForMotionAll(-1);
-                    end
-            end
+            
+            
+            %                             SetVelocity(this.GantryObj,this.xAxis,velocity)
+            ToPointM(this.GantryObj,this.Absolute,axis{:},points);
+%             ToPoint(this.GantryObj,this.Absolute,this.xAxis,xtarget);
+%             ToPoint(this.GantryObj,this.Absolute,this.yAxis,ytarget);
+
+            
+            %                             AddPVTPointM (Axis] [] , axes, double] [] , point, double] [] , velocity, e [double timeInterval])
+%             SplineM (this.Absolute, axis, 1000); % Linear interpolation, Axis array, 100mseg.
+%             Ch.AddPVPointM(axis, points, points,1000);
         end
         
         
@@ -464,7 +460,7 @@ classdef STAGES
                             ToPoint(this.GantryObj,this.Relative,this.uAxis,delta);
                     end
                     if wait > 0
-                        this.WaitForMotion(axis, -1);
+                        this.WaitForMotion(axis, this.DefaultTimeOut);
                     end
             end
         end
