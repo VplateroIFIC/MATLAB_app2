@@ -28,6 +28,11 @@ classdef PetalDispensing < handle
         xyLowSpeed = 5;
         
         dispSpeed = 60;
+        
+        xAxis = 0;
+        yAxis = 1;
+        z1Axis = 4;
+        z2Axis = 5;
     end
     
     
@@ -70,10 +75,10 @@ classdef PetalDispensing < handle
             % 1- Move all Z axis to the defined safe height
             % 2- Wait until movement finishes
             
-            this.robot.MoveTo(this.robot.z1Axis, this.zSecureHeigh,this.zHighSpeed);
-            this.robot.MoveTo(this.robot.z2Axis, this.zSecureHeigh,this.zHighSpeed);
-            this.robot.WaitForMotion.(this.robot.z1Axis);
-            this.robot.WaitForMotion.(this.robot.z2Axis);
+            this.robot.MoveTo(this.z1Axis, this.zSecureHeigh,this.zHighSpeed);
+            this.robot.MoveTo(this.z2Axis, this.zSecureHeigh,this.zHighSpeed);
+            this.robot.WaitForMotion.(this.z1Axis);
+            this.robot.WaitForMotion.(this.z2Axis);
             return
         end
         
@@ -95,11 +100,11 @@ classdef PetalDispensing < handle
             end
             
             this.zSecurityPosition();
-            this.robot.MoveTo(this.robot.xAxis, X, this.xyHightSpeed);
-            this.robot.MoveTo(this.robot.yAxis, Y, this.xyHightSpeed);
+            this.robot.MoveTo(this.xAxis, X, this.xyHightSpeed);
+            this.robot.MoveTo(this.yAxis, Y, this.xyHightSpeed);
             if mode == 0
-                this.robot.WaitForMotion.(this.robot.xAxis);
-                this.robot.WaitForMotion.(this.robot.y2Axis);
+                this.robot.WaitForMotion.(this.xAxis);
+                this.robot.WaitForMotion.(this.y2Axis);
             else
                 return
             end
@@ -171,45 +176,45 @@ classdef PetalDispensing < handle
                 
                 % 1st Dropplet
                 this.robot.MoveTo(z2Axis,0,zLowSpeed);
-                this.robot.WaitForMotion(this.robot.z2Axis);
+                this.robot.WaitForMotion(this.z2Axis);
                 this.StartDispensing();
                 pause(t1 + 200);
                 this.robot.MoveTo(z2Axis,zDispenseHeigh,zLowSpeed);
-                this.robot.WaitForMotion(this.robot.z2Axis);
+                this.robot.WaitForMotion(this.z2Axis);
                 
                 
                 % 2nd Dropplet
-                this.robot.MoveBy(this.robot.xAxis,1,1);
-                this.robot.WaitForMotion(this.robot.xAxis);
-                this.robot.MoveBy(this.robot.xAxis,1,1);
-                this.robot.WaitForMotion(this.robot.xAxis);
+                this.robot.MoveBy(this.xAxis,1,1);
+                this.robot.WaitForMotion(this.xAxis);
+                this.robot.MoveBy(this.xAxis,1,1);
+                this.robot.WaitForMotion(this.xAxis);
                 this.StartDispensing();
                 pause(t1 + 200);
                 this.robot.MoveTo(z2Axis,zDispenseHeigh,zLowSpeed);
-                this.robot.WaitForMotion(this.robot.z2Axis);
+                this.robot.WaitForMotion(this.z2Axis);
                 
                 % 3rd Dropplet
-                this.robot.MoveBy(this.robot.yAxis,1,1);
-                this.robot.WaitForMotion(this.robot.xAxis);
+                this.robot.MoveBy(this.yAxis,1,1);
+                this.robot.WaitForMotion(this.xAxis);
                 this.robot.MoveTo(z2Axis,0,zLowSpeed);
-                this.robot.WaitForMotion(this.robot.z2Axis);
+                this.robot.WaitForMotion(this.z2Axis);
                 this.StartDispensing();
                 pause(t1 + 200);
                 this.robot.MoveTo(z2Axis,zDispenseHeigh,zLowSpeed);
-                this.robot.WaitForMotion(this.robot.z2Axis);
+                this.robot.WaitForMotion(this.z2Axis);
                 
                 % 4th Dropplet
-                this.robot.MoveBy(this.robot.xAxis,-1,1);
-                this.robot.WaitForMotion(this.robot.xAxis);
+                this.robot.MoveBy(this.xAxis,-1,1);
+                this.robot.WaitForMotion(this.xAxis);
                 this.robot.MoveTo(z2Axis,0,zLowSpeed);
-                this.robot.WaitForMotion(this.robot.z2Axis);
+                this.robot.WaitForMotion(this.z2Axis);
                 this.StartDispensing();
                 pause(t1 + 200);
                 this.robot.MoveTo(z2Axis,zDispenseHeigh,zLowSpeed);
-                this.robot.WaitForMotion(this.robot.z2Axis);
+                this.robot.WaitForMotion(this.z2Axis);
                 
-                this.robot.MoveBy(this.robot.yAxis,-1,1);
-                this.robot.WaitForMotion(this.robot.xAxis);
+                this.robot.MoveBy(this.yAxis,-1,1);
+                this.robot.WaitForMotion(this.xAxis);
             end
         end
         
@@ -244,15 +249,15 @@ classdef PetalDispensing < handle
                 for i=1:nlines
                     xStartPoint = xStartPoint + this.Pitch;
                     % Lift Down syrenge
-                    this.robot.MoveTo(this.robot.z2Axis,0,this.zLowSpeed);
-                    this.robot.WaitForMotion(this.robot.z2Axis);
+                    this.robot.MoveTo(this.z2Axis,0,this.zLowSpeed);
+                    this.robot.WaitForMotion(this.z2Axis);
                     % Dispense one glue line
                     this.StartDispensing();
-                    this.robot.MoveBy(this.robot.yAxis,LineLength,this.dispSpeed;
-                    this.robot.WaitForMotion(this.robot.yAxis);
+                    this.robot.MoveBy(this.yAxis,LineLength,this.dispSpeed);
+                    this.robot.WaitForMotion(this.yAxis);
                     % Lift Up syrenge
-                    this.robot.MoveTo(this.robot.z2Axis,this.zDispenseHeigh,this.zLowSpeed);
-                    this.robot.WaitForMotion(this.robot.z2Axis);
+                    this.robot.MoveTo(this.z2Axis,this.zDispenseHeigh,this.zLowSpeed);
+                    this.robot.WaitForMotion(this.z2Axis);
                 end
             end
         end
@@ -285,35 +290,35 @@ classdef PetalDispensing < handle
             else
                 % Dispensing Line 0
                 % Lift Down syrenge
-                this.robot.MoveTo(this.robot.z2Axis,zDispenseHeigh,this.zLowSpeed);
-                this.robot.WaitForMotion(this.robot.z2Axis);
+                this.robot.MoveTo(this.z2Axis,zDispenseHeigh,this.zLowSpeed);
+                this.robot.WaitForMotion(this.z2Axis);
                 % Dispense line 0
                 this.StartDispensing();
-                this.robot.MoveTo(this.robot.xAxis,xStopGluing,this.dispSpeed;
-                this.robot.MoveTo(this.robot.yAxis,yStopGluing,this.dispSpeed;                
-%                 this.robot.MoveBy(this.robot.xAxis,LineLength,this.dispSpeed;
-%                 this.robot.MoveBy(this.robot.yAxis,LineLength,this.dispSpeed;
-                this.robot.WaitForMotion(this.robot.xAxis);
-                this.robot.WaitForMotion(this.robot.yAxis);
+                this.robot.MoveTo(this.xAxis,xStopGluing,this.dispSpeed;
+                this.robot.MoveTo(this.yAxis,yStopGluing,this.dispSpeed;                
+%                 this.robot.MoveBy(this.xAxis,LineLength,this.dispSpeed;
+%                 this.robot.MoveBy(this.yAxis,LineLength,this.dispSpeed;
+                this.robot.WaitForMotion(this.xAxis);
+                this.robot.WaitForMotion(this.yAxis);
 
                 % Lift Up syrenge
-                this.robot.MoveTo(this.robot.z2Axis,this.zWorkingHeight,this.zLowSpeed);
-                this.robot.WaitForMotion(this.robot.z2Axis);
+                this.robot.MoveTo(this.z2Axis,this.zWorkingHeight,this.zLowSpeed);
+                this.robot.WaitForMotion(this.z2Axis);
                 
                 for nLine=1:6
                     xStartPoint = xStartPoint + this.Pitch*nLine;
                     xStartGluing = 
                     this.MoveToFast(xStartPoint, yStartPoint)
                     % Lift Down syrenge
-                    this.robot.MoveTo(this.robot.z2Axis,zDispenseHeigh,this.zLowSpeed);
-                    this.robot.WaitForMotion(this.robot.z2Axis);
+                    this.robot.MoveTo(this.z2Axis,zDispenseHeigh,this.zLowSpeed);
+                    this.robot.WaitForMotion(this.z2Axis);
                     % Dispense one glue line
                     this.StartDispensing();
-                    this.robot.MoveBy(this.robot.yAxis,LineLength,this.dispSpeed;
-                    this.robot.WaitForMotion(this.robot.yAxis);
+                    this.robot.MoveBy(this.yAxis,LineLength,this.dispSpeed;
+                    this.robot.WaitForMotion(this.yAxis);
                     % Lift Up syrenge
-                    this.robot.MoveTo(this.robot.z2Axis,this.zWorkingHeight,this.zLowSpeed);
-                    this.robot.WaitForMotion(this.robot.z2Axis);
+                    this.robot.MoveTo(this.z2Axis,this.zWorkingHeight,this.zLowSpeed);
+                    this.robot.WaitForMotion(this.z2Axis);
                 end
                 
             end
