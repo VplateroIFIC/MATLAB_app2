@@ -1,0 +1,4 @@
+
+Error to be debugged in the future:
+1- function WaitForMotion --> A timeout error have no real effect. An error appear in the Command Window and program execution continues
+2- function WaitForMotion --> It doesn't separate correctly axis. WaitForMotion(oneAxis) will wait until ALL the axis movements finishes.
