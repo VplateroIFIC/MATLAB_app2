@@ -1,6 +1,6 @@
 
 
-classdef STAGES
+classdef STAGES < handle
     
     %   CLASS TO CONTROL STAGES
     %
@@ -32,6 +32,7 @@ classdef STAGES
         z1Axis;
         z2Axis;
         uAxis;
+        nullAxis;
         
         % ALIO properties %
         
@@ -59,7 +60,7 @@ classdef STAGES
         zNominalSpeed = 5;
         xyHighSpeed = 20;
         xyNominalSpeed = 10;
-        DefaultTimeOut = 30000;         %Default time out 30 sec
+        DefaultTimeOut = 60000;         %Default time out 60 sec
         
     end
     properties (Access=public)
@@ -96,6 +97,7 @@ classdef STAGES
                     this.z1Axis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_4;
                     this.z2Axis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_5;
                     this.uAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_6;
+                    this.nullAxis=ACS.SPiiPlusNET.Axis.ACSC_NONE;
                     this.HomeVelocity=15;
                     this.Acceleration=20;
                     this.Relative=ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_RELATIVE;
@@ -386,37 +388,58 @@ classdef STAGES
         
         %% MoveToXY %% Absolute movements %%
         
-        function  MoveToXY(this,xtarget,ytarget,velocity)
-            % function  MoveTo(this,axis,target,velocity, wait)
+        function  MoveToXY(this,xtarget,ytarget,velocity, wait)
+            % function  MoveTo(this,xtarget,ytarget,velocity, wait)
             % Arguments: object ALIO (this), axis int, target double, velocity double, wait int
             % (0-> Wait until movement finishes, 1-> No wait
             % Returns: none %
             %
-%             [{'X_axis'},{'Y_axis'},{'Z_axis'}]
-% array = NET.createArray(typeName,[m,n,p,...])
-axis = NET.createArray(axes,[1,3])
-axis(1) = this.xAxis
-axis (2) = this.yAxis
-axis
-%              axis = [{this.xAxis}, {this.yAxis}, {ACS.SPiiPlusNET.Axis.ACSC_NONE}]
-% axis = { ACS.SPiiPlusNET.Axis.ACSC_AXIS_0, ACS.SPiiPlusNET.Axis.ACSC_AXIS_1, ACS.SPiiPlusNET.Axis.ACSC_NONE }
-points = [xtarget,ytarget]
+            switch nargin
+                case 5
+                case 4
+                    wait = 0;
+                otherwise
+                    disp('\n Improper number of arguments ');
+                    return
+            end
+            tic
+            % array = NET.createArray(typeName,[m,n,p,...]);
+            % array.Set(m, object);
+            axis = NET.createArray('ACS.SPiiPlusNET.Axis',3); axis.Set(0, this.xAxis); axis.Set(1, this.yAxis); axis.Set(2, this.nullAxis);  %d2 = NET.createArray('System.String',3); d2(1) = 'one'; d2(2) = 'two'; d2(3) = 'zero';
+            points = [xtarget,ytarget];
             %Lineal interpolation "NONE", Cubit interpolation
             %"MotionFlags.ACSC_AMF_CUBIC"
-            %             interpolation = ACS.SPiiPlusNET.MotionFlags.ACSC_NONE;
-            
-            
-            
-            
-            %                             SetVelocity(this.GantryObj,this.xAxis,velocity)
-            ToPointM(this.GantryObj,this.Absolute,axis{:},points);
+%             interpolation = ACS.SPiiPlusNET.MotionFlags.ACSC_NONE;
+%             interpolation = ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_CUBIC;
+% velocity = sqrt(velocity^2+velocity^2)
+% x= xtarget;
+% y = ytarget;
+% velocity = sqrt((x/y)^2+(x/y)^2)*velocity
+% velocity = sqrt((velocity*y/x)^2+(velocity*y/x)^2)
+
+            SetVelocity(this.GantryObj,this.xAxis,velocity)
+             ToPointM(this.GantryObj,this.Absolute,axis,points);
 %             ToPoint(this.GantryObj,this.Absolute,this.xAxis,xtarget);
 %             ToPoint(this.GantryObj,this.Absolute,this.yAxis,ytarget);
-
             
-            %                             AddPVTPointM (Axis] [] , axes, double] [] , point, double] [] , velocity, e [double timeInterval])
-%             SplineM (this.Absolute, axis, 1000); % Linear interpolation, Axis array, 100mseg.
-%             Ch.AddPVPointM(axis, points, points,1000);
+            
+%             AddPVTPointM (Axis] [] , axes, double] [] , point, double] [] , velocity, e [double timeInterval])
+%             SplineM(this.GantryObj, interpolation, axis, 100) % Linear interpolation, Axis array, 100mseg.
+%             AddPVPointM(this.GantryObj, axis, points2, points,100);
+%              Spline(this.GantryObj, interpolation, this.xAxis, 100) % Linear interpolation, Axis array, 100mseg.
+%              index = 5;  
+%              puntos = [0,0]
+%              for index = 1:5
+%                puntos(1) = 10*index; puntos(2) = 20*index
+%                  AddPVPoint(this.GantryObj,this.xAxis, puntos(1));
+%              end
+%              EndSequence(this.GantryObj,this.xAxis);
+%             
+            if wait > 0
+                this.WaitForMotion(0, -1);
+                this.WaitForMotion(1, -1);
+            end
+            toc
         end
         
         
@@ -833,11 +856,13 @@ points = [xtarget,ytarget]
             % 1- Move all Z axis to the defined safe height
             % 2- Wait until movement finishes
             
-            this.MoveTo(this.z1Axis, this.zSecureHeigh,this.zHighSpeed);
-            this.MoveTo(this.z2Axis, this.zSecureHeigh,this.zHighSpeed);
-            this.WaitForMotion(this.z1Axis, -1);
-            this.WaitForMotion(this.z2Axis, -1);
-            return
+            if (this.GetPosition(4) <= this.zSecureHeigh)
+                this.MoveTo(4, this.zSecureHeigh,this.zHighSpeed);
+            end
+            if (this.GetPosition(5) <= this.zSecureHeigh)
+                this.MoveTo(5, this.zSecureHeigh,this.zHighSpeed);
+            end
+            this.WaitForMotionAll(this.DefaultTimeOut);
         end
         
         function MoveToFast(this, X, Y, wait)
@@ -859,8 +884,8 @@ points = [xtarget,ytarget]
             end
             
             this.zSecurityPosition();
-            this.MoveTo(this.xAxis, X, this.xyHightSpeed);
-            this.MoveTo(this.yAxis, Y, this.xyHightSpeed);
+            this.MoveTo(0, X, this.xyHighSpeed);
+            this.MoveTo(1, Y, this.xyHighSpeed);
             if wait == 0
                 this.WaitForMotionAll();
             end
