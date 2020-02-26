@@ -3,13 +3,13 @@ classdef PetalDispensing < handle
     %   Detailed explanation goes here
     
     properties (Access = protected)
-        robot;
+        gantry;
         NumPetals;
         dispenser;
         ready = 0;
         zSecureHeigh = 20;              % Min Z height for fast movements
         zWorkingHeight = 10;            % Z Position prepared to dispense
-        zDispenseHeigh = 0;             % Z Position while glue dispensing
+        zDispenseHeigh = 5;             % Z Position while glue dispensing
     end
     
     properties (Constant, Access = public)
@@ -39,74 +39,25 @@ classdef PetalDispensing < handle
     methods
         
         %% Constructor %%
-        function this = PetalDispensing(this, dispense_obj, robot_obj, num_petals)
+        function this = PetalDispensing(this, dispense_obj, gantry_obj)
             % Constructor function.
-            % Arguments: dispense_obj, robot_obj (Gantry or OWIS), PetalNum: 1 or 2
+            % Arguments: dispense_obj, gantry_obj (Gantry or OWIS), PetalNum: 1 or 2
             % present on the setup.
             % Returns: this object
-            switch nargin
-                case 4
-                    this.NumPetals = num_petals;
-                case 2
-                    this.NumPetals = 1;
-            end
-            if dispense_obj.Connected ~= 1
+            
+            if dispense_obj.IsConnected ~= 1
                 fprintf ('Error -> dispenser is not connected')
             else
                 this.dispenser = dispense_obj;
             end
-            if robot_obj.Connected ~= 1
-                fprintf ('Error -> robot object is not connected');
+            if gantry_obj.IsConnected ~= 1
+                fprintf ('Error -> gantry object is not connected');
             else
-                this.robot = robot_obj;
+                this.gantry = gantry_obj;
             end
             error = this.DispenserDefaults();
             if error ~= 0
                 fprintf ('Error -> Could not set Dispenser');
-            end
-        end
-        
-        %% Moving improvements %%
-        
-        function zSecurityPosition(this)
-            % function zSecurityPosition (this)
-            % Arguments: none
-            % Return: none
-            % 1- Move all Z axis to the defined safe height
-            % 2- Wait until movement finishes
-            
-            this.robot.MoveTo(this.z1Axis, this.zSecureHeigh,this.zHighSpeed);
-            this.robot.MoveTo(this.z2Axis, this.zSecureHeigh,this.zHighSpeed);
-            this.robot.WaitForMotion.(this.z1Axis);
-            this.robot.WaitForMotion.(this.z2Axis);
-            return
-        end
-        
-        function MoveToFast(this, X, Y, mode)
-            % function MoveToFast (this, X, Y)
-            % Arguments: X position, Y position, mode (0-> Wait until movement finishes, 1-> No wait
-            % Return: none
-            % Operation:   1- Move all Z axis to a safe height and wait
-            %              2- Then move X and Y axis to the desired zone.
-            
-            switch nargin
-                case 4
-                    
-                case 3
-                    mode = 0;
-                otherwise
-                    disp('\n Improper number of arguments ');
-                    return
-            end
-            
-            this.zSecurityPosition();
-            this.robot.MoveTo(this.xAxis, X, this.xyHightSpeed);
-            this.robot.MoveTo(this.yAxis, Y, this.xyHightSpeed);
-            if mode == 0
-                this.robot.WaitForMotion.(this.xAxis);
-                this.robot.WaitForMotion.(this.y2Axis);
-            else
-                return
             end
         end
         
@@ -141,7 +92,7 @@ classdef PetalDispensing < handle
             cmd = sprintf('TT--');           %Setting timing mode
             error = error + this.dispenser.SetUltimus(cmd);
             
-            cmd = sprintf('DS-T%d',time*10); %Setting time in ms
+            cmd = sprintf('DS-T%4d',time); %Setting time in ms
             error = error + this.dispenser.SetUltimus(cmd);
         end
         
@@ -166,7 +117,7 @@ classdef PetalDispensing < handle
             error = 0;
             
             error = error + this.DispenserDefaults();
-            this.MoveToFast(TestingZone(1), TestingZone(2));
+            this.gantry.MoveToFast(this.TestingZone(1), this.TestingZone(2));
             
             error = error + this.setTime(t1);
             if error ~= 0
@@ -175,46 +126,46 @@ classdef PetalDispensing < handle
             else
                 
                 % 1st Dropplet
-                this.robot.MoveTo(z2Axis,0,zLowSpeed);
-                this.robot.WaitForMotion(this.z2Axis);
+                this.gantry.MoveTo(z2Axis,0,zLowSpeed);
+                this.gantry.WaitForMotion(this.z2Axis);
                 this.StartDispensing();
                 pause(t1 + 200);
-                this.robot.MoveTo(z2Axis,zDispenseHeigh,zLowSpeed);
-                this.robot.WaitForMotion(this.z2Axis);
+                this.gantry.MoveTo(z2Axis,zDispenseHeigh,zLowSpeed);
+                this.gantry.WaitForMotion(this.z2Axis);
                 
                 
                 % 2nd Dropplet
-                this.robot.MoveBy(this.xAxis,1,1);
-                this.robot.WaitForMotion(this.xAxis);
-                this.robot.MoveBy(this.xAxis,1,1);
-                this.robot.WaitForMotion(this.xAxis);
+                this.gantry.MoveBy(this.xAxis,1,1);
+                this.gantry.WaitForMotion(this.xAxis);
+                this.gantry.MoveBy(this.xAxis,1,1);
+                this.gantry.WaitForMotion(this.xAxis);
                 this.StartDispensing();
                 pause(t1 + 200);
-                this.robot.MoveTo(z2Axis,zDispenseHeigh,zLowSpeed);
-                this.robot.WaitForMotion(this.z2Axis);
+                this.gantry.MoveTo(z2Axis,zDispenseHeigh,zLowSpeed);
+                this.gantry.WaitForMotion(this.z2Axis);
                 
                 % 3rd Dropplet
-                this.robot.MoveBy(this.yAxis,1,1);
-                this.robot.WaitForMotion(this.xAxis);
-                this.robot.MoveTo(z2Axis,0,zLowSpeed);
-                this.robot.WaitForMotion(this.z2Axis);
+                this.gantry.MoveBy(this.yAxis,1,1);
+                this.gantry.WaitForMotion(this.xAxis);
+                this.gantry.MoveTo(z2Axis,0,zLowSpeed);
+                this.gantry.WaitForMotion(this.z2Axis);
                 this.StartDispensing();
                 pause(t1 + 200);
-                this.robot.MoveTo(z2Axis,zDispenseHeigh,zLowSpeed);
-                this.robot.WaitForMotion(this.z2Axis);
+                this.gantry.MoveTo(z2Axis,zDispenseHeigh,zLowSpeed);
+                this.gantry.WaitForMotion(this.z2Axis);
                 
                 % 4th Dropplet
-                this.robot.MoveBy(this.xAxis,-1,1);
-                this.robot.WaitForMotion(this.xAxis);
-                this.robot.MoveTo(z2Axis,0,zLowSpeed);
-                this.robot.WaitForMotion(this.z2Axis);
+                this.gantry.MoveBy(this.xAxis,-1,1);
+                this.gantry.WaitForMotion(this.xAxis);
+                this.gantry.MoveTo(z2Axis,0,zLowSpeed);
+                this.gantry.WaitForMotion(this.z2Axis);
                 this.StartDispensing();
                 pause(t1 + 200);
-                this.robot.MoveTo(z2Axis,zDispenseHeigh,zLowSpeed);
-                this.robot.WaitForMotion(this.z2Axis);
+                this.gantry.MoveTo(z2Axis,zDispenseHeigh,zLowSpeed);
+                this.gantry.WaitForMotion(this.z2Axis);
                 
-                this.robot.MoveBy(this.yAxis,-1,1);
-                this.robot.WaitForMotion(this.xAxis);
+                this.gantry.MoveBy(this.yAxis,-1,1);
+                this.gantry.WaitForMotion(this.xAxis);
             end
         end
         
@@ -235,7 +186,7 @@ classdef PetalDispensing < handle
             
             error = error + this.DispenserDefaults();
             xStartPoint = this.TestingZone(1)+20;
-            this.MoveToFast(xStartPoint, this.TestingZone(2));
+            this.gantry.MoveToFast(xStartPoint, this.TestingZone(2));
             
             
             error = error + this.setTime(t1);
@@ -249,15 +200,15 @@ classdef PetalDispensing < handle
                 for i=1:nlines
                     xStartPoint = xStartPoint + this.Pitch;
                     % Lift Down syrenge
-                    this.robot.MoveTo(this.z2Axis,0,this.zLowSpeed);
-                    this.robot.WaitForMotion(this.z2Axis);
+                    this.gantry.MoveTo(this.z2Axis,0,this.zLowSpeed);
+                    this.gantry.WaitForMotion(this.z2Axis);
                     % Dispense one glue line
                     this.StartDispensing();
-                    this.robot.MoveBy(this.yAxis,LineLength,this.dispSpeed);
-                    this.robot.WaitForMotion(this.yAxis);
+                    this.gantry.MoveBy(this.yAxis,LineLength,this.dispSpeed);
+                    this.gantry.WaitForMotion(this.yAxis);
                     % Lift Up syrenge
-                    this.robot.MoveTo(this.z2Axis,this.zDispenseHeigh,this.zLowSpeed);
-                    this.robot.WaitForMotion(this.z2Axis);
+                    this.gantry.MoveTo(this.z2Axis,this.zDispenseHeigh,this.zLowSpeed);
+                    this.gantry.WaitForMotion(this.z2Axis);
                 end
             end
         end
@@ -281,7 +232,7 @@ classdef PetalDispensing < handle
             error = error + this.DispenserDefaults();
             xStartPoint = this.TestingZone(1)+50;
             yStartPoint = this.TestingZone(2);
-            this.MoveToFast(xStartPoint, yStartPoint);
+            this.gantry.MoveToFast(xStartPoint, yStartPoint);
             
             error = error + this.setTime(t);
             if error ~= 0
@@ -290,35 +241,35 @@ classdef PetalDispensing < handle
             else
                 % Dispensing Line 0
                 % Lift Down syrenge
-                this.robot.MoveTo(this.z2Axis,zDispenseHeigh,this.zLowSpeed);
-                this.robot.WaitForMotion(this.z2Axis);
+                this.gantry.MoveTo(this.z2Axis,this.zDispenseHeigh,this.zLowSpeed);
+                this.gantry.WaitForMotion(this.z2Axis);
                 % Dispense line 0
                 this.StartDispensing();
-                this.robot.MoveTo(this.xAxis,xStopGluing,this.dispSpeed;
-                this.robot.MoveTo(this.yAxis,yStopGluing,this.dispSpeed;                
-%                 this.robot.MoveBy(this.xAxis,LineLength,this.dispSpeed;
-%                 this.robot.MoveBy(this.yAxis,LineLength,this.dispSpeed;
-                this.robot.WaitForMotion(this.xAxis);
-                this.robot.WaitForMotion(this.yAxis);
+                this.gantry.MoveTo(this.xAxis,xStopGluing,this.dispSpeed);
+                this.gantry.MoveTo(this.yAxis,yStopGluing,this.dispSpeed);                
+%                 this.gantry.MoveBy(this.xAxis,LineLength,this.dispSpeed;
+%                 this.gantry.MoveBy(this.yAxis,LineLength,this.dispSpeed;
+                this.gantry.WaitForMotion(this.xAxis);
+                this.gantry.WaitForMotion(this.yAxis);
 
                 % Lift Up syrenge
-                this.robot.MoveTo(this.z2Axis,this.zWorkingHeight,this.zLowSpeed);
-                this.robot.WaitForMotion(this.z2Axis);
+                this.gantry.MoveTo(this.z2Axis,this.zWorkingHeight,this.zLowSpeed);
+                this.gantry.WaitForMotion(this.z2Axis);
                 
                 for nLine=1:6
                     xStartPoint = xStartPoint + this.Pitch*nLine;
-                    xStartGluing = 
-                    this.MoveToFast(xStartPoint, yStartPoint)
+                    xStartGluing = 0;
+                    this.gantry.MoveToFast(xStartPoint, yStartPoint)
                     % Lift Down syrenge
-                    this.robot.MoveTo(this.z2Axis,zDispenseHeigh,this.zLowSpeed);
-                    this.robot.WaitForMotion(this.z2Axis);
+                    this.gantry.MoveTo(this.z2Axis,this.zDispenseHeigh,this.zLowSpeed);
+                    this.gantry.WaitForMotion(this.z2Axis);
                     % Dispense one glue line
                     this.StartDispensing();
-                    this.robot.MoveBy(this.yAxis,LineLength,this.dispSpeed;
-                    this.robot.WaitForMotion(this.yAxis);
+                    this.gantry.MoveBy(this.yAxis,LineLength,this.dispSpeed);
+                    this.gantry.WaitForMotion(this.yAxis);
                     % Lift Up syrenge
-                    this.robot.MoveTo(this.z2Axis,this.zWorkingHeight,this.zLowSpeed);
-                    this.robot.WaitForMotion(this.z2Axis);
+                    this.gantry.MoveTo(this.z2Axis,this.zWorkingHeight,this.zLowSpeed);
+                    this.gantry.WaitForMotion(this.z2Axis);
                 end
                 
             end
@@ -350,4 +301,5 @@ classdef PetalDispensing < handle
             yStartP = mLine34*xStartP +qLine34
         end
     end
+end
     
