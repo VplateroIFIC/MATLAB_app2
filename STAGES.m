@@ -603,6 +603,17 @@ classdef STAGES < handle
             %function  WaitForMotion(this,axis,time)
             % Arguments: object ALIO (this), axis int,time inn (if -1, wait infinite)%
             % Returns: none %
+            
+            switch nargin
+                case 3
+                    
+                case 2
+                    time = this.DefaultTimeOut;
+                otherwise
+                    disp('Improper number of arguments ');
+                    return
+            end
+            
             switch this.GantryType
                 case 0
                     %insert here WaitForMotion with AEROTECH gantry %
@@ -626,6 +637,17 @@ classdef STAGES < handle
             %function  WaitForMotionAll(this,axis,time)
             % Arguments: object ALIO (this),time inn (if -1, wait infinite)%
             % Returns: none %
+            
+            switch nargin
+                case 2
+                    
+                case 1
+                    time = this.DefaultTimeOut;
+                otherwise
+                    disp('\n Improper number of arguments ');
+                    return
+            end
+            
             switch this.GantryType
                 case 0
                     %insert here WaitForMotion with AEROTECH gantry %
@@ -886,17 +908,9 @@ classdef STAGES < handle
             this.zSecurityPosition();
             this.MoveTo(0, X, this.xyHighSpeed);
             this.MoveTo(1, Y, this.xyHighSpeed);
-            if wait == 0
+            if wait == 1
                 this.WaitForMotionAll();
             end
-            
-            %             if wait == 0
-            %                 this.WaitForMotion.(this.xAxis, -1);
-            %                 this.WaitForMotion.(this.y2Axis, -1);
-            %                 this.WaitForMotionAll();
-            %             else
-            %                 return
-            %             end
         end
         
         
