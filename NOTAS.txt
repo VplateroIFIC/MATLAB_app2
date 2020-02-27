@@ -1,4 +1,8 @@
 
+Errors to debug in the near future:
+1- Dispenser communication fail-rate about 5-8% (Improve wiring; Add a retry instruccion in method "DISPENSER.SetUltimus(cmd)")
+
 Error to be debugged in the future:
 1- function WaitForMotion --> A timeout error have no real effect. An error appear in the Command Window and program execution continues
 2- function WaitForMotion --> It doesn't separate correctly axis. WaitForMotion(oneAxis) will wait until ALL the axis movements finishes.
+3- STAGES and OWIS_STAGES classes --> Different uses of internal variables may cause confusion during debugging.
