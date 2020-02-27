@@ -22,7 +22,7 @@ classdef DISPENSER < handle
     end
     
     methods
-        function this=Connect(this)
+        function this = Connect(this)
             %Connect Connection with the dispenser device
             %   this function open the serial port and inizializate the glue dispenser.
             %   Initial parameters are set to:
@@ -45,7 +45,7 @@ classdef DISPENSER < handle
             this.SetUltimus('DS  T10000');   %Dispensing time window: 1 s
             this.SetUltimus('VS  0050');   %Setting vacuum: 0.5
             this.IsConnected=1;
-            disp('Conection with Ultimus done\n')
+            disp('Conection with Ultimus done')
         end
         
         
@@ -57,7 +57,7 @@ classdef DISPENSER < handle
         end
         
         
-        function OK = SetUltimus(this,command)
+        function error = SetUltimus(this,command)
             
             
             % SetUltimus Download commands to Ultimus
@@ -139,6 +139,7 @@ classdef DISPENSER < handle
             
             % Defining order to be exectuted: adding number of bytes and calculating checksum %
             
+            error = 0;
             OrderComplete=this.commandBuilder(command);
             
             % opening serial port %
@@ -154,7 +155,7 @@ classdef DISPENSER < handle
             input1=fread(this.s1,1);
             if (input1~=this.ACK)
                 fprintf ('Error in in command "%s": ENQ was not received', command);
-                OK = -1;
+                error = -1;
                 return
             end
             
@@ -170,14 +171,14 @@ classdef DISPENSER < handle
             input2=this.readPort(this.s1);
             %         if (double(input2)~=double('A0'))
             if (strcmp(input2,'A0') == 0)
-                fprintf('Error in command "%s": A2 was returned', command);
-                OK = -2;
+                fprintf('\nError in command "%s": A2 was returned\n', command);
+                error = -2;
                 return
             end
             
             % Sending EOT %
             fwrite(this.s1,this.EOT)
-            
+            pause(0.1)
         end
         
         function feedBack=GetUltimus(this,command)
@@ -330,6 +331,7 @@ classdef DISPENSER < handle
             % Sending EOT %
             
             fwrite(this.s1,this.EOT)
+            pause(0.1)
         end
         
         
