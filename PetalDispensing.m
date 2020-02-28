@@ -8,7 +8,7 @@ classdef PetalDispensing < handle
         dispenser;
         ready = 0;
         zSecureHeigh = 20;              % Min Z height for fast movements
-        zWorkingHeight = 10;            % Z Position prepared to dispense
+        zWaitingHeigh = 10;            % Z Position prepared to dispense
         zDispensingHeigh = 5;             % Z Position while glue dispensing
     end
     
@@ -59,25 +59,13 @@ classdef PetalDispensing < handle
             else
                 disp('Gantry connecting FAIL');
             end
-            
-            %             if dispense_obj.IsConnected ~= 1
-            %                 fprintf ('Error -> dispenser is not connected')
-            %             else
-            %                 this.dispenser = dispense_obj;
-            %             end
-            %             if gantry_obj.IsConnected ~= 1
-            %                 fprintf ('Error -> gantry object is not connected');
-            %             else
-            %                 this.gantry = gantry_obj;
-            %             end
-            % this.dispenser = dispense_obj;
             error = this.DispenserDefaults();
-            %             if error ~= 0
-            %                 fprintf ('Error -> Could not set Dispenser');
-            %             end
+            if error ~= 0
+                fprintf ('Error -> Could not set Dispenser');
+            end
         end
         
-        %% Settings %%
+        %% Macros Dispenser%%
         
         function error = DispenserDefaults(this)
             % DispenserDefaults(this)
@@ -92,13 +80,12 @@ classdef PetalDispensing < handle
             cmd = sprintf('E7--00');      % Set dispenser Vacuum unit KPA
             error = error + this.dispenser.SetUltimus(cmd);
             
-            cmd = sprintf('PS--4000');    % Set dispenser pressure to 40 KPA = 0.4 BAR
+            cmd = sprintf('PS--0040');    % Set dispenser pressure to 40 KPA = 0.4 BAR
             error = error + this.dispenser.SetUltimus(cmd);
             
-            cmd = sprintf('VS--0050');
+            cmd = sprintf('VS--0050');    % Set dispenser vacuum to 0.12 KPA = 0.5 "H2O
             error = error + this.dispenser.SetUltimus(cmd);
-            
-            
+              
             error = error + this.SetTime(1000);    % Dispenser in timing mode and t=1000 msec
         end
         
@@ -112,16 +99,85 @@ classdef PetalDispensing < handle
             cmd = sprintf('TT--');           %Setting timing mode
             error = error + this.dispenser.SetUltimus(cmd);
             
-            cmd = sprintf('DS-T%04d',time); %Setting time in ms
+            cmd = sprintf('DS-T%04d',time) %Setting time in ms
             error = error + this.dispenser.SetUltimus(cmd);
         end
         
         function error = StartDispensing(this)
             % StartDispensing function
             % Arguments: none
-            % Return
+            % Return Error (0 -> No error)
+            % 1- Z2 axis go to dispensing Heigh and wait
+            % 2- Send "dispense" command to the dispenser.
+            
             cmd = sprintf('DI--');
             error = this.dispenser.SetUltimus(cmd);
+        end
+        
+        function ReadDispenserStatus(this)
+            % function ReadDispenserStatus (this)
+            % Arguments: none
+            % Return Error (0 -> No error)
+            % 1- Z2 axis go to dispensing Heigh and wait
+            % 2- Send "dispense" command to the dispenser.
+            
+            cmd = 'E4--';
+            FeedBack = this.dispenser.GetUltimus(cmd);
+            c = strcat(FeedBack(5), FeedBack(6));
+            switch c
+                case '00'
+                    unitsP = 'PSI';
+                case '01'
+                    unitsP = 'BAR';
+                case '02'
+                    unitsP = 'KPA';
+            end
+            
+            cmd = 'E5--';
+            FeedBack = this.dispenser.GetUltimus(cmd);
+            c = strcat(FeedBack(5), FeedBack(6));
+            switch c
+                case '00'
+                    unitsV = 'KPA';
+                case '01'
+                    unitsV = '"H2O';
+                case '02'
+                    unitsV = '"Hg';
+                case '03' 
+                    unitsV = 'mmHg';
+                case '04' 
+                    unitsV = 'TORR';
+            end
+            
+            cmd = 'E8ccc';
+            FeedBack = this.dispenser.GetUltimus(cmd)
+            c = strcat(FeedBack(5), FeedBack(6), FeedBack(7), FeedBack(8));
+            value = str2double(c);
+            fprintf('Dispensing Pressure: %d %s\n',value, unitsP);
+            
+            c = strcat(FeedBack(11), FeedBack(12), FeedBack(13), FeedBack(14), FeedBack(15));
+            value = str2double(c)/10;
+            fprintf('Dispensing Time: %d ms\n',value);
+            
+            c = strcat(FeedBack(18), FeedBack(19), FeedBack(20), FeedBack(21));
+            value = str2double(c);
+            fprintf('Vacuum: %d %s\n',value, unitsV);
+        end
+        
+        %% Macros Gantry %%
+        
+        function GPositionDispensing(this)
+            % function GPositionDispensing(this)
+            % Arguments: none
+            % Return Error (0 -> No error)
+            this.gantry.MoveTo(this.z2Axis,this.zDispensingHeigh, this.zLowSpeed,1);
+        end
+        
+        function GPostionWaiting (this)
+            % function GPositionDispensing(this)
+            % Arguments: none
+            % Return Error (0 -> No error)
+            this.gantry.MoveTo(this.z2Axis,this.zDispensingHeigh, this.zLowSpeed,1);
         end
         
         %% Testing %%
@@ -140,19 +196,22 @@ classdef PetalDispensing < handle
             disp('Move to test zone')
             this.gantry.MoveToFast(this.TestingZone(1), this.TestingZone(2));
             
-            error = error + this.SetTime(t1);
             if error ~= 0
                 fprintf ('\n ERROR \n');
                 return
             else
                 
                 % 1st Dropplet
-                disp('1st Dropplet')
-                this.gantry.MoveTo(this.z2Axis,this.zDispensingHeigh, this.zLowSpeed,1);
+                disp('')
+                disp('1st dropplet')
+                disp('')
+                error = error + this.SetTime(t1);
+                this.GPositionDispensing();
                 this.StartDispensing();
                 t = t1/1000 + 0.2;
                 pause(t);
-                this.gantry.MoveTo(this.z2Axis,this.zWorkingHeight,this.zLowSpeed,1);
+                this.GPostionWaiting();
+                this.gantry.MoveTo(this.z2Axis,this.zWaitingHeigh,this.zLowSpeed,1);
                 this.gantry.WaitForMotion(this.z2Axis);
                 % 2nd Dropplet
                 disp('')
@@ -277,7 +336,7 @@ classdef PetalDispensing < handle
                 this.gantry.WaitForMotion(this.yAxis);
                 
                 % Lift Up syrenge
-                this.gantry.MoveTo(this.z2Axis,this.zWorkingHeight,this.zLowSpeed);
+                this.gantry.MoveTo(this.z2Axis,this.zWaitingHeigh,this.zLowSpeed);
                 this.gantry.WaitForMotion(this.z2Axis);
                 
                 for nLine=1:6
@@ -292,7 +351,7 @@ classdef PetalDispensing < handle
                     this.gantry.MoveBy(this.yAxis,LineLength,this.dispSpeed);
                     this.gantry.WaitForMotion(this.yAxis);
                     % Lift Up syrenge
-                    this.gantry.MoveTo(this.z2Axis,this.zWorkingHeight,this.zLowSpeed);
+                    this.gantry.MoveTo(this.z2Axis,this.zWaitingHeigh,this.zLowSpeed);
                     this.gantry.WaitForMotion(this.z2Axis);
                 end
                 
