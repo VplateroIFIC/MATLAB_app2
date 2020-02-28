@@ -312,7 +312,7 @@ classdef DISPENSER < handle
             
             % Reading confirmation A0-->ok  A2-->error %
             
-            input2=this.readPort(this.s1)               % reading ETX
+            input2=this.readPort(this.s1);               % reading ETX
             % if (double(input2)~=double('A0'))
             if (strcmp(input2,'A0') == 0);
                 feedBack = -2;
