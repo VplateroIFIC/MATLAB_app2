@@ -21,4 +21,7 @@ dispenser = DISPENSER
 gluing = PetalDispensing(dispenser,gantry)
 
 cmd = sprintf('DI--');
-error = glue.SetUltimus(cmd);
+error = dispenser.SetUltimus(cmd)
+pause(0.1)
+cmd = sprintf('AU---');
+error = dispenser.GetUltimus(cmd)
