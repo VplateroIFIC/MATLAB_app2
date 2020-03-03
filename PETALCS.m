@@ -48,7 +48,7 @@ classdef PETALCS < handle
             
             %position of the petal fiducials in gantry system (0.3mm fiducials)
             if (nargin==1)
-                this.lower_petalFid=[0 0];
+                this.lower_petalFid=[100 100];
                 randAngle=2*pi*rand;
                 this.upper_petalFid(1)=this.lower_petalFid(1)+this.distancePetalFiducials*cos(randAngle);
                 this.upper_petalFid(2)=this.lower_petalFid(2)+this.distancePetalFiducials*sin(randAngle);
@@ -89,11 +89,8 @@ classdef PETALCS < handle
             % translation matrix
             origin(1)=-this.lower_petalFid(1);
             origin(2)=-this.lower_petalFid(2);
-            if this.petalSide==0
             this.transMat_G2P.translate(origin);
-            else
-            this.transMat_G2P.translateMirrorY(origin);  
-            end
+
             
             % rotation matrix (angle between petalsc and gantrysc)
             vector=[this.upper_petalFid(1)-this.lower_petalFid(1),this.upper_petalFid(2)-this.lower_petalFid(2)];
