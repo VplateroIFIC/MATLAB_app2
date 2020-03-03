@@ -48,13 +48,15 @@ classdef PETALCS < handle
             
             %position of the petal fiducials in gantry system (0.3mm fiducials)
             if (nargin==1)
-                this.lower_petalFid=[100 100];
+                this.lower_petalFid=[0 0];
                 randAngle=2*pi*rand;
                 this.upper_petalFid(1)=this.lower_petalFid(1)+this.distancePetalFiducials*cos(randAngle);
                 this.upper_petalFid(2)=this.lower_petalFid(2)+this.distancePetalFiducials*sin(randAngle);
             elseif (nargin==3)
                 this.lower_petalFid=flip(lowerFid);
                 this.upper_petalFid=flip(upperFid);
+%                 this.lower_petalFid=(lowerFid);
+%                 this.upper_petalFid=(upperFid);
             end
             
             %reading nominal position of the fiducials in petal coordinates
@@ -203,7 +205,8 @@ classdef PETALCS < handle
                 fiducialsInPetal=this.fiducials_petal.(this.sensorLabel{i});
                 for j=1:length(fiducialsInPetal)
                   pointPetal=fiducialsInPetal{j};
-                  this.fiducials_gantry.(this.sensorLabel{i}){j}=this.petal_to_gantry(pointPetal);
+%                   this.fiducials_gantry.(this.sensorLabel{i}){j}=this.petal_to_gantry(pointPetal);
+                  this.fiducials_gantry.(this.sensorLabel{i}){j}=this.transMat_P2G.M*[pointPetal(1);pointPetal(2); 1];
                 end
             end
         end
@@ -223,7 +226,7 @@ classdef PETALCS < handle
             end
         end
         
-        %% auxiliary plotting methods %%
+        %% auxiliary methods for plotting %%
         
         function plotFiducialsInPetal(this)
             %METHOD1 this method plot the petal fiducials petal Gantry coordinate system
@@ -277,27 +280,53 @@ classdef PETALCS < handle
             end
         end
         
-%         function plotSensorInGantry(this, sensorName)
-%             %   This method plot a aproximated sensor (lines that conect the fiducials) in Gantry coordinate system
-%             %   @SensorName     string with the name of the sensor: [R0 R1 R2 R3S0 R3S1 R4S0 R4S1 R5S0 R5S1]
-%             
-%             
-%             
-%             
-%         end
+        function plotSensorInGantry(this, sensorName, color)
+            %   This method plot a aproximated sensor (lines that conect the fiducials) in Gantry coordinate system
+            %   @SensorName     string with the name of the sensor: [R0 R1 R2 R3S0 R3S1 R4S0 R4S1 R5S0 R5S1]
+            if (nargin<3)
+               color='r';
+            end
+            fiducialsCurrentSensor=this.fiducials_gantry.(sensorName);
+            F1=fiducialsCurrentSensor{1};
+            F2=fiducialsCurrentSensor{2};
+            F3=fiducialsCurrentSensor{3};
+            F4=fiducialsCurrentSensor{4};
+            lowerF=this.lower_petalFid;
+            upperF=this.upper_petalFid ;
+            X=[F1(1) F2(1) F3(1) F4(1) F1(1)];
+            Y=[F1(2) F2(2) F3(2) F4(2) F1(2)];
+            figure(1)
+            title([sensorName,' in Gantry coordinates'])
+            plot([lowerF(1),upperF(1)],[lowerF(2),upperF(2)],'+','Color','k')
+            hold on
+            plot(X,Y,'-','Color',color)
+            xlim([-600 600])
+            ylim([-600 600])
+        end
+        
+        function plotAllSensorsInGantry(this)
+         %   This method plot all a aproximated sensors (lines that conect the fiducials) in Gantry coordinate system   
+            n=length(this.sensorLabel);
+            color=['b','r','g','y','c','m','b','b','r'];
+           for i=1:n
+           this.plotSensorInGantry(this.sensorLabel{i},color(i));
+           end
+        end
     
         %% transformation Methods %%
         
         function pos = gantry_to_petal(this, P)
             % Moves from gantry coordinate to petal coordinates
             % @param P        2 D Vector to be transformated
-            pos=this.transMat_G2P.M*[P(1);P(2); 1];
+%             pos=this.transMat_G2P.M*[P(1);P(2); 1];
+            pos=this.transMat_G2P.M*[P(2);P(1); 1];
         end
         
         function pos = petal_to_gantry(this, P)
             % Moves from petal coordinate to gantry coordinates
             % @param P        2 D Vector to be transformated
             pos=this.transMat_P2G.M*[P(1);P(2); 1];
+            pos=[pos(2);pos(1);1];
         end
         
         function pos = petal_to_sensor(this, P, sensorName)
@@ -318,7 +347,8 @@ classdef PETALCS < handle
             % Moves from gantry coordinate to sensor coordinates
             % @param P        2 D Vector to be transformated
             % @SensorName     string with the name of the sensor: [R0 R1 R2 R3S0 R3S1 R4S0 R4S1 R5S0 R5S1]
-            pos=this.transMat_G2S.(sensorName).M*[P(1);P(2); 1];
+%           pos=this.transMat_G2S.(sensorName).M*[P(1);P(2); 1];
+            pos=this.transMat_G2S.(sensorName).M*[P(2);P(1); 1];
         end
         
         function pos = sensor_to_gantry(this, P, sensorName)
@@ -326,6 +356,7 @@ classdef PETALCS < handle
             % @param P        2 D Vector to be transformated
             % @SensorName     string with the name of the sensor: [R0 R1 R2 R3S0 R3S1 R4S0 R4S1 R5S0 R5S1]
             pos=this.transMat_S2G.(sensorName).M*[P(1);P(2); 1];
+            pos=[pos(2);pos(1);1];
         end
         
     end
