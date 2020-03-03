@@ -56,6 +56,20 @@ classdef transform2D < handle
                0, 0, 1];
          obj.M = tmp * obj.M;
       end % translate
+      
+                  function translateMirrorXY(obj, V)
+         % Adds a translation to the transform.
+         % The translation is given as a 2D vector
+         % A translation is equivalent to
+         %      | 1 0 tx |
+         %      | 0 1 ty |
+         %      | 0 0 1  |
+         %
+         tmp = [1, 0, V(1);
+               0, 1, V(2);
+               0, 0, 1];
+         obj.M = tmp * obj.M;
+      end % translate
 
       function scale(obj, sx, sy)
          % scales coordinates
