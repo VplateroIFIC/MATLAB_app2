@@ -321,7 +321,7 @@ classdef PetalDispensing < handle
             % Arguments: none
             %
             t = 1000;  %mseg
-            nlines = 5;
+            nlines = 28;
             delay = 0;
             error = 0;
             xStartGantry = Xf1_G;
@@ -346,7 +346,7 @@ classdef PetalDispensing < handle
             % Dispensing Lines 1-6
             t = 1050;
             this.SetTime(t);
-            for nLine=1:6
+            for nLine=1:28
                 if 1<=nLine && nLine<=6
                     t = 1050;
                 elseif 7<=nLine && nLine<=12
@@ -380,27 +380,7 @@ classdef PetalDispensing < handle
             
             % Dispensing Lines 7-12
             t = 1100;
-            this.SetTime(t);
-            for nLine=7:12
-                %Calculating Start and Stop positions
-                xStartPetal = xStartPetal + this.Pitch*nLine;
-                xStartGantry = this.PetalToGantry(xStartPetal);
-                yStartPetal = this.Line12Start();
-                yStartGantry = this.PetalToGantry(yStartPetal);
-                xStopPetal = Xf3 + this.Pitch*nLine;
-                xStopGantry = this.PetalToGantry(xStopPetal);
-                yStopPetal = Line34Stop();
-                yStopGantry = this.PetalToGantry(yStopPetal);
-                
-                %Prepare to dispense
-                this.gantry.MoveToFast(xStartGantry, yStartGantry, 1);
-                this.GPositionDispensing();
-                %Dispensing line
-                this.StartDispensing();
-                this.gantry.MoveToLinear(xStopGantry, yStopGantry, this.dispSpeed, 1);
-                this.GPostionWaiting()
-            end
-            
+            this.SetTime(t);          
             
         end
         
