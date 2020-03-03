@@ -12,17 +12,22 @@ classdef PetalDispensing < handle
         zDispensingHeigh = 5;             % Z Position while glue dispensing
     end
     
-    %     properties (Access = private)
-    %         xStartPetal
-    %         yStartPetal
-    %         xStartGantry
-    %         yStartGantry
-    %     end
+    properties (Access = private)
+        Xf1;
+        Yf1;
+        Xf2;
+        Yf2;
+        Xf3;
+        Yf3;
+        Xf4;
+        Yf4;
+    end
+        
     properties (Constant, Access = public)
         % All units in mm
         Pitch = 3.4;
-        OffGlueStarX = 5;   % Distance from the sensor edge
-        OffGlueStarY = 5;
+        OffGlueStartX = 5;   % Distance from the sensor edge
+        OffGlueStartY = 5;
         glueOffX = 0;       %Offset Between camera and syrenge
         glueoffY = 0;
         TestingZone = [-100, -100, 0, 0]; % X,Y,Z1,Z2
@@ -205,8 +210,7 @@ classdef PetalDispensing < handle
             % Arguments: none
             %
             t1 = 1000;  %mseg
-            t2 = 300;
-            t3 = 1000;
+            
             error = 0;
             
             %             error = error + this.DispenserDefaults();
@@ -272,11 +276,8 @@ classdef PetalDispensing < handle
             
             t1 = 1000;  %mseg
             nlines = 5;
-            t2 = 300;
-            t3 = 1000;
             delay = 0;
             error = 0;
-            
             
             error = error + this.DispenserDefaults();
             xStartPetal = this.TestingZone(1)+20;
@@ -320,9 +321,23 @@ classdef PetalDispensing < handle
             % Dispense 4 dropplets
             % Arguments: none
             %
+            
+            %Fiducials for R0
+            this.Xf1=0.54  + this.OffGlueStartX;
+            this.Yf1=36.13 - this.OffGlueStartY;
+            
+            this.Xf2=104.41 - this.OffGlueStartX;
+            this.Yf2=48.19 - this.OffGlueStartY;
+            
+            this.Xf3=0.08  + this.OffGlueStartX;
+            this.Yf3=-40.78 + this.OffGlueStartY;
+            
+            this.Xf4=104.29  - this.OffGlueStartX;
+            this.Yf4=-49.41 + this.OffGlueStartY;
+            
+            
             t = 1000;  %mseg
             nlines = 28;
-            delay = 0;
             error = 0;
             xStartGantry = Xf1_G;
             yStartGantry = Yf1_G;
@@ -343,10 +358,8 @@ classdef PetalDispensing < handle
             this.gantry.MoveToLinear(xStopGantry, yStopGantry, this.dispSpeed, 1);
             this.GPostionWaiting();
             
-            % Dispensing Lines 1-6
-            t = 1050;
-            this.SetTime(t);
-            for nLine=1:28
+            % Dispensing loop          
+            for nLine=1:nlines
                 if 1<=nLine && nLine<=6
                     t = 1050;
                 elseif 7<=nLine && nLine<=12
@@ -358,6 +371,7 @@ classdef PetalDispensing < handle
                 elseif 25<=nLine && nLine<=28
                     t = 1400;
                 end
+                this.SetTime(t);
                 
                 %Calculating Start and Stop positions
                 xStartPetal = xStartPetal + this.Pitch*nLine;
