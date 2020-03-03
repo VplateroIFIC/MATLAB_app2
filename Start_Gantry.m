@@ -6,7 +6,7 @@ gantry = gantry.Connect;
 joy = JOYSTICK (gantry);
 joy = joy.Connect;
 
-% gantry.MotorEnableAll
+gantry.MotorEnableAll
 
 fid=FIDUCIALS(1);
 
@@ -24,4 +24,4 @@ cmd = sprintf('DI--');
 error = dispenser.SetUltimus(cmd)
 pause(0.1)
 cmd = sprintf('AU---');
-error = dispenser.GetUltimus(cmd)
+Feedback = dispenser.GetUltimus(cmd)
