@@ -58,7 +58,7 @@ classdef STAGES < handle
         zNominalHeigh = 0;              % Nominal height
         zHighSpeed = 10;
         zNominalSpeed = 5;
-        xyHighSpeed = 20;
+        xyHighSpeed = 30;
         xyNominalSpeed = 10;
         DefaultTimeOut = 60000;         %Default time out 60 sec
         
@@ -386,9 +386,9 @@ classdef STAGES < handle
             end
         end
         
-        %% MoveToXY %% Absolute movements %%
+        %% MoveToLinear %% Absolute movements %%
         
-        function  MoveToXY(this,xtarget,ytarget,velocity, wait)
+        function  MoveToLinear(this,xtarget,ytarget,velocity, wait)
             % function  MoveTo(this,xtarget,ytarget,velocity, wait)
             % Arguments: object ALIO (this), axis int, target double, velocity double, wait int
             % (0-> Wait until movement finishes, 1-> No wait
@@ -402,7 +402,6 @@ classdef STAGES < handle
                     disp('\n Improper number of arguments ');
                     return
             end
-            tic
             % array = NET.createArray(typeName,[m,n,p,...]);
             % array.Set(m, object);
             axis = NET.createArray('ACS.SPiiPlusNET.Axis',3); axis.Set(0, this.xAxis); axis.Set(1, this.yAxis); axis.Set(2, this.nullAxis);  %d2 = NET.createArray('System.String',3); d2(1) = 'one'; d2(2) = 'two'; d2(3) = 'zero';
@@ -418,7 +417,7 @@ classdef STAGES < handle
 % velocity = sqrt((velocity*y/x)^2+(velocity*y/x)^2)
 
             SetVelocity(this.GantryObj,this.xAxis,velocity)
-             ToPointM(this.GantryObj,this.Absolute,axis,points);
+            ToPointM(this.GantryObj,this.Absolute,axis,points);
 %             ToPoint(this.GantryObj,this.Absolute,this.xAxis,xtarget);
 %             ToPoint(this.GantryObj,this.Absolute,this.yAxis,ytarget);
             
@@ -439,7 +438,6 @@ classdef STAGES < handle
                 this.WaitForMotion(0, -1);
                 this.WaitForMotion(1, -1);
             end
-            toc
         end
         
         
