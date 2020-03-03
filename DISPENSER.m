@@ -178,7 +178,6 @@ classdef DISPENSER < handle
             
             % Sending EOT %
             fwrite(this.s1,this.EOT)
-            pause(0.1)
         end
         
         function feedBack=GetUltimus(this,command)
@@ -331,7 +330,6 @@ classdef DISPENSER < handle
             % Sending EOT %
             
             fwrite(this.s1,this.EOT)
-            pause(0.1)
         end
         
         
