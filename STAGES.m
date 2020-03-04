@@ -406,33 +406,9 @@ classdef STAGES < handle
             % array.Set(m, object);
             axis = NET.createArray('ACS.SPiiPlusNET.Axis',3); axis.Set(0, this.xAxis); axis.Set(1, this.yAxis); axis.Set(2, this.nullAxis);  %d2 = NET.createArray('System.String',3); d2(1) = 'one'; d2(2) = 'two'; d2(3) = 'zero';
             points = [xtarget,ytarget];
-            %Lineal interpolation "NONE", Cubit interpolation
-            %"MotionFlags.ACSC_AMF_CUBIC"
-%             interpolation = ACS.SPiiPlusNET.MotionFlags.ACSC_NONE;
-%             interpolation = ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_CUBIC;
-% velocity = sqrt(velocity^2+velocity^2)
-% x= xtarget;
-% y = ytarget;
-% velocity = sqrt((x/y)^2+(x/y)^2)*velocity
-% velocity = sqrt((velocity*y/x)^2+(velocity*y/x)^2)
-
+ 
             SetVelocity(this.GantryObj,this.xAxis,velocity)
             ToPointM(this.GantryObj,this.Absolute,axis,points);
-%             ToPoint(this.GantryObj,this.Absolute,this.xAxis,xtarget);
-%             ToPoint(this.GantryObj,this.Absolute,this.yAxis,ytarget);
-            
-            
-%             AddPVTPointM (Axis] [] , axes, double] [] , point, double] [] , velocity, e [double timeInterval])
-%             SplineM(this.GantryObj, interpolation, axis, 100) % Linear interpolation, Axis array, 100mseg.
-%             AddPVPointM(this.GantryObj, axis, points2, points,100);
-%              Spline(this.GantryObj, interpolation, this.xAxis, 100) % Linear interpolation, Axis array, 100mseg.
-%              index = 5;  
-%              puntos = [0,0]
-%              for index = 1:5
-%                puntos(1) = 10*index; puntos(2) = 20*index
-%                  AddPVPoint(this.GantryObj,this.xAxis, puntos(1));
-%              end
-%              EndSequence(this.GantryObj,this.xAxis);
 %             
             if wait > 0
                 this.WaitForMotion(0, -1);
@@ -448,6 +424,7 @@ classdef STAGES < handle
             % Arguments: object ALIO (this), axis int, delta double, velocity double, int wait%
             % (0-> Wait until movement finishes, 1-> No wait
             % Returns: none %
+            
             switch nargin
                 case 5
                     
@@ -909,9 +886,7 @@ classdef STAGES < handle
             if wait == 1
                 this.WaitForMotionAll();
             end
-        end
-        
-        
+        end        
     end
 end
 
