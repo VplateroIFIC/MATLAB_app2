@@ -278,6 +278,8 @@ classdef PETALCS < handle
                     plot(pointGantry(1),pointGantry(2),'*','Color',color(i))
                 end
             end
+            hold on
+            plot([0 1000 1000 0 0]-500,[0 0 1000 1000]-500,'-','Color','k')
         end
         
         function plotSensorInGantry(this, sensorName, color)
@@ -302,6 +304,8 @@ classdef PETALCS < handle
             plot(X,Y,'-','Color',color)
             xlim([-600 600])
             ylim([-600 600])
+            hold on
+            plot([0 1000 1000 0 0]-500,[0 0 1000 1000 0]-500,'-','Color','k')
         end
         
         function plotAllSensorsInGantry(this)
@@ -311,6 +315,9 @@ classdef PETALCS < handle
            for i=1:n
            this.plotSensorInGantry(this.sensorLabel{i},color(i));
            end
+           title('Petal in Gantry, all sensors')
+           hold on
+            plot([0 1000 1000 0 0]-500,[0 0 1000 1000 0]-500,'-','Color','k')
         end
     
         %% transformation Methods %%
