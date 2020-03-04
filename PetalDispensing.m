@@ -20,7 +20,13 @@ classdef PetalDispensing < handle
         Xf3;
         Yf3;
         Xf4;
-        Yf4;
+        Yf4; 
+    end
+
+    %%Temporal properties to be deleted
+    properties (Access = public)
+        fiducial_1 = [-359.4739, 133.3216];
+        fiducial_2 = [223.8666, 277.0741];
     end
         
     properties (Constant, Access = public)
@@ -38,7 +44,7 @@ classdef PetalDispensing < handle
         xyHighSpeed = 20;
         xyLowSpeed = 5;
         
-        dispSpeed = 10;
+        dispSpeed = 60;
         
         xAxis = 0;
         yAxis = 1;
@@ -188,7 +194,8 @@ classdef PetalDispensing < handle
             % function GPositionDispensing(this)
             % Arguments: none
             % Return Error (0 -> No error)
-            % Move syringe to dispensing position
+            % 1- Wait until all movements finished
+            % 2- Move syringe to dispensing position and wait to arrive
             this.gantry.WaitForMotionAll();
             this.gantry.MoveTo(this.z2Axis,this.zDispensingHeigh, this.zLowSpeed,1);
         end
@@ -197,9 +204,25 @@ classdef PetalDispensing < handle
             % function GPositionDispensing(this)
             % Arguments: none
             % Return NONE
-            % Wait until all movements finished
             % Move syringe to the waiting position
             this.gantry.MoveTo(this.z2Axis,this.zWaitingHeigh, this.zLowSpeed,1);
+        end
+        
+        function GFiducial_1(this)
+            % function GFiducial_1(this)
+            % Arguments: none
+            % Return NONE
+            % Wait until all movements finished
+            
+            this.gantry.MoveToFast(this.fiducial_1(1),this.fiducial_1(2),1);
+        end
+        function GFiducial_2(this)
+            % function GFiducial_1(this)
+            % Arguments: none
+            % Return NONE
+            % Wait until all movements finished
+            
+            this.gantry.MoveToFast(this.fiducial_2(1),this.fiducial_2(2),1);
         end
         
         %% Testing %%
@@ -382,6 +405,8 @@ classdef PetalDispensing < handle
                 xStopGantry = this.PetalToGantry(xStopPetal);
                 yStopPetal = Line34Stop();
                 yStopGantry = this.PetalToGantry(yStopPetal);
+                
+                [x,Y] = this.PetalToGantry(xpetal,ypetal);
                 
                 %Prepare to dispense
                 this.gantry.MoveToFast(xStartGantry, yStartGantry, 1);
