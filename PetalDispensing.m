@@ -7,7 +7,6 @@ classdef PetalDispensing < handle
         NumPetals;
         dispenser;
         ready = 0;
-        zSecureHeigh = 20;              % Min Z height for fast movements
         zWaitingHeigh = 10;            % Z Position prepared to dispense
         zDispensingHeigh = 5;             % Z Position while glue dispensing
     end
