@@ -91,7 +91,8 @@ classdef STAGES < handle
                     
                     this.GantryType=1;
                     %                  NET.addAssembly('F:\Gantry_code\Matlab_app\ACS.SPiiPlusNET.dll'); %loading .NET assembly
-                    NET.addAssembly('D:\Code\Matlab_app\ACS.SPiiPlusNET.dll'); %loading .NET assembly
+                    %                     NET.addAssembly('D:\Code\Matlab_app\ACS.SPiiPlusNET.dll'); %loading .NET assembly
+                    NET.addAssembly(fullfile(pwd, '.\ACS.SPiiPlusNET.dll')); %loading .NET assembly
                     this.xAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_0;
                     this.yAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_1;
                     this.z1Axis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_4;
@@ -102,8 +103,7 @@ classdef STAGES < handle
                     this.Acceleration=20;
                     this.Relative=ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_RELATIVE;
                     this.Absolute=ACS.SPiiPlusNET.MotionFlags.ACSC_NONE;
-                    this.JogVFlag=ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_VELOCITY;
-                    
+                    this.JogVFlag=ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_VELOCITY; 
             end
         end
         
@@ -154,6 +154,12 @@ classdef STAGES < handle
             % Returns: none %
             RunBuffer(this.GantryObj,ACS.SPiiPlusNET.ProgramBuffer.ACSC_BUFFER_20,[]);
             WaitProgramEnd(this.GantryObj,ACS.SPiiPlusNET.ProgramBuffer.ACSC_BUFFER_20,inf);
+            
+            SetVelocity(this.GantryObj,this.xAxis,this.HomeVelocity);
+            SetVelocity(this.GantryObj,this.yAxis,this.HomeVelocity);
+            SetVelocity(this.GantryObj,this.z1Axis,this.HomeVelocity);
+            SetVelocity(this.GantryObj,this.z2Axis,this.HomeVelocity);
+            SetVelocity(this.GantryObj,this.uAxis,this.HomeVelocity);
         end
         
         
@@ -241,6 +247,18 @@ classdef STAGES < handle
                 case 6
                     value=positionVector(7);
             end
+        end
+        
+        function  value = GetPositionAll(this)
+            % function  value = GetPosition(this,axis)
+            % Arguments: object STAGES (this),axis int ()%
+            % Returns: double array (x,y,rot,z1,z2)%
+            
+            value (1) = this.GetPosition(0);
+            value (2) = this.GetPosition(1);
+            value (3) = this.GetPosition(2);
+            value (4) = this.GetPosition(3);
+            value (5) = this.GetPosition(4);
         end
         
         
@@ -406,10 +424,10 @@ classdef STAGES < handle
             % array.Set(m, object);
             axis = NET.createArray('ACS.SPiiPlusNET.Axis',3); axis.Set(0, this.xAxis); axis.Set(1, this.yAxis); axis.Set(2, this.nullAxis);  %d2 = NET.createArray('System.String',3); d2(1) = 'one'; d2(2) = 'two'; d2(3) = 'zero';
             points = [xtarget,ytarget];
- 
+            
             SetVelocity(this.GantryObj,this.xAxis,velocity)
             ToPointM(this.GantryObj,this.Absolute,axis,points);
-%             
+            %
             if wait > 0
                 this.WaitForMotion(0, -1);
                 this.WaitForMotion(1, -1);
@@ -657,7 +675,6 @@ classdef STAGES < handle
                             Halt(this.GantryObj,this.z2Axis);
                         case 6
                             Halt(this.GantryObj,this.uAxis);
-                            
                     end
             end
             
@@ -886,7 +903,7 @@ classdef STAGES < handle
             if wait == 1
                 this.WaitForMotionAll();
             end
-        end        
+        end
     end
 end
 
