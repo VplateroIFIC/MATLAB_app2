@@ -60,8 +60,7 @@ classdef STAGES < handle
         zNominalSpeed = 5;
         xyHighSpeed = 30;
         xyNominalSpeed = 10;
-        DefaultTimeOut = 60000;         %Default time out 60 sec
-        
+        DefaultTimeOut = 60000;         %Default time out 60 sec      
     end
     properties (Access=public)
         IsConnected;
