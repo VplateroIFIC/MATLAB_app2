@@ -326,14 +326,12 @@ classdef PETALCS < handle
             % Moves from gantry coordinate to petal coordinates
             % @param P        2 D Vector to be transformated
             pos=this.transMat_G2P.M*[P(1);P(2); 1];
-%             pos=this.transMat_G2P.M*[P(2);P(1); 1];
         end
         
         function pos = petal_to_gantry(this, P)
             % Moves from petal coordinate to gantry coordinates
             % @param P        2 D Vector to be transformated
             pos=this.transMat_P2G.M*[P(1);P(2); 1];
-%             pos=[pos(2);pos(1);1];
         end
         
         function pos = petal_to_sensor(this, P, sensorName)
@@ -355,7 +353,6 @@ classdef PETALCS < handle
             % @param P        2 D Vector to be transformated
             % @SensorName     string with the name of the sensor: [R0 R1 R2 R3S0 R3S1 R4S0 R4S1 R5S0 R5S1]
           pos=this.transMat_G2S.(sensorName).M*[P(1);P(2); 1];
-%             pos=this.transMat_G2S.(sensorName).M*[P(2);P(1); 1];
         end
         
         function pos = sensor_to_gantry(this, P, sensorName)
@@ -363,7 +360,6 @@ classdef PETALCS < handle
             % @param P        2 D Vector to be transformated
             % @SensorName     string with the name of the sensor: [R0 R1 R2 R3S0 R3S1 R4S0 R4S1 R5S0 R5S1]
             pos=this.transMat_S2G.(sensorName).M*[P(1);P(2); 1];
-%             pos=[pos(2);pos(1);1];
         end
         
     end
