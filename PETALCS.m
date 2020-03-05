@@ -315,14 +315,11 @@ classdef PETALCS < handle
            for i=1:n
            this.plotSensorInGantry(this.sensorLabel{i},color(i));
            end
-<<<<<<< HEAD
-           hold on
-           plot([0 1000 1000 0 0]-500,[0 0 1000 1000 0]-500,'-','Color','k')
-=======
+
            title('Petal in Gantry, all sensors')
            hold on
             plot([0 1000 1000 0 0]-500,[0 0 1000 1000 0]-500,'-','Color','k')
->>>>>>> master
+
         end
     
         %% transformation Methods %%
