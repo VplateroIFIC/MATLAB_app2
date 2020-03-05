@@ -350,10 +350,11 @@ classdef PetalDispensing < handle
             % Arguments: none
             %
             
-            this.Xf1 = petal1.fiducials_sensors.R0{4};
-            this.Xf2 = petal1.fiducials_sensors.R0{3};
-            
-            this.Xf3 = petal1.fiducials_sensors.R0{};
+%             this.Xf1 = this.petal1.fiducials_sensors.R0{4};
+%             this.Xf2 = this.petal1.fiducials_sensors.R0{3};
+%             
+%             this.Xf3 = this.petal1.fiducials_sensors.R0{1};
+%             this.Xf3 = this.petal1.fiducials_sensors.R0{2};
             
             %Fiducials for R0
             this.Xf1=0.54  + this.OffGlueStartX;
@@ -372,16 +373,20 @@ classdef PetalDispensing < handle
             t = 1000;  %mseg
             nlines = 28;
             error = 0;
-            xStartGantry = Xf1_G;
-            yStartGantry = Yf1_G;
-            StopGantry(1) = Xf3_G;
-            StopGantry(2) = Yf3_G;
+            
+            startPetal(1) = this.Xf1;
+            startPetal(2) = this.Line12Start(startPetal(1));
+            startGantry = petal_to_gantry(startPetal);
+            
+            StopPetal(1) = this.Xf3;
+            StopPetal(2) = Line34Stop(StopPetal(1));
+            StopGantry = petal_to_gantry(StopPetal);
             
             error = error + this.DispenserDefaults();
             error = error + this.SetTime(t);
             
             % Dispensing line 0
-            this.gantry.MoveToFast(xStartGantry, yStartGantry, 1);
+            this.gantry.MoveToFast(startGantry(1), startGantry(2), 1);
             this.GPositionDispensing();
             error = error + gluing.StartDispensing();
             if error ~= 0
@@ -418,11 +423,11 @@ classdef PetalDispensing < handle
 %                 yStopGantry = this.PetalToGantry(yStopPetal);
                 
                 startPetal(1) = xStartPetal + this.Pitch*Line;
-                startPetal(2) = this.Line12Start();
-                startGantry = petal_to_gantry(startPetal);
+                startPetal(2) = this.Line12Start(startPetal(1));
+                startGantry = petalpetal_to_gantry(startPetal);
                 
-                StopPetal(1) = Xf3 + this.Pitch*Line;
-                StopPetal(2) = Line34Stop();
+                StopPetal(1) = this.Xf3 + this.Pitch*Line;
+                StopPetal(2) = Line34Stop(StopPetal(1));
                 StopGantry = petal_to_gantry(StopPetal);
                 
                                 
@@ -433,36 +438,31 @@ classdef PetalDispensing < handle
                 this.StartDispensing();
                 this.gantry.MoveToLinear(StopGantry(1), StopGantry(2), this.dispSpeed, 1);
                 this.GPostionWaiting()
-            end
-            
-            % Dispensing Lines 7-12
-            t = 1100;
-            this.SetTime(t);          
-            
+            end          
         end
         
-        function yStartP = Line12Start(this)
+        function yStartP = Line12Start(this, xStartP)
             % function Line12Start()
             % Arg: none
             % Return: none
             % Calculate line equations between F-F: 1-2 and 3-4 in the
             % petal system
             
-            mLine12 = (Yf2 - Yf1)/(Xf2 - Xf1);
-            qLine12 = ((Xf2*Yf1) - (Xf1*Yf2)) / (Xf2-Xf1);
+            mLine12 = (this.Yf2 - this.Yf1)/(this.Xf2 - this.Xf1);
+            qLine12 = ((this.Xf2*this.Yf1) - (this.Xf1*this.Yf2)) / (this.Xf2-this.Xf1);
             yStartP = mLine12*xStartP +qLine12;
         end
         
-        function yStopP = Line34Stop(this)
+        function yStopP = Line34Stop(this, xStop)
             % function Line12Start()
             % Arg: none
             % Return: none
             % Calculate line equations between F-F: 1-2 and 3-4 in the
             % petal system
             
-            mLine34 = (Yf4 - Yf3)/(Xf4-Xf3);
-            qLine34 = ((Xf4*Yf3) - (Xf3*Yf4)) / (Xf4-Xf3);
-            yStopP = mLine34*xStartP +qLine34;
+            mLine34 = (this.Yf4 - this.Yf3)/(this.Xf4-this.Xf3);
+            qLine34 = ((this.Xf4*this.Yf3) - (this.Xf3*this.Yf4)) / (this.Xf4-this.Xf3);
+            yStopP = mLine34*xStop +qLine34;
         end
     end
 end
