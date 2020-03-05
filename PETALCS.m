@@ -53,10 +53,10 @@ classdef PETALCS < handle
                 this.upper_petalFid(1)=this.lower_petalFid(1)+this.distancePetalFiducials*cos(randAngle);
                 this.upper_petalFid(2)=this.lower_petalFid(2)+this.distancePetalFiducials*sin(randAngle);
             elseif (nargin==3)
-                this.lower_petalFid=flip(lowerFid);
-                this.upper_petalFid=flip(upperFid);
-%                 this.lower_petalFid=(lowerFid);
-%                 this.upper_petalFid=(upperFid);
+%                 this.lower_petalFid=flip(lowerFid);
+%                 this.upper_petalFid=flip(upperFid);
+                this.lower_petalFid=(lowerFid);
+                this.upper_petalFid=(upperFid);
             end
             
             %reading nominal position of the fiducials in petal coordinates
@@ -174,10 +174,10 @@ classdef PETALCS < handle
                 this.transMat_S2G.(this.sensorLabel{i})=transform2D();
                 
                 %multiply per Gantry to Petal matrix
-                this.transMat_G2S.(this.sensorLabel{i}).multiply(this.transMat_G2P);
+                this.transMat_G2S.(this.sensorLabel{i}).multiply(this.transMat_P2S.(this.sensorLabel{i}));
                 
                 %multiply per petal to sensor matrix
-                this.transMat_G2S.(this.sensorLabel{i}).multiply(this.transMat_P2S.(this.sensorLabel{i}));
+                this.transMat_G2S.(this.sensorLabel{i}).multiply(this.transMat_G2P);
                 
                 %calculatin sensor to Gantry transformation matrix
                 this.transMat_S2G.(this.sensorLabel{i}).M=inv(this.transMat_G2S.(this.sensorLabel{i}).M);
@@ -278,6 +278,8 @@ classdef PETALCS < handle
                     plot(pointGantry(1),pointGantry(2),'*','Color',color(i))
                 end
             end
+            hold on
+            plot([0 1000 1000 0 0]-500,[0 0 1000 1000]-500,'-','Color','k')
         end
         
         function plotSensorInGantry(this, sensorName, color)
@@ -302,6 +304,8 @@ classdef PETALCS < handle
             plot(X,Y,'-','Color',color)
             xlim([-600 600])
             ylim([-600 600])
+            hold on
+            plot([0 1000 1000 0 0]-500,[0 0 1000 1000 0]-500,'-','Color','k')
         end
         
         function plotAllSensorsInGantry(this)
@@ -311,8 +315,14 @@ classdef PETALCS < handle
            for i=1:n
            this.plotSensorInGantry(this.sensorLabel{i},color(i));
            end
+<<<<<<< HEAD
            hold on
            plot([0 1000 1000 0 0]-500,[0 0 1000 1000 0]-500,'-','Color','k')
+=======
+           title('Petal in Gantry, all sensors')
+           hold on
+            plot([0 1000 1000 0 0]-500,[0 0 1000 1000 0]-500,'-','Color','k')
+>>>>>>> master
         end
     
         %% transformation Methods %%
@@ -320,15 +330,13 @@ classdef PETALCS < handle
         function pos = gantry_to_petal(this, P)
             % Moves from gantry coordinate to petal coordinates
             % @param P        2 D Vector to be transformated
-%             pos=this.transMat_G2P.M*[P(1);P(2); 1];
-            pos=this.transMat_G2P.M*[P(2);P(1); 1];
+            pos=this.transMat_G2P.M*[P(1);P(2); 1];
         end
         
         function pos = petal_to_gantry(this, P)
             % Moves from petal coordinate to gantry coordinates
             % @param P        2 D Vector to be transformated
             pos=this.transMat_P2G.M*[P(1);P(2); 1];
-            pos=[pos(2);pos(1);1];
         end
         
         function pos = petal_to_sensor(this, P, sensorName)
@@ -349,8 +357,7 @@ classdef PETALCS < handle
             % Moves from gantry coordinate to sensor coordinates
             % @param P        2 D Vector to be transformated
             % @SensorName     string with the name of the sensor: [R0 R1 R2 R3S0 R3S1 R4S0 R4S1 R5S0 R5S1]
-%           pos=this.transMat_G2S.(sensorName).M*[P(1);P(2); 1];
-            pos=this.transMat_G2S.(sensorName).M*[P(2);P(1); 1];
+          pos=this.transMat_G2S.(sensorName).M*[P(1);P(2); 1];
         end
         
         function pos = sensor_to_gantry(this, P, sensorName)
@@ -358,7 +365,6 @@ classdef PETALCS < handle
             % @param P        2 D Vector to be transformated
             % @SensorName     string with the name of the sensor: [R0 R1 R2 R3S0 R3S1 R4S0 R4S1 R5S0 R5S1]
             pos=this.transMat_S2G.(sensorName).M*[P(1);P(2); 1];
-            pos=[pos(2);pos(1);1];
         end
         
     end
