@@ -2,15 +2,6 @@
 
 classdef STAGES < handle
     
-<<<<<<< HEAD
-    %   CLASS TO CONTROL STAGES
-    %
-    % this class provides calls to the functions that control de stages of the gantry.
-    %
-    % It is adapted to be used for both, ALIO and AEROTECh Gantry.
-    %
-    % The kind of gantry will be done as input to the connect method:
-=======
 %   CLASS TO CONTROL STAGES
 % 
 % this class provides calls to the functions that control de stages of the gantry.
@@ -31,29 +22,8 @@ classdef STAGES < handle
 % This class in under development, in case of bug or other question, please contact to Pablo León (pablo.leon@cern.ch)
 
 
-properties (Access=public,Constant)
-    X=1;
-    Y=0;
-    Z1=4;
-    Z2=5;
-    U=6;
-end
 
-
-    properties (Access=public)
-     
-   % General Properties %
-        
-     GantryType;
-     xAxis;
-     yAxis;
-     z1Axis;
-     z2Axis;
-     uAxis;
-  
->>>>>>> master
-    
-    % 0 --> GANTRY FREIBURG
+ % 0 --> GANTRY FREIBURG
     % 1 --> GANTRY HAMBURG
     % 2 --> GANTRY VALENCIA
     % 3 --> GANTRY VANCOUVER
@@ -64,6 +34,14 @@ end
     
     % This class in under development, in case of bug or other question, please contact to Pablo León (pablo.leon@cern.ch)
     
+    
+    properties (Access=public,Constant)
+        X=1;
+        Y=0;
+        Z1=4;
+        Z2=5;
+        U=6;
+    end
     
     properties (Access=public)
         
@@ -912,11 +890,11 @@ end
             % 1- Move all Z axis to the defined safe height
             % 2- Wait until movement finishes
             
-            if (this.GetPosition(4) <= this.zSecureHeigh)
-                this.MoveTo(4, this.zSecureHeigh,this.zHighSpeed);
+            if (this.GetPosition(this.Z1) <= this.zSecureHeigh)
+                this.MoveTo(this.Z1, this.zSecureHeigh,this.zHighSpeed);
             end
-            if (this.GetPosition(5) <= this.zSecureHeigh)
-                this.MoveTo(5, this.zSecureHeigh,this.zHighSpeed);
+            if (this.GetPosition(this.Z2) <= this.zSecureHeigh)
+                this.MoveTo(this.Z2, this.zSecureHeigh,this.zHighSpeed);
             end
             this.WaitForMotionAll(this.DefaultTimeOut);
         end
@@ -940,8 +918,8 @@ end
             end
             
             this.zSecurityPosition();
-            this.MoveTo(0, X, this.xyHighSpeed);
-            this.MoveTo(1, Y, this.xyHighSpeed);
+            this.MoveTo(this.X, X, this.xyHighSpeed);
+            this.MoveTo(this.Y, Y, this.xyHighSpeed);
             if wait == 1
                 this.WaitForMotionAll();
             end
