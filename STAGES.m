@@ -2,6 +2,7 @@
 
 classdef STAGES < handle
     
+<<<<<<< HEAD
     %   CLASS TO CONTROL STAGES
     %
     % this class provides calls to the functions that control de stages of the gantry.
@@ -9,6 +10,48 @@ classdef STAGES < handle
     % It is adapted to be used for both, ALIO and AEROTECh Gantry.
     %
     % The kind of gantry will be done as input to the connect method:
+=======
+%   CLASS TO CONTROL STAGES
+% 
+% this class provides calls to the functions that control de stages of the gantry.
+%
+% It is adapted to be used for both, ALIO and AEROTECh Gantry.
+%
+% The kind of gantry will be done as input to the connect method:
+
+% 0 --> GANTRY FREIBURG
+% 1 --> GANTRY HAMBURG
+% 2 --> GANTRY VALENCIA
+% 3 --> GANTRY VANCOUVER
+
+% GANTRY TYPE 0 --> AEROTECH
+% GANTRY TYPE 1 --> ALIO
+
+
+% This class in under development, in case of bug or other question, please contact to Pablo León (pablo.leon@cern.ch)
+
+
+properties (Access=public,Constant)
+    X=1;
+    Y=0;
+    Z1=4;
+    Z2=5;
+    U=6;
+end
+
+
+    properties (Access=public)
+     
+   % General Properties %
+        
+     GantryType;
+     xAxis;
+     yAxis;
+     z1Axis;
+     z2Axis;
+     uAxis;
+  
+>>>>>>> master
     
     % 0 --> GANTRY FREIBURG
     % 1 --> GANTRY HAMBURG
