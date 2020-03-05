@@ -311,6 +311,8 @@ classdef PETALCS < handle
            for i=1:n
            this.plotSensorInGantry(this.sensorLabel{i},color(i));
            end
+           hold on
+           plot([0 1000 1000 0 0]-500,[0 0 1000 1000 0]-500,'-','Color','k')
         end
     
         %% transformation Methods %%
