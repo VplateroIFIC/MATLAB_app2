@@ -16,9 +16,14 @@ fid=FIDUCIALS(1);
 % 
 % focus = FOCUS(gantry, cam,1);
 
-dispenser = DISPENSER
+dispenser = DISPENSER;
 
-gluing = PetalDispensing(dispenser,gantry)
+
+fiducial_1 = [-359.4739, 133.3216];
+fiducial_2 = [223.8666, 277.0741];
+petal = PETALCS(0, fiducial_1, fiducial_2);
+
+gluing = PetalDispensing(dispenser,gantry,petal)
 
 cmd = sprintf('DI--');
 error = dispenser.SetUltimus(cmd)
