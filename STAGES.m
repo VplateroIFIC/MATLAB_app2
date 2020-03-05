@@ -22,6 +22,15 @@ classdef STAGES
 % This class in under development, in case of bug or other question, please contact to Pablo León (pablo.leon@cern.ch)
 
 
+properties (Access=public,Constant)
+    X=1;
+    Y=0;
+    Z1=4;
+    Z2=5;
+    U=6;
+end
+
+
     properties (Access=public)
      
    % General Properties %
@@ -32,11 +41,7 @@ classdef STAGES
      z1Axis;
      z2Axis;
      uAxis;
-     X=1;
-     Y=0;
-     Z1=4;
-     Z2=5;
-     U=6;
+  
     
     % ALIO properties %
      
