@@ -19,8 +19,9 @@ fid=FIDUCIALS(1);
 dispenser = DISPENSER;
 
 
-fiducial_1 = [-359.4739, 133.3216];
-fiducial_2 = [223.8666, 277.0741];
+fiducial_1 = [133.3216, -359.4739];
+fiducial_2 = [277.0741, 223.8666];
+
 petal = PETALCS(0, fiducial_1, fiducial_2);
 
 gluing = PetalDispensing(dispenser,gantry,petal)
