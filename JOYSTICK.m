@@ -26,11 +26,11 @@ classdef JOYSTICK
             %   receiving gantry object and creating joystick instance
             this.gantry=gantry_obj;
             if (this.gantry.IsConnected==1)
-                this.xAxis=gantry.X;
-                this.yAxis=gantry.Y;
-                this.z1Axis=gantry.Z1;
-                this.z2Axis=gantry.Z2;
-                this.uAxis=gantry.U;
+                this.xAxis=gantry_obj.X;
+                this.yAxis=gantry_obj.Y;
+                this.z1Axis=gantry_obj.Z1;
+                this.z2Axis=gantry_obj.Z2;
+                this.uAxis=gantry_obj.U;
             else
                 disp('joystick can not be used: gantry is not connected')
             end
@@ -66,15 +66,15 @@ classdef JOYSTICK
            % Controling of the axes: moving %
            
            if (abs(pos(1))> this.threshold)
-             vel=-tobj.UserData.Velocity*pos(2);
+             vel=-tobj.UserData.Velocity*pos(1);
              this.gantry.FreeRunY(vel);
-             tobj.UserData.FlagAxes(2)=1;
+             tobj.UserData.FlagAxes(1)=1;
             end 
            
            if (abs(pos(2))> this.threshold)
-             vel=-tobj.UserData.Velocity*pos(1);
+             vel=-tobj.UserData.Velocity*pos(2);
              this.gantry.FreeRunX(vel);
-             tobj.UserData.FlagAxes(1)=1;
+             tobj.UserData.FlagAxes(2)=1;
             end
             
             if (abs(pos(3))> this.threshold) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==0)
@@ -98,12 +98,12 @@ classdef JOYSTICK
             % Controling of the axes: stopping %
 
             if (abs(pos(1))<this.threshold) && (tobj.UserData.FlagAxes(1)==1)
-            this.gantry.MotionStop(this.xAxis);
+            this.gantry.MotionStop(this.yAxis);
             tobj.UserData.FlagAxes(1)=0;
             end
             
             if (abs(pos(2))<this.threshold) && (tobj.UserData.FlagAxes(2)==1)
-            this.gantry.MotionStop(this.yAxis);
+            this.gantry.MotionStop(this.xAxis);
             tobj.UserData.FlagAxes(2)=0;
             end
             
