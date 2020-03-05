@@ -350,24 +350,24 @@ classdef PetalDispensing < handle
             % Arguments: none
             %
             
-%             this.Xf1 = this.petal1.fiducials_sensors.R0{4};
-%             this.Xf2 = this.petal1.fiducials_sensors.R0{3};
-%             
-%             this.Xf3 = this.petal1.fiducials_sensors.R0{1};
-%             this.Xf3 = this.petal1.fiducials_sensors.R0{2};
+            this.Xf1 = this.petal1.fiducials_sensors.R0{4};
+            this.Xf2 = this.petal1.fiducials_sensors.R0{3};
+            
+            this.Xf3 = this.petal1.fiducials_sensors.R0{1};
+            this.Xf3 = this.petal1.fiducials_sensors.R0{2};
             
             %Fiducials for R0
-            this.Xf1=0.54  + this.OffGlueStartX;
-            this.Yf1=36.13 - this.OffGlueStartY;
-            
-            this.Xf2=104.41 - this.OffGlueStartX;
-            this.Yf2=48.19 - this.OffGlueStartY;
-            
-            this.Xf3=0.08  + this.OffGlueStartX;
-            this.Yf3=-40.78 + this.OffGlueStartY;
-            
-            this.Xf4=104.29  - this.OffGlueStartX;
-            this.Yf4=-49.41 + this.OffGlueStartY;
+%             this.Xf1=0.54  + this.OffGlueStartX;
+%             this.Yf1=36.13 - this.OffGlueStartY;
+%             
+%             this.Xf2=104.41 - this.OffGlueStartX;
+%             this.Yf2=48.19 - this.OffGlueStartY;
+%             
+%             this.Xf3=0.08  + this.OffGlueStartX;
+%             this.Yf3=-40.78 + this.OffGlueStartY;
+%             
+%             this.Xf4=104.29  - this.OffGlueStartX;
+%             this.Yf4=-49.41 + this.OffGlueStartY;
             
             
             t = 1000;  %mseg
