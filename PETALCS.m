@@ -53,10 +53,10 @@ classdef PETALCS < handle
                 this.upper_petalFid(1)=this.lower_petalFid(1)+this.distancePetalFiducials*cos(randAngle);
                 this.upper_petalFid(2)=this.lower_petalFid(2)+this.distancePetalFiducials*sin(randAngle);
             elseif (nargin==3)
-                this.lower_petalFid=flip(lowerFid);
-                this.upper_petalFid=flip(upperFid);
-%                 this.lower_petalFid=(lowerFid);
-%                 this.upper_petalFid=(upperFid);
+%                 this.lower_petalFid=flip(lowerFid);
+%                 this.upper_petalFid=flip(upperFid);
+                this.lower_petalFid=(lowerFid);
+                this.upper_petalFid=(upperFid);
             end
             
             %reading nominal position of the fiducials in petal coordinates
