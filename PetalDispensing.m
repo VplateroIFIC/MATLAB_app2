@@ -4,7 +4,8 @@ classdef PetalDispensing < handle
     
     properties (Access = public)
         gantry;
-        NumPetals;
+        petal1;
+        petal2;
         dispenser;
         ready = 0;
         zWaitingHeigh = 10;            % Z Position prepared to dispense
@@ -55,12 +56,13 @@ classdef PetalDispensing < handle
     methods
         
         %% Constructor %%
-        function this = PetalDispensing(dispenser_obj, gantry_obj)
+        function this = PetalDispensing(dispenser_obj, gantry_obj, petal_obj)
             % Constructor function.
             % Arguments: dispense_obj, gantry_obj (Gantry or OWIS)
             % present on the setup.
             % Returns: this object
             
+            % Preparing dispenser object
             this.dispenser = dispenser_obj;
             this.dispenser.Connect;
             if this.dispenser.IsConnected == 1
@@ -68,17 +70,21 @@ classdef PetalDispensing < handle
             else
                 disp('Dispenser connecting FAIL');
             end
+            error = this.DispenserDefaults();
+            if error ~= 0
+                fprintf ('Error -> Could not set Dispenser');
+            end
             
+            % Preparing gantry object
             if gantry_obj.IsConnected == 1
                 this.gantry = gantry_obj;
                 disp('Gantry connected succesfully')
             else
                 disp('Gantry connecting FAIL');
             end
-            error = this.DispenserDefaults();
-            if error ~= 0
-                fprintf ('Error -> Could not set Dispenser');
-            end
+            
+            % Preparing petal object
+            this.petal1 = petal_obj;
         end
         
         %% Macros Dispenser%%
@@ -344,6 +350,12 @@ classdef PetalDispensing < handle
             % Arguments: none
             %
             
+            this.Xf1 = petal1.fiducials_sensors.R0{4};
+            this.Xf2 = petal1.fiducials_sensors.R0{3};
+            
+            this.Xf3 = petal1.fiducials_sensors.R0{1};
+            this.Xf3 = petal1.fiducials_sensors.R0{2};
+            
             %Fiducials for R0
             this.Xf1=0.54  + this.OffGlueStartX;
             this.Yf1=36.13 - this.OffGlueStartY;
@@ -363,8 +375,8 @@ classdef PetalDispensing < handle
             error = 0;
             xStartGantry = Xf1_G;
             yStartGantry = Yf1_G;
-            xStopGantry = Xf3_G;
-            yStopGantry = Yf3_G;
+            StopGantry(1) = Xf3_G;
+            StopGantry(2) = Yf3_G;
             
             error = error + this.DispenserDefaults();
             error = error + this.SetTime(t);
@@ -377,42 +389,50 @@ classdef PetalDispensing < handle
                 fprintf ('\n DISPENSER ERROR \n');
                 return
             end
-            this.gantry.MoveToLinear(xStopGantry, yStopGantry, this.dispSpeed, 1);
+            this.gantry.MoveToLinear(StopGantry(1), StopGantry(2), this.dispSpeed, 1);
             this.GPostionWaiting();
             
             % Dispensing loop          
-            for nLine=1:nlines
-                if 1<=nLine && nLine<=6
+            for Line=1:nlines
+                if 1<=Line && Line<=6
                     t = 1050;
-                elseif 7<=nLine && nLine<=12
+                elseif 7<=Line && Line<=12
                     t = 1100;
-                elseif 13<=nLine && nLine<=18
+                elseif 13<=Line && Line<=18
                     t = 1200;
-                elseif 19<=nLine && nLine<=24
+                elseif 19<=Line && Line<=24
                     t = 1300;
-                elseif 25<=nLine && nLine<=28
+                elseif 25<=Line && Line<=28
                     t = 1400;
                 end
                 this.SetTime(t);
                 
                 %Calculating Start and Stop positions
-                xStartPetal = xStartPetal + this.Pitch*nLine;
-                xStartGantry = this.PetalToGantry(xStartPetal);
-                yStartPetal = this.Line12Start();
-                yStartGantry = this.PetalToGantry(yStartPetal);
-                xStopPetal = Xf3 + this.Pitch*nLine;
-                xStopGantry = this.PetalToGantry(xStopPetal);
-                yStopPetal = Line34Stop();
-                yStopGantry = this.PetalToGantry(yStopPetal);
+%                 xStartPetal = xStartPetal + this.Pitch*Line;
+%                 yStartPetal = this.Line12Start();
+%                 xStartGantry = this.PetalToGantry(xStartPetal);
+%                 yStartGantry = this.PetalToGantry(yStartPetal);
+
+%                 xStopPetal = Xf3 + this.Pitch*Line;
+%                 xStopGantry = this.PetalToGantry(xStopPetal);
+%                 yStopPetal = Line34Stop();
+%                 yStopGantry = this.PetalToGantry(yStopPetal);
                 
-                [x,Y] = this.PetalToGantry(xpetal,ypetal);
+                startPetal(1) = xStartPetal + this.Pitch*Line;
+                startPetal(2) = this.Line12Start();
+                startGantry = petal_to_gantry(startPetal);
                 
+                StopPetal(1) = Xf3 + this.Pitch*Line;
+                StopPetal(2) = Line34Stop();
+                StopGantry = petal_to_gantry(StopPetal);
+                
+                                
                 %Prepare to dispense
-                this.gantry.MoveToFast(xStartGantry, yStartGantry, 1);
+                this.gantry.MoveToFast(startGantry(1), startGantry(2), 1);
                 this.GPositionDispensing();
                 %Dispensing line
                 this.StartDispensing();
-                this.gantry.MoveToLinear(xStopGantry, yStopGantry, this.dispSpeed, 1);
+                this.gantry.MoveToLinear(StopGantry(1), StopGantry(2), this.dispSpeed, 1);
                 this.GPostionWaiting()
             end
             
