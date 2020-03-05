@@ -13,23 +13,27 @@ classdef JOYSTICK
         maxVel=15;
         minVel=0.1;
         CurrentVel=5;
-        xAxis=0;
-        yAxis=1;
-        z1Axis=4;
-        z2Axis=5;
-        uAxis=6;
+        xAxis;
+        yAxis;
+        z1Axis;
+        z2Axis;
+        uAxis;
     end
     
     methods
         function this = JOYSTICK(gantry_obj)
             %JOYSTICK Construct an instance of this class
             %   receiving gantry object and creating joystick instance
-        this.gantry=gantry_obj;
-         if (this.gantry.IsConnected==1)
-   
-        else
-            disp('joystick can not be used: gantry is not connected')
-        end
+            this.gantry=gantry_obj;
+            if (this.gantry.IsConnected==1)
+                this.xAxis=gantry.X;
+                this.yAxis=gantry.Y;
+                this.z1Axis=gantry.Z1;
+                this.z2Axis=gantry.Z2;
+                this.uAxis=gantry.U;
+            else
+                disp('joystick can not be used: gantry is not connected')
+            end
         end
         
         function this = Connect(this)
@@ -61,16 +65,16 @@ classdef JOYSTICK
             
            % Controling of the axes: moving %
            
-            if (abs(pos(1))> this.threshold)
-             vel=-tobj.UserData.Velocity*pos(1);
-             this.gantry.FreeRunX(vel);
-             tobj.UserData.FlagAxes(1)=1;
-            end
-            
-            if (abs(pos(2))> this.threshold)
+           if (abs(pos(1))> this.threshold)
              vel=-tobj.UserData.Velocity*pos(2);
              this.gantry.FreeRunY(vel);
              tobj.UserData.FlagAxes(2)=1;
+            end 
+           
+           if (abs(pos(2))> this.threshold)
+             vel=-tobj.UserData.Velocity*pos(1);
+             this.gantry.FreeRunX(vel);
+             tobj.UserData.FlagAxes(1)=1;
             end
             
             if (abs(pos(3))> this.threshold) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==0)
