@@ -13,27 +13,23 @@ classdef JOYSTICK
         maxVel=15;
         minVel=0.1;
         CurrentVel=5;
-        xAxis;
-        yAxis;
-        z1Axis;
-        z2Axis;
-        uAxis;
+        xAxis=0;
+        yAxis=1;
+        z1Axis=4;
+        z2Axis=5;
+        uAxis=6;
     end
     
     methods
         function this = JOYSTICK(gantry_obj)
             %JOYSTICK Construct an instance of this class
             %   receiving gantry object and creating joystick instance
-            this.gantry=gantry_obj;
-            if (this.gantry.IsConnected==1)
-                this.xAxis=gantry_obj.X;
-                this.yAxis=gantry_obj.Y;
-                this.z1Axis=gantry_obj.Z1;
-                this.z2Axis=gantry_obj.Z2;
-                this.uAxis=gantry_obj.U;
-            else
-                disp('joystick can not be used: gantry is not connected')
-            end
+        this.gantry=gantry_obj;
+         if (this.gantry.IsConnected==1)
+   
+        else
+            disp('joystick can not be used: gantry is not connected')
+        end
         end
         
         function this = Connect(this)
@@ -65,15 +61,15 @@ classdef JOYSTICK
             
            % Controling of the axes: moving %
            
-           if (abs(pos(1))> this.threshold)
+            if (abs(pos(1))> this.threshold)
              vel=-tobj.UserData.Velocity*pos(1);
-             this.gantry.FreeRunY(vel);
-             tobj.UserData.FlagAxes(1)=1;
-            end 
-           
-           if (abs(pos(2))> this.threshold)
-             vel=-tobj.UserData.Velocity*pos(2);
              this.gantry.FreeRunX(vel);
+             tobj.UserData.FlagAxes(1)=1;
+            end
+            
+            if (abs(pos(2))> this.threshold)
+             vel=-tobj.UserData.Velocity*pos(2);
+             this.gantry.FreeRunY(vel);
              tobj.UserData.FlagAxes(2)=1;
             end
             
@@ -98,12 +94,12 @@ classdef JOYSTICK
             % Controling of the axes: stopping %
 
             if (abs(pos(1))<this.threshold) && (tobj.UserData.FlagAxes(1)==1)
-            this.gantry.MotionStop(this.yAxis);
+            this.gantry.MotionStop(this.xAxis);
             tobj.UserData.FlagAxes(1)=0;
             end
             
             if (abs(pos(2))<this.threshold) && (tobj.UserData.FlagAxes(2)==1)
-            this.gantry.MotionStop(this.xAxis);
+            this.gantry.MotionStop(this.yAxis);
             tobj.UserData.FlagAxes(2)=0;
             end
             
