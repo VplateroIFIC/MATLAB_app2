@@ -30,6 +30,7 @@ ROIsize;
 
 % FmatchSURF
 FtemplatePath;
+cornerF;
 
 % CirclesFinder
 camCalibration; %um/pixel
@@ -101,6 +102,7 @@ this.ROIsize=ROIsize;
 
 % FmatchSURF
 this.FtemplatePath=FtemplatePath;
+this.cornerF=cornerF;
 
 % CirclesFinder
 this.camCalibration=camCalibration; 
@@ -739,6 +741,11 @@ for i=1:k
 match=this.matchSURF(ROI{i},template);
 match.Center(1)=match.Center(1)+vertex{i}(1);
 match.Center(2)=match.Center(2)+vertex{i}(2);
+% corner=inv([match.transformation;0 0 1])*[this.cornerF 1]';
+corner=[match.transformation;0 0 1]*[this.cornerF 1]';
+% corner=[this.cornerF 1]*[match.transformation;0 0 1];
+match.Corner(1)=corner(1)+vertex{i}(1);
+match.Corner(2)=corner(2)+vertex{i}(2);
 Fmatch{i}=match;
 clearvars match
 end
@@ -750,6 +757,7 @@ imshow(image);
 title('Final match','FontSize', 18);
 hold on
 plot(Fmatch{i}.Center(1),Fmatch{i}.Center(2), 'r+', 'MarkerSize', 30, 'LineWidth', 2);
+plot(Fmatch{i}.Corner(1),Fmatch{i}.Corner(2), 'r+', 'MarkerSize', 30, 'LineWidth', 2);
 fig2image=getframe(fig);
 plotImage=fig2image.cdata;
 Fmatch{i}.Images{5}=plotImage;
@@ -762,6 +770,7 @@ title('Final match','FontSize', 18);
 for i=1:k
 hold on
 plot(Fmatch{i}.Center(1),Fmatch{i}.Center(2), 'r+', 'MarkerSize', 30, 'LineWidth', 2);
+plot(Fmatch{i}.Corner(1),Fmatch{i}.Corner(2), 'r+', 'MarkerSize', 30, 'LineWidth', 2);
 end
 fig2image=getframe(fig);
 plotImage=fig2image.cdata;
