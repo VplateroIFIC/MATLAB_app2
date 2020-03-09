@@ -179,7 +179,7 @@ classdef STAGES < handle
             LoadBuffersFromFile(this.GantryObj,'D:\Code\MATLAB_app\ALIO_buffers\Buffer_11_homing_routines.txt');
             
         end
-<<<<<<< HEAD
+
 
                %% GetRPosition. %%
         
@@ -298,16 +298,18 @@ classdef STAGES < handle
             end
         end
         
+        %% GetPositionAll. %%
+        
         function  value = GetPositionAll(this)
             % function  value = GetPosition(this,axis)
             % Arguments: object STAGES (this),axis int ()%
             % Returns: double array (x,y,rot,z1,z2)%
             
-            value (1) = this.GetPosition(0);
-            value (2) = this.GetPosition(1);
-            value (3) = this.GetPosition(2);
-            value (4) = this.GetPosition(3);
-            value (5) = this.GetPosition(4);
+            value (1) = this.GetPosition(this.X);
+            value (2) = this.GetPosition(this.Y);
+            value (3) = this.GetPosition(this.Z1);
+            value (4) = this.GetPosition(this.Z2);
+            value (5) = this.GetPosition(this.U);
         end
         
         
