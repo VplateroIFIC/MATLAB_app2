@@ -33,6 +33,7 @@ ROIsize=500;
 % FmatchSURF
 
 FtemplatePath=('templates\F_gantry.jpg');
+cornerF=[76.0043,240.0685];
 
 % CirclesFinder
 
