@@ -181,49 +181,6 @@ classdef STAGES < handle
         end
 
 
-               %% GetRPosition. %%
-        
-        function  value = GetRPosition(this,axis) 
-        % function  value = GetRposition(this,axis)   
-        % Arguments: object STAGES (this),axis int ()%
-        % Returns: double %
-                 switch axis
-                   case 0
-                     value=GetRPosition(this.GantryObj,this.xAxis);
-                   case 1
-                     value=GetRPosition(this.GantryObj,this.yAxis);
-                   case 4
-                     value=GetRPosition(this.GantryObj,this.z1Axis); 
-                   case 5
-                     value=GetRPosition(this.GantryObj,this.z2Axis);   
-                   case 6
-                     value=GetRPosition(this.GantryObj,this.uAxis);
-                 end
-        end  
-        
-                 %% GetPosition. %%
-        
-        function  value = GetPosition(this,axis) 
-        % function  value = GetPosition(this,axis)   
-        % Arguments: object STAGES (this),axis int ()%
-        % Returns: double %
-        
-        positionVector=ReadVariableAsVector(this.GantryObj,'APOS', ACS.SPiiPlusNET.ProgramBuffer.ACSC_NONE, ACS.SPiiPlusNET.Api.ACSC_NONE, ACS.SPiiPlusNET.Api.ACSC_NONE, ACS.SPiiPlusNET.Api.ACSC_NONE, ACS.SPiiPlusNET.Api.ACSC_NONE);
-        % index position in positionVector array does not fit with the oficial number assigned to the stages. Take care!        
-          switch axis
-                   case 0
-                     value=positionVector(1);
-                   case 1
-                     value=positionVector(2);
-                   case 4
-                     value=positionVector(5); 
-                   case 5
-                     value=positionVector(6);   
-                   case 6
-                     value=positionVector(7);
-          end
-        end
-
         %% getting assembly info in display (just for ALIO gantry) %%
         
         function  AssemblyMethodsInfo(this)
