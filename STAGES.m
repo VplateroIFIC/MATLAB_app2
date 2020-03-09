@@ -242,6 +242,21 @@ end
           end
         end
         
+                         %% GetPoint %%
+        
+        function  value = GetPoint(this) 
+        % This function return the X, Y, Z1, Z2 and U for the current gantry position
+        % function  value = GetPoint(this,axis)   
+        % Arguments: object STAGES (this),axis int ()%
+        % Returns: double %
+        value(1)=this.GetPosition(this.X);
+        value(2)=this.GetPosition(this.Y);
+        value(3)=this.GetPosition(this.Z1);
+        value(4)=this.GetPosition(this.Z2);
+        value(5)=this.GetPosition(this.U);
+
+        end
+        
         
          %% GetVelocity %%
         
