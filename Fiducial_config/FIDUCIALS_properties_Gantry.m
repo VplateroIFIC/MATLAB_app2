@@ -22,7 +22,7 @@ sizeParticles=5000;
 % FROIbuilder
 
 pixelAreaF=17000;  % nominal value of the F Area in pixels in IFIC setup
-deltaArea=2000;
+deltaArea=4000;
 perimeterF=900;   % nominal value of the F Perimeter in pixels in IFIC setup
 deltaPerimeter=200;
 
