@@ -31,6 +31,7 @@ ROIsize;
 % FmatchSURF
 FtemplatePath;
 cornerF;
+cameraRotationOffset;
 
 % CirclesFinder
 camCalibration; %um/pixel
@@ -103,6 +104,7 @@ this.ROIsize=ROIsize;
 % FmatchSURF
 this.FtemplatePath=FtemplatePath;
 this.cornerF=cornerF;
+this.cameraRotationOffset=cameraRotationOffset;
 
 % CirclesFinder
 this.camCalibration=camCalibration; 
@@ -480,14 +482,15 @@ ROI=image(ver1(2):ver3(2),ver1(1):ver3(1),:);
 
 end
 
-function Fmatch = FmatchSURF(this,image)
+function Fmatch = FmatchSURF(this,image,CurrentPos)
 % FmatchSURF  Look for F sensor fiducial into given image
 %    inputs: 
 %       this: instance which calls the method
 %       image: original image to find fiducial
+%       CurrentPos: Current postion of gantry stages. It is associated to center of the image. [X,Y,Z1(~),Z2(~),U(~)]
 %    outputs:
 %     match: cell of structures with next fields. There will be 1 structure for each fiducial found in the image. 
-%         Center: coordenates of the center of the located template into the image. In pixels. image coordinate system.
+%         Center: coordenates of the center of the located template into the image. In pixels. image coordinate system (top left corner).
 %         Time: time consumed
 %         Matches: number of final matches
 %         Transformation: Transformation matrix from knn matching
@@ -499,6 +502,8 @@ function Fmatch = FmatchSURF(this,image)
 %             Image4: Matches selected for final match
 %             Image5: Match of the current fiducial over the original image
 %             Image6: Matches of all fiducials over the original image
+%         Corner: coordenates of the corner of the fiducial into the image. In pixels. image coordinate system (top left corner).
+
 
 [ROI,vertex]=this.FROIbuilder(image);
 template=imread(this.FtemplatePath);
@@ -509,17 +514,26 @@ Fmatch=cell(k,1);
 
 % loop to match the Fs of the image
 for i=1:k
+%matching the picture
 match=this.matchSURF(ROI{i},template);
+
+%calculating the center of the fiducial in the new image, origin in top left corner
 match.Center(1)=match.Center(1)+vertex{i}(1);
 match.Center(2)=match.Center(2)+vertex{i}(2);
-% corner=inv([match.transformation;0 0 1])*[this.cornerF 1]';
+
+%calculating the corner of the fiducial in the new image, origin in top left corner
 corner=[match.transformation;0 0 1]*[this.cornerF 1]';
-% corner=[this.cornerF 1]*[match.transformation;0 0 1];
 match.Corner(1)=corner(1)+vertex{i}(1);
 match.Corner(2)=corner(2)+vertex{i}(2);
+
+
 Fmatch{i}=match;
 clearvars match
 end
+
+
+
+
 
 % loop to plot the final image (each fiducial separately)
 for i=1:k
