@@ -50,7 +50,7 @@ classdef PetalDispensing < handle
         xyHighSpeed = 20;
         xyLowSpeed = 5;
         
-        dispSpeed = 5;
+        dispSpeed = 15;
 
     end
     
@@ -409,6 +409,8 @@ classdef PetalDispensing < handle
             error = error + this.DispenserDefaults();
             error = error + this.SetTime(t);
             
+
+            
             % Dispensing line 0
             this.gantry.MoveToFast(startGantry(1), startGantry(2), 1);
             this.GPositionDispensing();
@@ -465,7 +467,142 @@ classdef PetalDispensing < handle
                 this.GPostionWaiting()
             end          
         end
+                
+        function [f1,f2,f3,f4]=R0_Test(this)
+            % DispenseTest function
+            % Dispense 4 dropplets
+            % Arguments: none
+            %
+            
+            this.Xf1 = this.petal1.fiducials_sensors.R0{4};
+%             this.Xf2 = this.petal1.fiducials_sensors.R0{1};
+            this.Xf2 = this.petal1.fiducials_sensors.R0{3};
+            
+%             this.Xf3 = this.petal1.fiducials_sensors.R0{2};
+            this.Xf3 = this.petal1.fiducials_sensors.R0{1};
+
+%             this.Xf4 = this.petal1.fiducials_sensors.R0{3};
+            this.Xf4 = this.petal1.fiducials_sensors.R0{2};
+            
+%             this.Yf1 = this.petal1.fiducials_sensors.R0{4}(2);
+%             this.Yf2 = this.petal1.fiducials_sensors.R0{1}(2);
+%             
+%             this.Yf3 = this.petal1.fiducials_sensors.R0{2}(2);
+%             this.Yf4 = this.petal1.fiducials_sensors.R0{3}(2);
+            
+            %Fiducials for R0
+%             this.Xf1=0.54  + this.OffGlueStartX;
+%             this.Yf1=36.13 - this.OffGlueStartY;
+%             
+%             this.Xf2=104.41 - this.OffGlueStartX;
+%             this.Yf2=48.19 - this.OffGlueStartY;
+%             
+%             this.Xf3=0.08  + this.OffGlueStartX;
+%             this.Yf3=-40.78 + this.OffGlueStartY;
+%             
+%             this.Xf4=104.29  - this.OffGlueStartX;
+%             this.Yf4=-49.41 + this.OffGlueStartY;
+f1 = this.Xf1;
+f2 = this.Xf2;
+f3 = this.Xf3;
+f4 = this.Xf4;
+plot([f1(1)],[f1(2)],'*','Color','k')
+hold on
+plot([f2(1)],[f2(2)],'*','Color','r')
+
+plot([f3(1)],[f3(2)],'x','Color','k')
+plot([f4(1)],[f4(2)],'x','Color','r')
+
+
+
+            
+            plot([this.Xf1(1),this.Xf2(1),this.Xf4(1),this.Xf3(1),this.Xf1(1)],[this.Xf1(2),this.Xf2(2),this.Xf4(2),this.Xf3(2),this.Xf1(2)],'-','Color','k')
+pause (2)
+            
+            t = 1000;  %mseg
+            nlines = 28;
+            error = 0;
+            
+            startPetal(1) = this.Xf1(1,1);
+            startPetal(2) = this.Line12Start(startPetal(1));
+            startGantry = this.petal1.sensor_to_gantry(startPetal,'R0');
+            
+            StopPetal(1) = this.Xf3(1,1);
+            StopPetal(2) = this.Line34Stop(StopPetal(1));
+            StopGantry = this.petal1.sensor_to_gantry(StopPetal,'R0');
+            
+            error = error + this.DispenserDefaults();
+            error = error + this.SetTime(t);
+            
+            % Dispensing line 0
+            this.gantry.MoveToFast(startGantry(1), startGantry(2), 1);
+            this.GPositionDispensing();
+            error = error + this.StartDispensing();
+            if error ~= 0
+                fprintf ('\n DISPENSER ERROR \n');
+                return
+            end
+            this.gantry.MoveToLinear(StopGantry(1), StopGantry(2), this.dispSpeed, 1);
+            this.GPostionWaiting();
+            
+            % Dispensing loop          
+            for Line=1:nlines
+                if 1<=Line && Line<=6
+                    t = 1050;
+                elseif 7<=Line && Line<=12
+                    t = 1100;
+                elseif 13<=Line && Line<=18
+                    t = 1200;
+                elseif 19<=Line && Line<=24
+                    t = 1300;
+                elseif 25<=Line && Line<=28
+                    t = 1400;
+                end
+                this.SetTime(t);
+                
+                %Calculating Start and Stop positions
+%                 xStartPetal = xStartPetal + this.Pitch*Line;
+%                 yStartPetal = this.Line12Start();
+%                 xStartGantry = this.PetalToGantry(xStartPetal);
+%                 yStartGantry = this.PetalToGantry(yStartPetal);
+
+%                 xStopPetal = Xf3 + this.Pitch*Line;
+%                 xStopGantry = this.PetalToGantry(xStopPetal);
+%                 yStopPetal = Line34Stop();
+%                 yStopGantry = this.PetalToGantry(yStopPetal);
+                xStartPetal = this.Xf1(1);               
+
+                startPetal(1) = xStartPetal + this.Pitch*Line;
+                startPetal(2) = this.Line12Start(startPetal(1));
+                startGantry = this.petal1.sensor_to_gantry(startPetal,'R0');
+                
+                StopPetal(1) = this.Xf3 + this.Pitch*Line;
+                StopPetal(2) = Line34Stop(StopPetal(1));
+                StopGantry = this.petal1.sensor_to_gantry(StopPetal,'R0');
+                
+                                
+                %Prepare to dispense
+                this.gantry.MoveToFast(startGantry(1), startGantry(2), 1);
+                this.GPositionDispensing();
+                %Dispensing line
+                this.StartDispensing();
+                this.gantry.MoveToLinear(StopGantry(1), StopGantry(2), this.dispSpeed, 1);
+                this.GPostionWaiting()
+            end          
+        end
         
+%         function yStartP = Line12Start(this, xStartP)
+%             % function Line12Start()
+%             % Arg: none
+%             % Return: none
+%             % Calculate line equations between F-F: 1-2 and 3-4 in the
+%             % petal system
+%             
+%             mLine12 = (this.Yf2 - this.Yf1)/(this.Xf2 - this.Xf1);
+%             qLine12 = ((this.Xf2*this.Yf1) - (this.Xf1*this.Yf2)) / (this.Xf2-this.Xf1);
+%             yStartP = mLine12*xStartP +qLine12;
+%         end
+
         function yStartP = Line12Start(this, xStartP)
             % function Line12Start()
             % Arg: none
@@ -473,21 +610,21 @@ classdef PetalDispensing < handle
             % Calculate line equations between F-F: 1-2 and 3-4 in the
             % petal system
             
-            mLine12 = (this.Yf2 - this.Yf1)/(this.Xf2 - this.Xf1);
-            qLine12 = ((this.Xf2*this.Yf1) - (this.Xf1*this.Yf2)) / (this.Xf2-this.Xf1);
+            mLine12 = (this.Xf2(2) - this.Xf1(2))/(this.Xf2(1) - this.Xf1(1));
+            qLine12 = (this.Xf2(1)*this.Xf1(2)) - (this.Xf1(1)*this.Xf2(2)) / (this.Xf2(1)-this.Xf1(1));
             yStartP = mLine12*xStartP +qLine12;
         end
         
-        function yStopP = Line34Stop(this, xStop)
+        function yStopP = Line34Stop(this, xStopP)
             % function Line12Start()
             % Arg: none
             % Return: none
             % Calculate line equations between F-F: 1-2 and 3-4 in the
             % petal system
             
-            mLine34 = (this.Yf4 - this.Yf3)/(this.Xf4-this.Xf3);
-            qLine34 = ((this.Xf4*this.Yf3) - (this.Xf3*this.Yf4)) / (this.Xf4-this.Xf3);
-            yStopP = mLine34*xStop +qLine34;
+            mLine34 = (this.Xf4(2) - this.Xf3(2))/(this.Xf4(1)-this.Xf3(1));
+            qLine34 = ((this.Xf4(1)*this.Xf3(2)) - (this.Xf3(1)*this.Xf4(2))) / (this.Xf4(1)-this.Xf3(1));
+            yStopP = mLine34*xStopP +qLine34;
         end
     end
 end
