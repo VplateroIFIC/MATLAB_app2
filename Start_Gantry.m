@@ -6,7 +6,7 @@ gantry = gantry.Connect;
 joy = JOYSTICK (gantry);
 joy = joy.Connect;
 
-gantry.MotorEnableAll
+% gantry.MotorEnableAll
 
 fid=FIDUCIALS(1);
 
