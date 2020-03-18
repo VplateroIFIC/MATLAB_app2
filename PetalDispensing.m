@@ -26,6 +26,10 @@ classdef PetalDispensing < handle
         f3;
         f4;
         
+        mLine12;
+        qLine12;
+        mLine34;
+        qLine34;
         
         xAxis;
         yAxis;
@@ -622,29 +626,6 @@ classdef PetalDispensing < handle
         %             yStartP = mLine12*xStartP +qLine12;
         %         end
         
-        function yStartP = Line12Start(this, xStartP)
-            % function Line12Start()
-            % Arg: none
-            % Return: none
-            % Calculate line equations between F-F: 1-2 and 3-4 in the
-            % petal system
-            
-            mLine12 = (this.Xf2(2) - this.Xf1(2))/(this.Xf2(1) - this.Xf1(1));
-            qLine12 = (this.Xf2(1)*this.Xf1(2)) - (this.Xf1(1)*this.Xf2(2)) / (this.Xf2(1)-this.Xf1(1));
-            yStartP = mLine12*xStartP +qLine12;
-        end
-        
-        function yStopP = Line34Stop(this, xStopP)
-            % function Line12Start()
-            % Arg: none
-            % Return: none
-            % Calculate line equations between F-F: 1-2 and 3-4 in the
-            % petal system
-            
-            mLine34 = (this.Xf4(2) - this.Xf3(2))/(this.Xf4(1)-this.Xf3(1));
-            qLine34 = ((this.Xf4(1)*this.Xf3(2)) - (this.Xf3(1)*this.Xf4(2))) / (this.Xf4(1)-this.Xf3(1));
-            yStopP = mLine34*xStopP +qLine34;
-        end
         function [f1,f2,f3,f4]=R0_Plot2(this)
             % DispenseTest function
             % Dispense 4 dropplets
@@ -679,18 +660,56 @@ classdef PetalDispensing < handle
             pause (2)
             
             % Plot fiducials in gantry system
-            f1 = this.petal1.sensor_to_gantry(this.Xf1,'R0');
-            f2 = this.petal1.sensor_to_gantry(this.Xf2,'R0');
-            f3 = this.petal1.sensor_to_gantry(this.Xf3,'R0');
-            f4 = this.petal1.sensor_to_gantry(this.Xf4,'R0');
-            plot([f1(1)],[f1(2)],'x','Color','k')
+            Gf1 = this.petal1.sensor_to_gantry(this.Xf1,'R0');
+            Gf2 = this.petal1.sensor_to_gantry(this.Xf2,'R0');
+            Gf3 = this.petal1.sensor_to_gantry(this.Xf3,'R0');
+            Gf4 = this.petal1.sensor_to_gantry(this.Xf4,'R0');
+            plot([Gf1(1)],[Gf1(2)],'x','Color','k')
             hold on
-            plot([f2(1)],[f2(2)],'x','Color','r')
+            plot([Gf2(1)],[Gf2(2)],'x','Color','r')
             
-            plot([f3(1)],[f3(2)],'o','Color','k')
-            plot([f4(1)],[f4(2)],'o','Color','r')
-            plot([this.Xf1(1),this.Xf2(1),this.Xf4(1),this.Xf3(1),this.Xf1(1)],[this.Xf1(2),this.Xf2(2),this.Xf4(2),this.Xf3(2),this.Xf1(2)],'-','Color','k')
+            plot([Gf3(1)],[Gf3(2)],'o','Color','k')
+            plot([Gf4(1)],[Gf4(2)],'o','Color','r')
+            plot([this.Gf1(1),this.Gf2(1),this.Gf4(1),this.Gf3(1),this.Gf1(1)],[this.Gf1(2),this.Gf2(2),this.Gf4(2),this.Gf3(2),this.Gf1(2)],'-','Color','k')
             pause (2)
+            
+            StartSensor = [f1(1,1),f1(2,1)];
+            StopSensor = [f3(1,1),f3(2,1)];
+            StartGantry = petal.sensor_to_gantry(StartSensor, 'R0');
+            StopGantry = petal.sensor_to_gantry(StopSensor, 'R0');
+            
+            
+            nlines = 2;
+            for Line=1:nlines
+                StartSensor(1) = StartSensor(1) + this.Pitch;
+                StartSensor(2) = StartLine(StartSensor(1));
+                StartGantry = 
+                
+            end
+        end
+        
+        function yStartP = StartLine(this, xStartP)
+            % function Line12Start()
+            % Arg: none
+            % Return: none
+            % Calculate line equations between F-F: 1-2 and 3-4 in the
+            % petal system
+            
+            this.mLine12 = (this.Xf2(2) - this.Xf1(2))/(this.Xf2(1) - this.Xf1(1));
+            this.qLine12 = (this.Xf2(1)*this.Xf1(2)) - (this.Xf1(1)*this.Xf2(2)) / (this.Xf2(1)-this.Xf1(1));
+            yStartP = this.mLine12*xStartP + this.qLine12;
+        end
+        
+        function yStopP = StopLine(this, xStopP)
+            % function Line12Start()
+            % Arg: none
+            % Return: none
+            % Calculate line equations between F-F: 1-2 and 3-4 in the
+            % petal system
+            
+            this.mLine34 = (this.Xf4(2) - this.Xf3(2))/(this.Xf4(1)-this.Xf3(1));
+            this.qLine34 = ((this.Xf4(1)*this.Xf3(2)) - (this.Xf3(1)*this.Xf4(2))) / (this.Xf4(1)-this.Xf3(1));
+            yStopP = this.mLine34*xStopP +this.qLine34;
         end
     end
 end
