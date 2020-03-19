@@ -670,21 +670,34 @@ classdef PetalDispensing < handle
             
             plot([Gf3(1)],[Gf3(2)],'o','Color','k')
             plot([Gf4(1)],[Gf4(2)],'o','Color','r')
-            plot([this.Gf1(1),this.Gf2(1),this.Gf4(1),this.Gf3(1),this.Gf1(1)],[this.Gf1(2),this.Gf2(2),this.Gf4(2),this.Gf3(2),this.Gf1(2)],'-','Color','k')
+            plot([Gf1(1),Gf2(1),Gf4(1),Gf3(1),Gf1(1)],[Gf1(2),Gf2(2),Gf4(2),Gf3(2),Gf1(2)],'-','Color','k')
             pause (2)
             
             StartSensor = [f1(1,1),f1(2,1)];
             StopSensor = [f3(1,1),f3(2,1)];
-            StartGantry = petal.sensor_to_gantry(StartSensor, 'R0');
-            StopGantry = petal.sensor_to_gantry(StopSensor, 'R0');
+            plot([StartSensor(1),StopSensor(1)],[StartSensor(2),StopSensor(2)],'-','Color','g')
             
-            
-            nlines = 2;
+            StartGantry = this.petal1.sensor_to_gantry(StartSensor, 'R0');
+            StopGantry = this.petal1.sensor_to_gantry(StopSensor, 'R0');
+            plot([StartGantry(1),StopGantry(1)],[StartGantry(2),StopGantry(2)],'-','Color','g')
+
+            nlines = 3;
             for Line=1:nlines
-                StartSensor(1) = StartSensor(1) + this.Pitch;
-                StartSensor(2) = StartLine(StartSensor(1));
-                StartGantry = 
+                StartSensor(1) = f1(1,1) - this.Pitch * Line;
+                StartSensor(2) = this.StartLine(StartSensor(1));
+                StopSensor(1) = f3(1,1) + this.Pitch * Line;
+                StopSensor(2) = this.StopLine(StopSensor(1));
+                plot([StartSensor(1)],[StartSensor(2)],'x','Color','g')
+                plot([StopSensor(1)],[StopSensor(2)],'o','Color','g')
+                plot([StartSensor(1),StopSensor(1)],[StartSensor(2),StopSensor(2)],'-','Color','g')
                 
+                
+                StartGantry = this.petal1.sensor_to_gantry(StartSensor, 'R0');
+                StopGantry = this.petal1.sensor_to_gantry(StopSensor, 'R0');
+                
+                plot([StartGantry(1)],[StartGantry(2)],'x','Color','g')
+                plot([StopGantry(1)],[StopGantry(2)],'o','Color','g')
+                plot([StartGantry(1),StopGantry(1)],[StartGantry(2),StopGantry(2)],'-','Color','g')
             end
         end
         
