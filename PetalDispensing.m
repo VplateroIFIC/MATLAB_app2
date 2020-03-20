@@ -48,6 +48,7 @@ classdef PetalDispensing < handle
         Pitch = 3.4;
         OffGlueStartX = 5;   % Distance from the sensor edge
         OffGlueStartY = 5;
+        OffGluieStart = [5,5]
         glueOffX = 0;       %Offset Between camera and syrenge
         glueoffY = 0;
         TestingZone = [-100, -100, 0, 0]; % X,Y,Z1,Z2
@@ -673,56 +674,59 @@ classdef PetalDispensing < handle
             plot([Gf1(1),Gf2(1),Gf4(1),Gf3(1),Gf1(1)],[Gf1(2),Gf2(2),Gf4(2),Gf3(2),Gf1(2)],'-','Color','k')
             pause (2)
             
-            StartSensor = [f1(1,1),f1(2,1)];
-            StopSensor = [f3(1,1),f3(2,1)];
+            StartSensor(2) = f1(2,1) - this.OffGluieStart(2);
+            StartSensor(1) = this.StartLine(StartSensor(2) + this.OffGluieStart(1));
+            StopSensor(2) = f3(2,1) - this.OffGluieStart(2);
+            StopSensor(1) = this.StopLine(StopSensor(2) + this.OffGluieStart(1));
             plot([StartSensor(1),StopSensor(1)],[StartSensor(2),StopSensor(2)],'-','Color','g')
             
             StartGantry = this.petal1.sensor_to_gantry(StartSensor, 'R0');
             StopGantry = this.petal1.sensor_to_gantry(StopSensor, 'R0');
             plot([StartGantry(1),StopGantry(1)],[StartGantry(2),StopGantry(2)],'-','Color','g')
 
-            nlines = 3;
+            nlines = 28;
             for Line=1:nlines
-                StartSensor(1) = f1(1,1) - this.Pitch * Line;
-                StartSensor(2) = this.StartLine(StartSensor(1));
-                StopSensor(1) = f3(1,1) + this.Pitch * Line;
-                StopSensor(2) = this.StopLine(StopSensor(1));
+                StartSensor(2) = f1(2,1) - this.Pitch * Line - this.OffGluieStart(2);
+                StartSensor(1) = this.StartLine(StartSensor(2) + this.OffGluieStart(1));
+                StopSensor(2) = f3(2,1) - this.Pitch * Line - this.OffGluieStart(2);
+                StopSensor(1) = this.StopLine(StopSensor(2) + this.OffGluieStart(1));
+                
+                % Plot in Sensor coordinates
                 plot([StartSensor(1)],[StartSensor(2)],'x','Color','g')
                 plot([StopSensor(1)],[StopSensor(2)],'o','Color','g')
                 plot([StartSensor(1),StopSensor(1)],[StartSensor(2),StopSensor(2)],'-','Color','g')
-                
-                
+                     
                 StartGantry = this.petal1.sensor_to_gantry(StartSensor, 'R0');
                 StopGantry = this.petal1.sensor_to_gantry(StopSensor, 'R0');
-                
+                % Plot in gantry coordinates
                 plot([StartGantry(1)],[StartGantry(2)],'x','Color','g')
                 plot([StopGantry(1)],[StopGantry(2)],'o','Color','g')
                 plot([StartGantry(1),StopGantry(1)],[StartGantry(2),StopGantry(2)],'-','Color','g')
             end
         end
         
-        function yStartP = StartLine(this, xStartP)
+        function xStartP = StartLine(this, yStartP)
             % function Line12Start()
             % Arg: none
             % Return: none
             % Calculate line equations between F-F: 1-2 and 3-4 in the
             % petal system
             
-            this.mLine12 = (this.Xf2(2) - this.Xf1(2))/(this.Xf2(1) - this.Xf1(1));
-            this.qLine12 = (this.Xf2(1)*this.Xf1(2)) - (this.Xf1(1)*this.Xf2(2)) / (this.Xf2(1)-this.Xf1(1));
-            yStartP = this.mLine12*xStartP + this.qLine12;
+            this.mLine12 = (this.Xf2(1) - this.Xf1(1))/(this.Xf2(2) - this.Xf1(2));
+            this.qLine12 = (this.Xf2(2)*this.Xf1(1)) - (this.Xf1(2)*this.Xf2(1)) / (this.Xf2(2)-this.Xf1(2));
+            xStartP = this.mLine12*yStartP + this.qLine12;
         end
         
-        function yStopP = StopLine(this, xStopP)
+        function xStopP = StopLine(this, yStopP)
             % function Line12Start()
             % Arg: none
             % Return: none
             % Calculate line equations between F-F: 1-2 and 3-4 in the
             % petal system
             
-            this.mLine34 = (this.Xf4(2) - this.Xf3(2))/(this.Xf4(1)-this.Xf3(1));
-            this.qLine34 = ((this.Xf4(1)*this.Xf3(2)) - (this.Xf3(1)*this.Xf4(2))) / (this.Xf4(1)-this.Xf3(1));
-            yStopP = this.mLine34*xStopP +this.qLine34;
+            this.mLine34 = (this.Xf4(1) - this.Xf3(1))/(this.Xf4(2)-this.Xf3(2));
+            this.qLine34 = ((this.Xf4(2)*this.Xf3(1)) - (this.Xf3(2)*this.Xf4(1))) / (this.Xf4(2)-this.Xf3(2));
+            xStopP = this.mLine34*yStopP +this.qLine34;
         end
     end
 end
