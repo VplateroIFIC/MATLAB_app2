@@ -220,7 +220,7 @@ classdef PetalDispensing < handle
             this.gantry.MoveTo(this.z2Axis,this.zDispensingHeigh, this.zLowSpeed,1);
         end
         
-        function GPostionWaiting (this)
+        function GPositionWaiting (this)
             % function GPositionDispensing(this)
             % Arguments: none
             % Return NONE
@@ -274,7 +274,7 @@ classdef PetalDispensing < handle
                 this.StartDispensing();
                 t = t1/1000 + 0.2;
                 pause(t);
-                this.GPostionWaiting();
+                this.GPositionWaiting();
                 % 2nd Dropplet
                 disp('')
                 disp('2nd dropplet')
@@ -284,7 +284,7 @@ classdef PetalDispensing < handle
                 this.StartDispensing();
                 t = t1/1000 + 0.2;
                 pause(t);
-                this.GPostionWaiting();
+                this.GPositionWaiting();
                 
                 % 3rd Dropplet
                 disp('')
@@ -295,7 +295,7 @@ classdef PetalDispensing < handle
                 this.StartDispensing();
                 t = t1/1000 + 0.2;
                 pause(t);
-                this.GPostionWaiting();
+                this.GPositionWaiting();
                 
                 % 4th Dropplet
                 disp('')
@@ -306,7 +306,7 @@ classdef PetalDispensing < handle
                 this.StartDispensing();
                 t = t1/1000 + 0.2;
                 pause(t);
-                this.GPostionWaiting();
+                this.GPositionWaiting();
                 this.gantry.MoveBy(this.yAxis,-10,5,1);
             end
         end
@@ -351,7 +351,7 @@ classdef PetalDispensing < handle
                     tic
                     this.gantry.MoveBy(this.yAxis,LineLength,this.dispSpeed,1);
                     toc
-                    this.GPostionWaiting();
+                    this.GPositionWaiting();
                     
                 end
             end
@@ -377,51 +377,33 @@ classdef PetalDispensing < handle
             % Arguments: none
             %
             
-            this.Xf1 = this.petal1.fiducials_sensors.R0{4}(1);
-            this.Xf2 = this.petal1.fiducials_sensors.R0{1}(1);
+            this.f1 = this.petal1.fiducials_sensors.R0{4};
+            this.f2 = this.petal1.fiducials_sensors.R0{3};
             
-            this.Xf3 = this.petal1.fiducials_sensors.R0{2}(1);
-            this.Xf4 = this.petal1.fiducials_sensors.R0{3}(1);
-            
-            this.Yf1 = this.petal1.fiducials_sensors.R0{4}(2);
-            this.Yf2 = this.petal1.fiducials_sensors.R0{1}(2);
-            
-            this.Yf3 = this.petal1.fiducials_sensors.R0{2}(2);
-            this.Yf4 = this.petal1.fiducials_sensors.R0{3}(2);
-            
-            %Fiducials for R0
-            %             this.Xf1=0.54  + this.OffGlueStartX;
-            %             this.Yf1=36.13 - this.OffGlueStartY;
-            %
-            %             this.Xf2=104.41 - this.OffGlueStartX;
-            %             this.Yf2=48.19 - this.OffGlueStartY;
-            %
-            %             this.Xf3=0.08  + this.OffGlueStartX;
-            %             this.Yf3=-40.78 + this.OffGlueStartY;
-            %
-            %             this.Xf4=104.29  - this.OffGlueStartX;
-            %             this.Yf4=-49.41 + this.OffGlueStartY;
-            
+            this.f3 = this.petal1.fiducials_sensors.R0{1};
+            this.f4 = this.petal1.fiducials_sensors.R0{2};
             
             t = 1000;  %mseg
             nlines = 28;
             error = 0;
             
-            startPetal(1) = this.Xf1(1);
-            startPetal(2) = this.Line12Start(startPetal(1));
-            startGantry = this.petal1.sensor_to_gantry(startPetal,'R0');
+            StartSensor(2) = f1(2,1) - this.OffGluieStart(2);
+            StartSensor(1) = this.StartLine(StartSensor(2) + this.OffGluieStart(1));
+            StopSensor(2) = f3(2,1) - this.OffGluieStart(2);
+            StopSensor(1) = this.StopLine(StopSensor(2) + this.OffGluieStart(1));
             
-            StopPetal(1) = this.Xf3(1);
-            StopPetal(2) = this.Line34Stop(StopPetal(1));
-            StopGantry = this.petal1.sensor_to_gantry(StopPetal,'R0');
+            StartGantry = this.petal1.sensor_to_gantry(StartSensor, 'R0');
+            StopGantry = this.petal1.sensor_to_gantry(StopSensor, 'R0');
             
             error = error + this.DispenserDefaults();
             error = error + this.SetTime(t);
-            
-            
+            if error ~= 0
+                fprintf ('\n DISPENSER ERROR \n');
+                return
+            end
             
             % Dispensing line 0
-            this.gantry.MoveToFast(startGantry(1), startGantry(2), 1);
+            this.gantry.MoveToFast(StartGantry(1), StartGantry(2), 1);
             this.GPositionDispensing();
             error = error + this.StartDispensing();
             if error ~= 0
@@ -429,7 +411,7 @@ classdef PetalDispensing < handle
                 return
             end
             this.gantry.MoveToLinear(StopGantry(1), StopGantry(2), this.dispSpeed, 1);
-            this.GPostionWaiting();
+            this.GPositionWaiting();
             
             % Dispensing loop
             for Line=1:nlines
@@ -446,26 +428,14 @@ classdef PetalDispensing < handle
                 end
                 this.SetTime(t);
                 
-                %Calculating Start and Stop positions
-                %                 xStartPetal = xStartPetal + this.Pitch*Line;
-                %                 yStartPetal = this.Line12Start();
-                %                 xStartGantry = this.PetalToGantry(xStartPetal);
-                %                 yStartGantry = this.PetalToGantry(yStartPetal);
-                
-                %                 xStopPetal = Xf3 + this.Pitch*Line;
-                %                 xStopGantry = this.PetalToGantry(xStopPetal);
-                %                 yStopPetal = Line34Stop();
-                %                 yStopGantry = this.PetalToGantry(yStopPetal);
-                xStartPetal = this.Xf1;
-                
-                startPetal(1) = xStartPetal + this.Pitch*Line;
-                startPetal(2) = this.Line12Start(startPetal(1));
-                startGantry = this.petal1.sensor_to_gantry(startPetal,'R0');
-                
-                StopPetal(1) = this.Xf3 + this.Pitch*Line;
-                StopPetal(2) = Line34Stop(StopPetal(1));
-                StopGantry = this.petal1.sensor_to_gantry(StopPetal,'R0');
-                
+                %Calculate Start and Stop line position in sensor
+                StartSensor(2) = f1(2,1) - this.Pitch * Line - this.OffGluieStart(2);
+                StartSensor(1) = this.StartLine(StartSensor(2) + this.OffGluieStart(1));
+                StopSensor(2) = f3(2,1) - this.Pitch * Line - this.OffGluieStart(2);
+                StopSensor(1) = this.StopLine(StopSensor(2) + this.OffGluieStart(1));
+                %Change to Gantry coordinates after dispensing
+                StartGantry = this.petal1.sensor_to_gantry(StartSensor, 'R0');
+                StopGantry = this.petal1.sensor_to_gantry(StopSensor, 'R0');
                 
                 %Prepare to dispense
                 this.gantry.MoveToFast(startGantry(1), startGantry(2), 1);
@@ -473,147 +443,10 @@ classdef PetalDispensing < handle
                 %Dispensing line
                 this.StartDispensing();
                 this.gantry.MoveToLinear(StopGantry(1), StopGantry(2), this.dispSpeed, 1);
-                this.GPostionWaiting()
+                this.GPositionWaiting()
             end
         end
         
-        function [f1,f2,f3,f4]=R0_Test(this)
-            % DispenseTest function
-            % Dispense 4 dropplets
-            % Arguments: none
-            %
-            
-            this.petal1.plotSensorInGantry('R0')
-            %             this.petal1.plotFiducialsInGantry;
-            
-            
-            this.Xf1 = this.petal1.fiducials_sensors.R0{4};
-            %             this.Xf2 = this.petal1.fiducials_sensors.R0{1};
-            this.Xf2 = this.petal1.fiducials_sensors.R0{3};
-            
-            %             this.Xf3 = this.petal1.fiducials_sensors.R0{2};
-            this.Xf3 = this.petal1.fiducials_sensors.R0{1};
-            
-            %             this.Xf4 = this.petal1.fiducials_sensors.R0{3};
-            this.Xf4 = this.petal1.fiducials_sensors.R0{2};
-            
-            %             this.Yf1 = this.petal1.fiducials_sensors.R0{4}(2);
-            %             this.Yf2 = this.petal1.fiducials_sensors.R0{1}(2);
-            %
-            %             this.Yf3 = this.petal1.fiducials_sensors.R0{2}(2);
-            %             this.Yf4 = this.petal1.fiducials_sensors.R0{3}(2);
-            
-            %Fiducials for R0
-            %             this.Xf1=0.54  + this.OffGlueStartX;
-            %             this.Yf1=36.13 - this.OffGlueStartY;
-            %
-            %             this.Xf2=104.41 - this.OffGlueStartX;
-            %             this.Yf2=48.19 - this.OffGlueStartY;
-            %
-            %             this.Xf3=0.08  + this.OffGlueStartX;
-            %             this.Yf3=-40.78 + this.OffGlueStartY;
-            %
-            %             this.Xf4=104.29  - this.OffGlueStartX;
-            %             this.Yf4=-49.41 + this.OffGlueStartY;
-            %             f1 = this.Xf1
-            %             f2 = this.Xf2
-            %             f3 = this.Xf3
-            %             f4 = this.Xf4
-            %             plot([f1(1)],[f1(2)],'*','Color','k')
-            %             hold on
-            %             plot([f2(1)],[f2(2)],'*','Color','r')
-            %
-            %             plot([f3(1)],[f3(2)],'x','Color','k')
-            %             plot([f4(1)],[f4(2)],'x','Color','r')
-            %             plot([this.Xf1(1),this.Xf2(1),this.Xf4(1),this.Xf3(1),this.Xf1(1)],[this.Xf1(2),this.Xf2(2),this.Xf4(2),this.Xf3(2),this.Xf1(2)],'-','Color','k')
-            %             pause (2)
-            
-            t = 1000;  %mseg
-            nlines = 28;
-            error = 0;
-            
-            startSensor(1) = this.Xf1(1,1);
-            startSensor(2) = this.Line12Start(startSensor(1));
-            startGantry = this.petal1.sensor_to_gantry(startSensor,'R0');
-            
-            StopSensor(1) = this.Xf3(1,1);
-            StopSensor(2) = this.Line34Stop(StopSensor(1));
-            StopGantry = this.petal1.sensor_to_gantry(StopSensor,'R0');
-            
-            f1 = startGantry;
-            f2 = StopGantry;
-            
-            plot([f1(1)],[f1(2)],'x','Color','k')
-            hold on
-            plot([f2(1)],[f2(2)],'o','Color','r')
-            plot([f1(1),f2(1)],[f1(2),f2(2)],'-','Color','g')
-            
-            
-            error = error + this.DispenserDefaults();
-            error = error + this.SetTime(t);
-            
-            % Dispensing line 0
-            %             this.gantry.MoveToFast(startGantry(1), startGantry(2), 1);
-            %             this.GPositionDispensing();
-            error = error + this.StartDispensing();
-            if error ~= 0
-                fprintf ('\n DISPENSER ERROR \n');
-                return
-            end
-            %             this.gantry.MoveToLinear(StopGantry(1), StopGantry(2), this.dispSpeed, 1);
-            %             this.GPostionWaiting();
-            
-            % Dispensing loop
-            for Line=1:nlines
-                if 1<=Line && Line<=6
-                    t = 1050;
-                elseif 7<=Line && Line<=12
-                    t = 1100;
-                elseif 13<=Line && Line<=18
-                    t = 1200;
-                elseif 19<=Line && Line<=24
-                    t = 1300;
-                elseif 25<=Line && Line<=28
-                    t = 1400;
-                end
-                this.SetTime(t);
-                
-                %Calculating Start and Stop positions
-                %                 xStartPetal = xStartPetal + this.Pitch*Line;
-                %                 yStartPetal = this.Line12Start();
-                %                 xStartGantry = this.PetalToGantry(xStartPetal);
-                %                 yStartGantry = this.PetalToGantry(yStartPetal);
-                
-                %                 xStopPetal = Xf3 + this.Pitch*Line;
-                %                 xStopGantry = this.PetalToGantry(xStopPetal);
-                %                 yStopPetal = Line34Stop();
-                %                 yStopGantry = this.PetalToGantry(yStopPetal);
-                
-                startSensor(1) = this.Pitch*Line;
-                startSensor(2) = this.Line12Start(startSensor(1));
-                startGantry = this.petal1.sensor_to_gantry(startSensor,'R0');
-                
-                StopSensor(1) = this.Xf3(1) + this.Pitch*Line;
-                StopSensor(2) = this.Line34Stop(StopSensor(1));
-                StopGantry = this.petal1.sensor_to_gantry(StopSensor,'R0');
-                
-                f1 = startGantry;
-                f2 = StopGantry;
-                
-                plot([f1(1)],[f1(2)],'x','Color','k')
-                hold on
-                plot([f2(1)],[f2(2)],'o','Color','r')
-                plot([f1(1),f2(1)],[f1(2),f2(2)],'-','Color','g')
-                
-                %Prepare to dispense
-                %                 this.gantry.MoveToFast(startGantry(1), startGantry(2), 1);
-                %                 this.GPositionDispensing();
-                %Dispensing line
-                this.StartDispensing();
-                %                 this.gantry.MoveToLinear(StopGantry(1), StopGantry(2), this.dispSpeed, 1);
-                %                 this.GPostionWaiting()
-            end
-        end
         
         %         function yStartP = Line12Start(this, xStartP)
         %             % function Line12Start()
@@ -627,9 +460,9 @@ classdef PetalDispensing < handle
         %             yStartP = mLine12*xStartP +qLine12;
         %         end
         
-        function [f1,f2,f3,f4]=R0_Plot2(this)
-            % DispenseTest function
-            % Dispense 4 dropplets
+        function R0_Plot(this)
+            % R0_Plot function
+            % Plot dispensing procedure in sensor CS and gantry CS
             % Arguments: none
             %
             
@@ -637,34 +470,30 @@ classdef PetalDispensing < handle
             %             this.petal1.plotFiducialsInGantry;
             
             
-            this.Xf1 = this.petal1.fiducials_sensors.R0{4};
+            this.f1 = this.petal1.fiducials_sensors.R0{4};
             %             this.Xf2 = this.petal1.fiducials_sensors.R0{1};
-            this.Xf2 = this.petal1.fiducials_sensors.R0{3};
+            this.f2 = this.petal1.fiducials_sensors.R0{3};
             
             %             this.Xf3 = this.petal1.fiducials_sensors.R0{2};
-            this.Xf3 = this.petal1.fiducials_sensors.R0{1};
+            this.f3 = this.petal1.fiducials_sensors.R0{1};
             
             %             this.Xf4 = this.petal1.fiducials_sensors.R0{3};
-            this.Xf4 = this.petal1.fiducials_sensors.R0{2};
+            this.f4 = this.petal1.fiducials_sensors.R0{2};
             
-            f1 = this.Xf1;
-            f2 = this.Xf2;
-            f3 = this.Xf3;
-            f4 = this.Xf4;
-            plot([f1(1)],[f1(2)],'x','Color','k')
+            plot([this.f1(1)],[this.f1(2)],'x','Color','k')
             hold on
-            plot([f2(1)],[f2(2)],'x','Color','r')
+            plot([this.f2(1)],[this.f2(2)],'x','Color','r')
             
-            plot([f3(1)],[f3(2)],'o','Color','k')
-            plot([f4(1)],[f4(2)],'o','Color','r')
-            plot([this.Xf1(1),this.Xf2(1),this.Xf4(1),this.Xf3(1),this.Xf1(1)],[this.Xf1(2),this.Xf2(2),this.Xf4(2),this.Xf3(2),this.Xf1(2)],'-','Color','k')
+            plot([this.f3(1)],[this.f3(2)],'o','Color','k')
+            plot([this.f4(1)],[this.f4(2)],'o','Color','r')
+            plot([this.f1(1),this.f2(1),this.f4(1),this.f3(1),this.f1(1)],[this.f1(2),this.f2(2),this.f4(2),this.f3(2),this.f1(2)],'-','Color','k')
             pause (2)
             
             % Plot fiducials in gantry system
-            Gf1 = this.petal1.sensor_to_gantry(this.Xf1,'R0');
-            Gf2 = this.petal1.sensor_to_gantry(this.Xf2,'R0');
-            Gf3 = this.petal1.sensor_to_gantry(this.Xf3,'R0');
-            Gf4 = this.petal1.sensor_to_gantry(this.Xf4,'R0');
+            Gf1 = this.petal1.sensor_to_gantry(this.f1,'R0');
+            Gf2 = this.petal1.sensor_to_gantry(this.f2,'R0');
+            Gf3 = this.petal1.sensor_to_gantry(this.f3,'R0');
+            Gf4 = this.petal1.sensor_to_gantry(this.f4,'R0');
             plot([Gf1(1)],[Gf1(2)],'x','Color','k')
             hold on
             plot([Gf2(1)],[Gf2(2)],'x','Color','r')
@@ -674,28 +503,28 @@ classdef PetalDispensing < handle
             plot([Gf1(1),Gf2(1),Gf4(1),Gf3(1),Gf1(1)],[Gf1(2),Gf2(2),Gf4(2),Gf3(2),Gf1(2)],'-','Color','k')
             pause (2)
             
-            StartSensor(2) = f1(2,1) - this.OffGluieStart(2);
+            StartSensor(2) = this.f1(2,1) - this.OffGluieStart(2);
             StartSensor(1) = this.StartLine(StartSensor(2) + this.OffGluieStart(1));
-            StopSensor(2) = f3(2,1) - this.OffGluieStart(2);
+            StopSensor(2) = this.f3(2,1) - this.OffGluieStart(2);
             StopSensor(1) = this.StopLine(StopSensor(2) + this.OffGluieStart(1));
             plot([StartSensor(1),StopSensor(1)],[StartSensor(2),StopSensor(2)],'-','Color','g')
             
             StartGantry = this.petal1.sensor_to_gantry(StartSensor, 'R0');
             StopGantry = this.petal1.sensor_to_gantry(StopSensor, 'R0');
             plot([StartGantry(1),StopGantry(1)],[StartGantry(2),StopGantry(2)],'-','Color','g')
-
+            
             nlines = 28;
             for Line=1:nlines
-                StartSensor(2) = f1(2,1) - this.Pitch * Line - this.OffGluieStart(2);
+                StartSensor(2) = this.f1(2,1) - this.Pitch * Line - this.OffGluieStart(2);
                 StartSensor(1) = this.StartLine(StartSensor(2) + this.OffGluieStart(1));
-                StopSensor(2) = f3(2,1) - this.Pitch * Line - this.OffGluieStart(2);
+                StopSensor(2) = this.f3(2,1) - this.Pitch * Line - this.OffGluieStart(2);
                 StopSensor(1) = this.StopLine(StopSensor(2) + this.OffGluieStart(1));
                 
                 % Plot in Sensor coordinates
                 plot([StartSensor(1)],[StartSensor(2)],'x','Color','g')
                 plot([StopSensor(1)],[StopSensor(2)],'o','Color','g')
                 plot([StartSensor(1),StopSensor(1)],[StartSensor(2),StopSensor(2)],'-','Color','g')
-                     
+                
                 StartGantry = this.petal1.sensor_to_gantry(StartSensor, 'R0');
                 StopGantry = this.petal1.sensor_to_gantry(StopSensor, 'R0');
                 % Plot in gantry coordinates
@@ -705,6 +534,73 @@ classdef PetalDispensing < handle
             end
         end
         
+        function R1_Plot(this)
+            % R0_Plot function
+            % Plot dispensing procedure in sensor CS and gantry CS
+            % Arguments: none
+            %
+            
+            this.petal1.plotSensorInGantry('R1')            
+            this.f1 = this.petal1.fiducials_sensors.R1{4};
+            this.f2 = this.petal1.fiducials_sensors.R1{3};
+            this.f3 = this.petal1.fiducials_sensors.R1{1};
+            this.f4 = this.petal1.fiducials_sensors.R1{2};
+            
+            plot([this.f1(1)],[this.f1(2)],'x','Color','k')
+            hold on
+            plot([this.f2(1)],[this.f2(2)],'x','Color','r')
+            
+            plot([this.f3(1)],[this.f3(2)],'o','Color','k')
+            plot([this.f4(1)],[this.f4(2)],'o','Color','r')
+            plot([this.f1(1),this.f2(1),this.f4(1),this.f3(1),this.f1(1)],[this.f1(2),this.f2(2),this.f4(2),this.f3(2),this.f1(2)],'-','Color','k')
+            pause (2)
+            
+            % Plot fiducials in gantry system
+            Gf1 = this.petal1.sensor_to_gantry(this.f1,'R1');
+            Gf2 = this.petal1.sensor_to_gantry(this.f2,'R1');
+            Gf3 = this.petal1.sensor_to_gantry(this.f3,'R1');
+            Gf4 = this.petal1.sensor_to_gantry(this.f4,'R1');
+            plot([Gf1(1)],[Gf1(2)],'x','Color','k')
+            hold on
+            plot([Gf2(1)],[Gf2(2)],'x','Color','r')
+            
+            plot([Gf3(1)],[Gf3(2)],'o','Color','k')
+            plot([Gf4(1)],[Gf4(2)],'o','Color','r')
+            plot([Gf1(1),Gf2(1),Gf4(1),Gf3(1),Gf1(1)],[Gf1(2),Gf2(2),Gf4(2),Gf3(2),Gf1(2)],'-','Color','k')
+            pause (2)
+            
+            StartSensor(2) = this.f1(2,1) - this.OffGluieStart(2);
+            StartSensor(1) = this.StartLine(StartSensor(2) + this.OffGluieStart(1));
+            StopSensor(2) = this.f3(2,1) - this.OffGluieStart(2);
+            StopSensor(1) = this.StopLine(StopSensor(2) + this.OffGluieStart(1));
+            plot([StartSensor(1),StopSensor(1)],[StartSensor(2),StopSensor(2)],'-','Color','g')
+            
+            StartGantry = this.petal1.sensor_to_gantry(StartSensor, 'R1');
+            StopGantry = this.petal1.sensor_to_gantry(StopSensor, 'R1');
+            plot([StartGantry(1),StopGantry(1)],[StartGantry(2),StopGantry(2)],'-','Color','g')
+            
+            nlines = 22;
+            for Line=1:nlines
+                StartSensor(2) = this.f1(2,1) - this.Pitch * Line - this.OffGluieStart(2);
+                StartSensor(1) = this.StartLine(StartSensor(2) + this.OffGluieStart(1));
+                StopSensor(2) = this.f3(2,1) - this.Pitch * Line - this.OffGluieStart(2);
+                StopSensor(1) = this.StopLine(StopSensor(2) + this.OffGluieStart(1));
+                
+                % Plot in Sensor coordinates
+                plot([StartSensor(1)],[StartSensor(2)],'x','Color','g')
+                plot([StopSensor(1)],[StopSensor(2)],'o','Color','g')
+                plot([StartSensor(1),StopSensor(1)],[StartSensor(2),StopSensor(2)],'-','Color','g')
+                
+                StartGantry = this.petal1.sensor_to_gantry(StartSensor, 'R1');
+                StopGantry = this.petal1.sensor_to_gantry(StopSensor, 'R1');
+                % Plot in gantry coordinates
+                plot([StartGantry(1)],[StartGantry(2)],'x','Color','g')
+                plot([StopGantry(1)],[StopGantry(2)],'o','Color','g')
+                plot([StartGantry(1),StopGantry(1)],[StartGantry(2),StopGantry(2)],'-','Color','g')
+            end
+        end
+        
+        
         function xStartP = StartLine(this, yStartP)
             % function Line12Start()
             % Arg: none
@@ -712,8 +608,8 @@ classdef PetalDispensing < handle
             % Calculate line equations between F-F: 1-2 and 3-4 in the
             % petal system
             
-            this.mLine12 = (this.Xf2(1) - this.Xf1(1))/(this.Xf2(2) - this.Xf1(2));
-            this.qLine12 = (this.Xf2(2)*this.Xf1(1)) - (this.Xf1(2)*this.Xf2(1)) / (this.Xf2(2)-this.Xf1(2));
+            this.mLine12 = (this.f2(1) - this.f1(1))/(this.f2(2) - this.f1(2));
+            this.qLine12 = (this.f2(2)*this.f1(1)) - (this.f1(2)*this.f2(1)) / (this.f2(2)-this.f1(2));
             xStartP = this.mLine12*yStartP + this.qLine12;
         end
         
@@ -724,8 +620,8 @@ classdef PetalDispensing < handle
             % Calculate line equations between F-F: 1-2 and 3-4 in the
             % petal system
             
-            this.mLine34 = (this.Xf4(1) - this.Xf3(1))/(this.Xf4(2)-this.Xf3(2));
-            this.qLine34 = ((this.Xf4(2)*this.Xf3(1)) - (this.Xf3(2)*this.Xf4(1))) / (this.Xf4(2)-this.Xf3(2));
+            this.mLine34 = (this.f4(1) - this.f3(1))/(this.f4(2)-this.f3(2));
+            this.qLine34 = ((this.f4(2)*this.f3(1)) - (this.f3(2)*this.f4(1))) / (this.f4(2)-this.f3(2));
             xStopP = this.mLine34*yStopP +this.qLine34;
         end
     end
