@@ -279,7 +279,7 @@ classdef PETALCS < handle
                 end
             end
             hold on
-            plot([0 1000 1000 0 0]-500,[0 0 1000 1000]-500,'-','Color','k')
+            plot([0 1000 1000 0 0]-500,[0 0 1000 1000 0]-500,'-','Color','k')
         end
         
         function plotSensorInGantry(this, sensorName, color)
