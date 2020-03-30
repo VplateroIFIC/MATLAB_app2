@@ -4,6 +4,7 @@ Output
 Reference_Images
 AdminFolder
 tests
+!tests/Rotation_camera
 opencv_compiler
 Examples_matlab/GUI_examples/contents.m
 Examples_matlab/GUI_examples/GUI_1.m
