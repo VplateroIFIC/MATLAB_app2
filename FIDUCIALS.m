@@ -34,7 +34,7 @@ cornerF;
 cameraRotationOffset;
 
 % CirclesFinder
-camCalibration; %um/pixel
+camCalibration; %pixel/um
 binaryFilterKernel_circles;
 
 % CalibrationFiducialROIBuilder
@@ -187,7 +187,12 @@ images{1} = cv.drawMatches(preparedROI, keypointsROI, preparedTemp, keypointsTem
 % applying size filter and ratio filter to remove bad matches %
 ratio=this.filter_ratio;
 sizeThreshold=this.filter_size;
-betterMatches= this.ratioTest(matches12,keypointsROI,keypointsTemp,sizeThreshold,ratio);
+[betterMatches,error]= this.ratioTest(matches12,keypointsROI,keypointsTemp,sizeThreshold,ratio);
+if error==1
+    match.error=1;
+    return
+end
+
 
 % Bulding the final keypoints vectors (scene and object) %
 objeto=cell(1,length(betterMatches));
@@ -221,6 +226,7 @@ match.matches=length(objeto);
 match.transformation=H;
 match.Inliers=inliers;
 match.Images=images;
+match.error=0;
          
         end
         
@@ -258,7 +264,7 @@ images{5}=resizeIm;
 
         end
         
-        function goodMatches = ratioTest(this,matches,keypoints1,keypoints2,sizeThreshold, ratio)
+        function [goodMatches,error] = ratioTest(this,matches,keypoints1,keypoints2,sizeThreshold, ratio)
 % ratioTest filtering matches by particle size and distance 
 %    inputs: 
 %       this: instance which calls the method
@@ -271,20 +277,25 @@ images{5}=resizeIm;
 %       imageOut: preprocessed image
 %       images: cell array with all steps of processing
 
-
+error=0;
 n=length(matches);
 lowRatio=ratio;
 cont=1;
 for i=1:n
+    
     indexQuery=matches{i}(1).queryIdx+1;
     indexTrain=matches{i}(1).trainIdx+1;
-if (matches{i}(1).distance < matches{i}(2).distance*lowRatio) && (keypoints1(indexQuery).size>sizeThreshold) && (keypoints2(indexTrain).size>sizeThreshold)
-    goodMatches{cont}(1).queryIdx=matches{i}.queryIdx;
-    goodMatches{cont}(1).trainIdx=matches{i}.trainIdx;
-    goodMatches{cont}(1).imgIdx=matches{i}.imgIdx;
-    goodMatches{cont}(1).distance=matches{i}.distance;
-    cont=cont+1;
+    if (matches{i}(1).distance < matches{i}(2).distance*lowRatio) && (keypoints1(indexQuery).size>sizeThreshold) && (keypoints2(indexTrain).size>sizeThreshold)
+        goodMatches{cont}(1).queryIdx=matches{i}.queryIdx;
+        goodMatches{cont}(1).trainIdx=matches{i}.trainIdx;
+        goodMatches{cont}(1).imgIdx=matches{i}.imgIdx;
+        goodMatches{cont}(1).distance=matches{i}.distance;
+        cont=cont+1;
+    end
 end
+if exist('goodMatches')==0
+    goodMatches=0;
+    error=1;
 end
         end
         
@@ -490,7 +501,7 @@ function Fmatch = FmatchSURF(this,image,CurrentPos)
 %       CurrentPos: Current postion of gantry stages. It is associated to center of the image. [X,Y,Z1(~),Z2(~),U(~)]
 %    outputs:
 %     match: cell of structures with next fields. There will be 1 structure for each fiducial found in the image. 
-%         Center: coordenates of the center of the located template into the image. In pixels. image coordinate system (top left corner).
+%         Center: coordenates of the center of the located template into the image. In pixels. Image coordinate system
 %         Time: time consumed
 %         Matches: number of final matches
 %         Transformation: Transformation matrix from knn matching
@@ -502,41 +513,82 @@ function Fmatch = FmatchSURF(this,image,CurrentPos)
 %             Image4: Matches selected for final match
 %             Image5: Match of the current fiducial over the original image
 %             Image6: Matches of all fiducials over the original image
-%         Corner: coordenates of the corner of the fiducial into the image. In pixels. image coordinate system (top left corner).
-
-
+%         Corner: coordenates of the corner of the fiducial into the image. In pixels. Image coordinate system
+[m,n]=size(image);
+centerImage=[round(m/2),round(n/2)];
 [ROI,vertex]=this.FROIbuilder(image);
 template=imread(this.FtemplatePath);
 
+%creating transfomration matrix to pass from image reference system to center of image
+transformationImage2Center=transform2D();
+transformationImage2Center.translate([-centerImage(2),-centerImage(1)]);
+
+%creating transfomration matrix to pass from center of image to gantry reference systeem
+transformationGantry2Image=transform2D();
+transformationImage2Gantry=transform2D();
+transformationGantry2Image.translate([-CurrentPos(1),-CurrentPos(2)]);
+transformationGantry2Image.rotate(2*pi-(pi/2-this.cameraRotationOffset));
+% transformationGantry2Image.rotateMirrorY(2*pi-(pi/2-this.cameraRotationOffset));
+% transformationGantry2Image.rotate(2*pi-(this.cameraRotationOffset-pi/2));
+% transformationImage2Gantry.M=inv(transformationGantry2Image.M);
+transformationImage2Gantry.M=inv(transformationGantry2Image.M).*[1 1 1 ;-1 -1 1;1 1 1];
+
+% transformationImage2Gantry.rotate(-this.cameraRotationOffset);
+
 % how many F detected in image, k
 [k,l]=size(ROI);
-Fmatch=cell(k,1);
+
 
 % loop to match the Fs of the image
 for i=1:k
 %matching the picture
 match=this.matchSURF(ROI{i},template);
+if match.error==1
+    match=[];
+    FmatchProvisional{i}=match;
+    continue
+end
 
-%calculating the center of the fiducial in the new image, origin in top left corner
+
+%calculating the center of the fiducial in the new image, image coordinate system
 match.Center(1)=match.Center(1)+vertex{i}(1);
 match.Center(2)=match.Center(2)+vertex{i}(2);
 
-%calculating the corner of the fiducial in the new image, origin in top left corner
+% match.Center(1)=match.Center(1)+vertex{i}(1)-centerImage(2);
+% match.Center(2)=match.Center(2)+vertex{i}(2)-centerImage(2);
+
+%calculating the corner of the fiducial in the new image, image coordinate system
 corner=[match.transformation;0 0 1]*[this.cornerF 1]';
 match.Corner(1)=corner(1)+vertex{i}(1);
 match.Corner(2)=corner(2)+vertex{i}(2);
 
+%calculating the position of the center and the corner fiducial in the new image (um), Origin in center of the image
+% center(1)=(match.Corner(1)-centerImage(2))*camCalibration;
+% center(2)=(m-(match.Corner(2)-centerImage(1)))*camCalibration;
+% corner(1)=(match.Corner(1)-centerImage(2))*camCalibration;
+% corner(2)=(m-(match.Corner(2)-centerImage(1)))*camCalibration;
+match.CenterImage=transformationImage2Center.M*[match.Center(1);m-match.Center(2);1]/this.camCalibration/1000;
+match.CornerImage=transformationImage2Center.M*[match.Corner(1);m-match.Corner(2);1]/this.camCalibration/1000;
 
-Fmatch{i}=match;
+%calculating the position of the center and the corner fiducial in Gantry system
+match.CenterGantry=transformationImage2Gantry.M*[match.CenterImage(1);match.CenterImage(2);1];
+match.CornerGantry=transformationImage2Gantry.M*[match.CornerImage(1);match.CornerImage(2);1];
+
+FmatchProvisional{i}=match;
 clearvars match
+end
+cont=1;
+for g=1:length(FmatchProvisional)
+    if isempty(FmatchProvisional{g})
+    else
+       Fmatch{cont}=FmatchProvisional{g};
+       cont=cont+1;
+    end
 end
 
 
-
-
-
 % loop to plot the final image (each fiducial separately)
-for i=1:k
+for i=1:length(Fmatch)
 fig=figure('visible','off','Position', get(0, 'Screensize'));
 imshow(image);
 title('Final match','FontSize', 18);
@@ -552,14 +604,14 @@ end
 fig=figure('visible','off','Position', get(0, 'Screensize'));
 imshow(image);
 title('Final match','FontSize', 18);
-for i=1:k
+for i=1:length(Fmatch)
 hold on
 plot(Fmatch{i}.Center(1),Fmatch{i}.Center(2), 'r+', 'MarkerSize', 30, 'LineWidth', 2);
 plot(Fmatch{i}.Corner(1),Fmatch{i}.Corner(2), 'r+', 'MarkerSize', 30, 'LineWidth', 2);
 end
 fig2image=getframe(fig);
 plotImage=fig2image.cdata;
-for i=1:k
+for i=1:length(Fmatch)
 Fmatch{i}.Images{6}=plotImage;
 end
 end
