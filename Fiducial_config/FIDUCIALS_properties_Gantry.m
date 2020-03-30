@@ -24,7 +24,7 @@ sizeParticles=5000;
 pixelAreaF=17000;  % nominal value of the F Area in pixels in IFIC setup
 deltaArea=4000;
 perimeterF=900;   % nominal value of the F Perimeter in pixels in IFIC setup
-deltaPerimeter=200;
+deltaPerimeter=150;
 
 % ROIbuilder
 
