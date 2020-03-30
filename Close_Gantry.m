@@ -4,7 +4,7 @@
 joy = joy.Disconnect;
 
 gantry.MotorDisableAll;
-gantry = gantry.Disconnect;
+gantry.Disconnect;
 
 cam = cam.Disconnect;
 
