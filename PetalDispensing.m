@@ -13,14 +13,6 @@ classdef PetalDispensing < handle
     end
     
     properties (Access = public)
-        Xf1;
-        Yf1;
-        Xf2;
-        Yf2;
-        Xf3;
-        Yf3;
-        Xf4;
-        Yf4;
         f1;
         f2;
         f3;
@@ -45,7 +37,6 @@ classdef PetalDispensing < handle
         OffGlueStart = [5,5]
         glueOffX = 0;       %Offset Between camera and syrenge
         glueoffY = 0;
-        TestingZone = [-100, -100, 0, 0]; % X,Y,Z1,Z2
         
         zHighSpeed = 10;
         zLowSpeed = 5;
@@ -576,7 +567,7 @@ classdef PetalDispensing < handle
             %
             
 
-            nLines = 32;
+            nLines = 30;
             t = 1000;  %mseg
             Sensor = 'R4S0';
             this.f1 = this.petal1.fiducials_sensors.R4S0{4};
@@ -824,31 +815,208 @@ classdef PetalDispensing < handle
             end
         end
         
+                function Dispense(this, Sensor)
+            % Generic Dispense function
+            % Dispensing procedure for indicated Sensor
+            % Arguments: Sensor String
+            %   
+            
+            switch Sensor
+                case 'R0'
+                    nLines = 28;
+                    this.f1 = this.petal1.fiducials_sensors.R0{4};
+                    this.f2 = this.petal1.fiducials_sensors.R0{3};
+                    this.f3 = this.petal1.fiducials_sensors.R0{1};
+                    this.f4 = this.petal1.fiducials_sensors.R0{2};
+                    fig = 10;
+%                     nLines = (this.f1(2) - this.f2(2)-2*this.OffGlueStart)/this.Pitch
+                case 'R1'
+                    nLines = 22;
+                    this.f1 = this.petal1.fiducials_sensors.R1{4};
+                    this.f2 = this.petal1.fiducials_sensors.R1{3};
+                    this.f3 = this.petal1.fiducials_sensors.R1{1};
+                    this.f4 = this.petal1.fiducials_sensors.R1{2};
+                    fig = 11;
+                case 'R2'
+                    nLines = 15;
+                    this.f1 = this.petal1.fiducials_sensors.R2{4};
+                    this.f2 = this.petal1.fiducials_sensors.R2{3};
+                    this.f3 = this.petal1.fiducials_sensors.R2{1};
+                    this.f4 = this.petal1.fiducials_sensors.R2{2};
+                    fig = 20;
+                case 'R3S0'
+                    nLines = 32;
+                    this.f1 = this.petal1.fiducials_sensors.R3S0{4};
+                    this.f2 = this.petal1.fiducials_sensors.R3S0{3};
+                    this.f3 = this.petal1.fiducials_sensors.R3S0{1};
+                    this.f4 = this.petal1.fiducials_sensors.R3S0{2};
+                    fig = 30;
+                case 'R3S1'
+                    nLines = 32;
+                    this.f1 = this.petal1.fiducials_sensors.R3S1{4};
+                    this.f2 = this.petal1.fiducials_sensors.R3S1{3};
+                    this.f3 = this.petal1.fiducials_sensors.R3S1{1};
+                    this.f4 = this.petal1.fiducials_sensors.R3S1{2};
+                    fig = 31;
+                case 'R4S0'
+                    nLines = 30;
+                    this.f1 = this.petal1.fiducials_sensors.R4S0{4};
+                    this.f2 = this.petal1.fiducials_sensors.R4S0{3};
+                    this.f3 = this.petal1.fiducials_sensors.R4S0{1};
+                    this.f4 = this.petal1.fiducials_sensors.R4S0{2};
+                    fig = 40;
+                case 'R4S1'
+                    nLines = 30;
+                    this.f1 = this.petal1.fiducials_sensors.R4S1{4};
+                    this.f2 = this.petal1.fiducials_sensors.R4S1{3};
+                    this.f3 = this.petal1.fiducials_sensors.R4S1{1};
+                    this.f4 = this.petal1.fiducials_sensors.R4S1{2};
+                    fig = 41;
+                case 'R5S0'
+                    nLines = 27;
+                    this.f1 = this.petal1.fiducials_sensors.R5S0{4};
+                    this.f2 = this.petal1.fiducials_sensors.R5S0{3};
+                    this.f3 = this.petal1.fiducials_sensors.R5S0{1};
+                    this.f4 = this.petal1.fiducials_sensors.R5S0{2};
+                    fig = 50;
+                case 'R5S1'
+                    nLines = 27;
+                    this.f1 = this.petal1.fiducials_sensors.R5S1{4};
+                    this.f2 = this.petal1.fiducials_sensors.R5S1{3};
+                    this.f3 = this.petal1.fiducials_sensors.R5S1{1};
+                    this.f4 = this.petal1.fiducials_sensors.R5S1{2};
+                    fig = 51;
+                otherwise
+                    fprintf ('\n\t Error, "%s" is not a valid sensor name', Sensor);
+            end
+            
+            Line = 0;            
+            %Calculate Start and Stop gluing lines
+            this.LinesCalculation();
+                        
+            % Dispense first line in Sensor coordinates
+            [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
+            
+            % Calculate first line in Gantry coordinates
+            StartGantry = this.petal1.sensor_to_gantry(StartSensor, Sensor);
+            StopGantry = this.petal1.sensor_to_gantry(StopSensor, Sensor);
+            
+            % Move to Start Position and start dispensing
+            this.gantry.MoveToFast(StartGantry(1), StartGantry(2), 1);
+            this.GPositionDispensing();
+            %%Mierda Hay que configurar la dispensadora para modo continuo
+%             error = 
+            error = error + this.StartDispensing();
+            if error ~= 0
+                fprintf ('\n DISPENSER ERROR \n');
+                return
+            end
+            for Line=1:nLines
+                % Calculate line in Sensor coordinates
+                [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
+                % Flip Start and Stop point if line number is odd
+                if rem(Line,2) ~= 0
+                    Temporal = StartSensor;
+                    StartSensor = StopSensor;
+                    StopSensor = Temporal;
+                end
+                this.PlotLine(StartSensor, StopSensor, fig)
+                title(['Glue pattern in Sensor Coordinates of sensor: ' Sensor]);
+
+                %Convert to Gantry coordinates
+                StartGantry = this.petal1.sensor_to_gantry(StartSensor, Sensor);
+                StopGantry = this.petal1.sensor_to_gantry(StopSensor, Sensor);
+                this.PlotLine(StartGantry, StopGantry, 1)
+            end
+            %%mierda Hay que dar la orden de cortar el dispensado
+            this.gantry.zSecurityPosition();
+        end
         
         %% Plotting Lines %%
         
-                %% Plotting Lines %%
-        function R0_PlotZ(this)
-            % R0_Plot function
+        function Plot(this, Sensor)
+            % Generic Plot function
             % Plot dispensing procedure in sensor CS and gantry CS
             % Arguments: none
-            %
+            %   
             
-            this.petal1.plotFiducialsInGantry;
+            switch Sensor
+                case 'R0'
+                    nLines = 28;
+                    this.f1 = this.petal1.fiducials_sensors.R0{4};
+                    this.f2 = this.petal1.fiducials_sensors.R0{3};
+                    this.f3 = this.petal1.fiducials_sensors.R0{1};
+                    this.f4 = this.petal1.fiducials_sensors.R0{2};
+                    fig = 10;
+%                     nLines = (this.f1(2) - this.f2(2)-2*this.OffGlueStart)/this.Pitch
+                case 'R1'
+                    nLines = 22;
+                    this.f1 = this.petal1.fiducials_sensors.R1{4};
+                    this.f2 = this.petal1.fiducials_sensors.R1{3};
+                    this.f3 = this.petal1.fiducials_sensors.R1{1};
+                    this.f4 = this.petal1.fiducials_sensors.R1{2};
+                    fig = 11;
+                case 'R2'
+                    nLines = 15;
+                    this.f1 = this.petal1.fiducials_sensors.R2{4};
+                    this.f2 = this.petal1.fiducials_sensors.R2{3};
+                    this.f3 = this.petal1.fiducials_sensors.R2{1};
+                    this.f4 = this.petal1.fiducials_sensors.R2{2};
+                    fig = 20;
+                case 'R3S0'
+                    nLines = 32;
+                    this.f1 = this.petal1.fiducials_sensors.R3S0{4};
+                    this.f2 = this.petal1.fiducials_sensors.R3S0{3};
+                    this.f3 = this.petal1.fiducials_sensors.R3S0{1};
+                    this.f4 = this.petal1.fiducials_sensors.R3S0{2};
+                    fig = 30;
+                case 'R3S1'
+                    nLines = 32;
+                    this.f1 = this.petal1.fiducials_sensors.R3S1{4};
+                    this.f2 = this.petal1.fiducials_sensors.R3S1{3};
+                    this.f3 = this.petal1.fiducials_sensors.R3S1{1};
+                    this.f4 = this.petal1.fiducials_sensors.R3S1{2};
+                    fig = 31;
+                case 'R4S0'
+                    nLines = 30;
+                    this.f1 = this.petal1.fiducials_sensors.R4S0{4};
+                    this.f2 = this.petal1.fiducials_sensors.R4S0{3};
+                    this.f3 = this.petal1.fiducials_sensors.R4S0{1};
+                    this.f4 = this.petal1.fiducials_sensors.R4S0{2};
+                    fig = 40;
+                case 'R4S1'
+                    nLines = 30;
+                    this.f1 = this.petal1.fiducials_sensors.R4S1{4};
+                    this.f2 = this.petal1.fiducials_sensors.R4S1{3};
+                    this.f3 = this.petal1.fiducials_sensors.R4S1{1};
+                    this.f4 = this.petal1.fiducials_sensors.R4S1{2};
+                    fig = 41;
+                case 'R5S0'
+                    nLines = 27;
+                    this.f1 = this.petal1.fiducials_sensors.R5S0{4};
+                    this.f2 = this.petal1.fiducials_sensors.R5S0{3};
+                    this.f3 = this.petal1.fiducials_sensors.R5S0{1};
+                    this.f4 = this.petal1.fiducials_sensors.R5S0{2};
+                    fig = 50;
+                case 'R5S1'
+                    nLines = 27;
+                    this.f1 = this.petal1.fiducials_sensors.R5S1{4};
+                    this.f2 = this.petal1.fiducials_sensors.R5S1{3};
+                    this.f3 = this.petal1.fiducials_sensors.R5S1{1};
+                    this.f4 = this.petal1.fiducials_sensors.R5S1{2};
+                    fig = 51;
+                otherwise
+                    fprintf ('\n\t Error, "%s" is not a valid sensor name', Sensor);
+            end
             
-            Line = 0;
-            nLines = 28;
-            Sensor = 'R0';
-            
-            this.f1 = this.petal1.fiducials_sensors.R0{4};
-            this.f2 = this.petal1.fiducials_sensors.R0{3};
-            this.f3 = this.petal1.fiducials_sensors.R0{1};
-            this.f4 = this.petal1.fiducials_sensors.R0{2};
+            Line = 0;            
             %Calculate Start and Stop gluing lines
             this.LinesCalculation();
             
+            this.petal1.plotFiducialsInGantry;
+            
             %Plot fiducials in Sensor system
-            figure(2);
+            figure(fig);
             plot([this.f1(1)],[this.f1(2)],'x','Color','k')
             hold on
             plot([this.f2(1)],[this.f2(2)],'x','Color','r')
@@ -873,7 +1041,7 @@ classdef PetalDispensing < handle
             
             % Calculate first line in Sensor coordinates
             [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
-            this.PlotLine(StartSensor, StopSensor, 2)
+            this.PlotLine(StartSensor, StopSensor, fig)
             
             % Calculate first line in Gantry coordinates
             StartGantry = this.petal1.sensor_to_gantry(StartSensor, Sensor);
@@ -883,19 +1051,22 @@ classdef PetalDispensing < handle
             for Line=1:nLines
                 % Calculate line in Sensor coordinates
                 [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
+                % Flip Start and Stop point if line number is odd
                 if rem(Line,2) ~= 0
                     Temporal = StartSensor;
                     StartSensor = StopSensor;
                     StopSensor = Temporal;
                 end
-                this.PlotLine(StartSensor, StopSensor, 2)
-                
+                this.PlotLine(StartSensor, StopSensor, fig)
+                title(['Glue pattern in Sensor Coordinates of sensor: ' Sensor]);
+
                 %Convert to Gantry coordinates
                 StartGantry = this.petal1.sensor_to_gantry(StartSensor, Sensor);
                 StopGantry = this.petal1.sensor_to_gantry(StopSensor, Sensor);
                 this.PlotLine(StartGantry, StopGantry, 1)
             end
         end
+        
         
         function R0_Plot(this)
             % R0_Plot function
@@ -953,6 +1124,11 @@ classdef PetalDispensing < handle
             for Line=1:nLines
                 % Calculate line in Sensor coordinates
                 [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
+                if rem(Line,2) ~= 0
+                    Temporal = StartSensor;
+                    StartSensor = StopSensor;
+                    StopSensor = Temporal;
+                end
                 this.PlotLine(StartSensor, StopSensor, 2)
                 
                 %Convert to Gantry coordinates
@@ -1018,7 +1194,11 @@ classdef PetalDispensing < handle
             for Line=1:nLines
                 % Calculate line in Sensor coordinates
                 [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
-                [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
+                if rem(Line,2) ~= 0
+                    Temporal = StartSensor;
+                    StartSensor = StopSensor;
+                    StopSensor = Temporal;
+                end
                 this.PlotLine(StartSensor, StopSensor, 2)
                 
                 %Convert to Gantry coordinates
@@ -1084,7 +1264,11 @@ classdef PetalDispensing < handle
             for Line=1:nLines
                 % Calculate line in Sensor coordinates
                 [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
-                [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
+                if rem(Line,2) ~= 0
+                    Temporal = StartSensor;
+                    StartSensor = StopSensor;
+                    StopSensor = Temporal;
+                end
                 this.PlotLine(StartSensor, StopSensor, 2)
                 
                 %Convert to Gantry coordinates
@@ -1150,7 +1334,11 @@ classdef PetalDispensing < handle
             for Line=1:nLines
                 % Calculate line in Sensor coordinates
                 [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
-                [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
+                if rem(Line,2) ~= 0
+                    Temporal = StartSensor;
+                    StartSensor = StopSensor;
+                    StopSensor = Temporal;
+                end
                 this.PlotLine(StartSensor, StopSensor, 2)
                 
                 %Convert to Gantry coordinates
@@ -1215,7 +1403,11 @@ classdef PetalDispensing < handle
             for Line=1:nLines
                 % Calculate line in Sensor coordinates
                 [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
-                [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
+                if rem(Line,2) ~= 0
+                    Temporal = StartSensor;
+                    StartSensor = StopSensor;
+                    StopSensor = Temporal;
+                end
                 this.PlotLine(StartSensor, StopSensor, 2)
                 
                 %Convert to Gantry coordinates
@@ -1289,6 +1481,11 @@ classdef PetalDispensing < handle
             for Line=1:nLines
                 % Calculate line in Sensor coordinates
                 [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
+                if rem(Line,2) ~= 0
+                    Temporal = StartSensor;
+                    StartSensor = StopSensor;
+                    StopSensor = Temporal;
+                end
                 this.PlotLine(StartSensor, StopSensor, 2)
                 
                 %Convert to Gantry coordinates
@@ -1354,7 +1551,11 @@ classdef PetalDispensing < handle
             for Line=1:nLines
                 % Calculate line in Sensor coordinates
                 [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
-                [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
+                if rem(Line,2) ~= 0
+                    Temporal = StartSensor;
+                    StartSensor = StopSensor;
+                    StopSensor = Temporal;
+                end
                 this.PlotLine(StartSensor, StopSensor, 2)
                 
                 %Convert to Gantry coordinates
@@ -1420,7 +1621,11 @@ classdef PetalDispensing < handle
             for Line=1:nLines
                 % Calculate line in Sensor coordinates
                 [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
-                [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
+                if rem(Line,2) ~= 0
+                    Temporal = StartSensor;
+                    StartSensor = StopSensor;
+                    StopSensor = Temporal;
+                end
                 this.PlotLine(StartSensor, StopSensor, 2);
                 
                 %Convert to Gantry coordinates
@@ -1486,7 +1691,11 @@ classdef PetalDispensing < handle
             for Line=1:nLines
                 % Calculate line in Sensor coordinates
                 [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
-                [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
+                if rem(Line,2) ~= 0
+                    Temporal = StartSensor;
+                    StartSensor = StopSensor;
+                    StopSensor = Temporal;
+                end
                 this.PlotLine(StartSensor, StopSensor, 2)
                 
                 %Convert to Gantry coordinates
