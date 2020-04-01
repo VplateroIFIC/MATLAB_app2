@@ -839,7 +839,6 @@ classdef PetalDispensing < handle
             Line = 0;
             nLines = 28;
             Sensor = 'R0';
-            Direction = 1;
             
             this.f1 = this.petal1.fiducials_sensors.R0{4};
             this.f2 = this.petal1.fiducials_sensors.R0{3};
@@ -884,13 +883,10 @@ classdef PetalDispensing < handle
             for Line=1:nLines
                 % Calculate line in Sensor coordinates
                 [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
-                if Direction == 1
-                    Direction = 0;
+                if rem(Line,2) ~= 0
                     Temporal = StartSensor;
                     StartSensor = StopSensor;
                     StopSensor = Temporal;
-                else
-                    Direction = 1;
                 end
                 this.PlotLine(StartSensor, StopSensor, 2)
                 
