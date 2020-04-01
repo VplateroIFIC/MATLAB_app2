@@ -222,18 +222,20 @@ classdef PetalDispensing < handle
             this.gantry.MoveTo(this.z2Axis,this.zWaitingHeigh, this.zLowSpeed,1);
         end
         
-        function GFiducial_1(this)
+        function GoFiducial_1(this)
             % function GFiducial_1(this)
             % Arguments: none
             % Return NONE
+            % Move to defined Fiducial 1
             % Wait until all movements finished
             
             this.gantry.MoveToFast(this.fiducial_1(1),this.fiducial_1(2),1);
         end
-        function GFiducial_2(this)
+        function GoFiducial_2(this)
             % function GFiducial_1(this)
             % Arguments: none
             % Return NONE
+            % Move to defined Fiducial 2
             % Wait until all movements finished
             
             this.gantry.MoveToFast(this.fiducial_2(1),this.fiducial_2(2),1);
@@ -837,6 +839,7 @@ classdef PetalDispensing < handle
             Line = 0;
             nLines = 28;
             Sensor = 'R0';
+            Direction = 1;
             
             this.f1 = this.petal1.fiducials_sensors.R0{4};
             this.f2 = this.petal1.fiducials_sensors.R0{3};
@@ -881,6 +884,16 @@ classdef PetalDispensing < handle
             for Line=1:nLines
                 % Calculate line in Sensor coordinates
                 [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
+                if rem(Line,2) == 0;
+                end
+                if Direction == 1
+                    Direction = 0;
+                    Temporal = StartSensor;
+                    StartSensor = StopSensor;
+                    StopSensor = Temporal;
+                else
+                    Direction = 1;
+                end
                 this.PlotLine(StartSensor, StopSensor, 2)
                 
                 %Convert to Gantry coordinates
