@@ -222,18 +222,20 @@ classdef PetalDispensing < handle
             this.gantry.MoveTo(this.z2Axis,this.zWaitingHeigh, this.zLowSpeed,1);
         end
         
-        function GFiducial_1(this)
+        function GoFiducial_1(this)
             % function GFiducial_1(this)
             % Arguments: none
             % Return NONE
+            % Move to defined Fiducial 1
             % Wait until all movements finished
             
             this.gantry.MoveToFast(this.fiducial_1(1),this.fiducial_1(2),1);
         end
-        function GFiducial_2(this)
+        function GoFiducial_2(this)
             % function GFiducial_1(this)
             % Arguments: none
             % Return NONE
+            % Move to defined Fiducial 2
             % Wait until all movements finished
             
             this.gantry.MoveToFast(this.fiducial_2(1),this.fiducial_2(2),1);
@@ -824,6 +826,81 @@ classdef PetalDispensing < handle
         
         
         %% Plotting Lines %%
+        
+                %% Plotting Lines %%
+        function R0_PlotZ(this)
+            % R0_Plot function
+            % Plot dispensing procedure in sensor CS and gantry CS
+            % Arguments: none
+            %
+            
+            this.petal1.plotFiducialsInGantry;
+            
+            Line = 0;
+            nLines = 28;
+            Sensor = 'R0';
+            Direction = 1;
+            
+            this.f1 = this.petal1.fiducials_sensors.R0{4};
+            this.f2 = this.petal1.fiducials_sensors.R0{3};
+            this.f3 = this.petal1.fiducials_sensors.R0{1};
+            this.f4 = this.petal1.fiducials_sensors.R0{2};
+            %Calculate Start and Stop gluing lines
+            this.LinesCalculation();
+            
+            %Plot fiducials in Sensor system
+            figure(2);
+            plot([this.f1(1)],[this.f1(2)],'x','Color','k')
+            hold on
+            plot([this.f2(1)],[this.f2(2)],'x','Color','r')
+            
+            plot([this.f3(1)],[this.f3(2)],'o','Color','k')
+            plot([this.f4(1)],[this.f4(2)],'o','Color','r')
+            plot([this.f1(1),this.f2(1),this.f4(1),this.f3(1),this.f1(1)],[this.f1(2),this.f2(2),this.f4(2),this.f3(2),this.f1(2)],'-','Color','k')
+            
+            % Plot fiducials in gantry system
+            figure(1);
+            Gf1 = this.petal1.sensor_to_gantry(this.f1, Sensor);
+            Gf2 = this.petal1.sensor_to_gantry(this.f2, Sensor);
+            Gf3 = this.petal1.sensor_to_gantry(this.f3,Sensor);
+            Gf4 = this.petal1.sensor_to_gantry(this.f4,Sensor);
+            plot([Gf1(1)],[Gf1(2)],'x','Color','k')
+            hold on
+            plot([Gf2(1)],[Gf2(2)],'x','Color','r')
+            
+            plot([Gf3(1)],[Gf3(2)],'o','Color','k')
+            plot([Gf4(1)],[Gf4(2)],'o','Color','r')
+            plot([Gf1(1),Gf2(1),Gf4(1),Gf3(1),Gf1(1)],[Gf1(2),Gf2(2),Gf4(2),Gf3(2),Gf1(2)],'-','Color','k')
+            
+            % Calculate first line in Sensor coordinates
+            [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
+            this.PlotLine(StartSensor, StopSensor, 2)
+            
+            % Calculate first line in Gantry coordinates
+            StartGantry = this.petal1.sensor_to_gantry(StartSensor, Sensor);
+            StopGantry = this.petal1.sensor_to_gantry(StopSensor, Sensor);
+            this.PlotLine(StartGantry, StopGantry, 1)
+            
+            for Line=1:nLines
+                % Calculate line in Sensor coordinates
+                [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
+                if Direction == 1
+                    Direction = 0;
+                    Temporal = StartSensor;
+                    StartSensor = StopSensor;
+                    StopSensor = Temporal;
+                else
+                    Direction = 1;
+                end
+                this.PlotLine(StartSensor, StopSensor, 2)
+                
+                %Convert to Gantry coordinates
+                StartGantry = this.petal1.sensor_to_gantry(StartSensor, Sensor);
+                StopGantry = this.petal1.sensor_to_gantry(StopSensor, Sensor);
+                this.PlotLine(StartGantry, StopGantry, 1)
+            end
+        end
+        
         function R0_Plot(this)
             % R0_Plot function
             % Plot dispensing procedure in sensor CS and gantry CS
