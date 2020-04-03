@@ -115,7 +115,7 @@ classdef STAGES < handle
         
         %% Connect  %%
         
-        function  this = Connect(this)
+        function  Connect(this)
             % function  this = Connect(this)
             % Arguments: object STAGES %
             % Returns: none %
@@ -136,7 +136,7 @@ classdef STAGES < handle
         
         %% Disconnect  %%
         
-        function  this = Disconnect(this)
+        function  Disconnect(this)
             % function  this = Disconnect(this)
             % Arguments: object STAGES %
             % Returns: none %
@@ -317,51 +317,6 @@ classdef STAGES < handle
                             value=ReadVariable(this.GantryObj,'RMS',this.z1Axis,this.z2Axis);
                         case 6
                             value=ReadVariable(this.GantryObj,'RMS',this.uAxis,this.uAxis);
-                    end
-            end
-        end
-        
-        
-        
-        
-        %% Home %%
-        
-        function  Home(this,axis)
-            % function  Home(this,axis)
-            % Arguments: object ALIO (this), axis int,%
-            % Returns: none %
-            switch this.GantryType
-                case 0
-                    %insert here Home with AEROTECH gantry %
-                    
-                case 1
-                    SetVelocity(this.GantryObj,this.xAxis,this.HomeVelocity);
-                    SetVelocity(this.GantryObj,this.yAxis,this.HomeVelocity);
-                    SetVelocity(this.GantryObj,this.z1Axis,this.HomeVelocity);
-                    SetVelocity(this.GantryObj,this.z2Axis,this.HomeVelocity);
-                    SetVelocity(this.GantryObj,this.uAxis,this.HomeVelocity);
-                    target=0;
-                    switch axis
-                        case 0
-                            ToPoint(this.GantryObj,this.Absolute,this.xAxis,target);
-                            WaitForMotion(this,axis,-1);
-                            SetFPosition(this.GantryObj,this.xAxis,0);
-                        case 1
-                            ToPoint(this.GantryObj,this.Absolute,this.yAxis,target);
-                            WaitForMotion(this,axis,0,-1);
-                            SetFPosition(this.GantryObj,this.yAxis,0);
-                        case 4
-                            ToPoint(this.GantryObj,this.Absolute,this.z1Axis,target);
-                            WaitForMotion(this,axis,-1);
-                            SetFPosition(this.GantryObj,this.z1Axis,0);
-                        case 5
-                            ToPoint(this.GantryObj,this.Absolute,this.z2Axis,target);
-                            WaitForMotion(this,axis,-1);
-                            SetFPosition(this.GantryObj,this.z2Axis,0);
-                        case 6
-                            ToPoint(this.GantryObj,this.Absolute,this.uAxis,target);
-                            WaitForMotion(this,axis,-1);
-                            SetFPosition(this.GantryObj,this.uAxis,0);
                     end
             end
         end
