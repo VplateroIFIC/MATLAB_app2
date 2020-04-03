@@ -929,5 +929,6 @@ options = optimset('MaxFunEvals',1000);
 sol=fminsearch(fun,cond_t0,options);
 
 end
-end  
+    end  
+
 end
