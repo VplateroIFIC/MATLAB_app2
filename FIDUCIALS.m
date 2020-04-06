@@ -839,8 +839,9 @@ switch n
     case 4  % 4 circles detected. Applied fit. 
         fit=this.fit_square(circles);
         match.Center=fit(1:2);
+        
 end
-
+match.Circles=circles;
 centerFid=[match.Center(1),match.Center(2)];
 match.Center=[match.Center(1)+vertex(1),match.Center(2)+vertex(2)];
 
@@ -929,5 +930,50 @@ options = optimset('MaxFunEvals',1000);
 sol=fminsearch(fun,cond_t0,options);
 
 end
+function [calibration,match] = calibrationCamera (this,image)
+% calculate pixel/microns relation for the camera
+% input: image: image of a calibration plate fiducial
+% output: calibration: pixel/um relation
+
+%defining values of the fiducials (um)
+circlesDistanceMin=50;
+
+%sending image to circles detection
+match=this.CalibrationFidFinder(image);
+
+%calculating distance between circles
+n=length(match.Circles);
+distance=zeros(1,n-1);
+for i=1:n-1
+distance(i)=point2point(match.Circles{1}(1:2),match.Circles{i+1}(1:2));
+end
+
+%removing higher distance
+distance(distance==max(distance))=[];
+
+%calculating calibration value (pixel/um)
+calibration = mean(distance/circlesDistanceMin);
+
+
+end
+
+function distance = point2point(M1, M2)
+% GIVEN 2 SETS OF POINTS (SAME LENGTH!), AND CALCULATE
+% DISTANCE FROM THE SECOND ONE TO THE FIRST ONE POINT TO POINT
+% Outcome hte vector with the distances BETWEEN THE POINTS
+
+d1=size(M1);
+d2=size(M2);
+for h=1:d2(1)
+    if d1(1)==3
+    dis_v=[M1(h,1)-M2(h,1) M1(h,2)-M2(h,2) M1(h,3)-M2(h,3)];
+    distance(h)=norm(dis_v);
+    else
+    dis_v=[M1(h,1)-M2(h,1) M1(h,2)-M2(h,2)];
+    distance(h)=norm(dis_v);  
+    end
+end
 end  
+
+end
 end
