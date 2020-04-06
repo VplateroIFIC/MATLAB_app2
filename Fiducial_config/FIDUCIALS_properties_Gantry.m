@@ -38,7 +38,7 @@ cameraRotationOffset=0.018844464640319;
 
 % CirclesFinder
 
-camCalibration=1.8947; %p/um % calibration fiducial
+camCalibration=1.74; %p/um % calibration fiducial
 % camCalibration=3.5739; %p/um % sensor CNM
 % camCalibration=3.5739; %p/um % sensor CNM
 
