@@ -930,6 +930,7 @@ options = optimset('MaxFunEvals',1000);
 sol=fminsearch(fun,cond_t0,options);
 
 end
+<<<<<<< HEAD
 function [calibration,match] = calibrationCamera (this,image)
 % calculate pixel/microns relation for the camera
 % input: image: image of a calibration plate fiducial
@@ -976,4 +977,8 @@ end
 end  
 
 end
+=======
+    end  
+
+>>>>>>> b447f435ddda5c6c69a700b7d201d7d6602676e2
 end
