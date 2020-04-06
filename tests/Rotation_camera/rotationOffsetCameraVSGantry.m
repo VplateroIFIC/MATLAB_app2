@@ -4,15 +4,15 @@ clc
 clear all
 
 % Adding the ath where results are%
-addpath('F:\Users\leon\Documents\SilicioGeneral\3-Petals\Assembly\Tests_results\calibration_rotation_camera\gantry\measure_2\displacement_X')
+addpath('F:\Users\leon\Documents\SilicioGeneral\3-Petals\Assembly\Tests_results\calibration_rotation_camera\gantry\measure_2\displacement_Y')
 
 fiducial=FIDUCIALS(1);
 
 %load txt results
-positions=importdata('coordenatesX.txt');
+positions=importdata('coordenatesY.txt');
 
 % setting the size of one image
-image=imread('imageX_1.png');
+image=imread('imageY_1.png');
 [Ypix,Xpix]=size(image);
 centerImage=[Xpix/2,Ypix/2];
 
@@ -20,7 +20,7 @@ centerImage=[Xpix/2,Ypix/2];
 
 [m,n]=size(positions);
 % m=7;
-name=['imageX_'];
+name=['imageY_'];
 for i=1:m
     image=imread([name,num2str(i),'.png']);
     match=fiducial.FmatchSURF(image,positions(i,:));
@@ -29,7 +29,7 @@ for i=1:m
     
     imageMatched=match{1}.Images{6};
     nameImageMatched=[name,num2str(i),'matched.png'];
-    imwrite(imageMatched,['F:\Users\leon\Documents\SilicioGeneral\3-Petals\Assembly\Tests_results\calibration_rotation_camera\gantry\measure_2\displacement_X\',nameImageMatched]);
+    imwrite(imageMatched,['F:\Users\leon\Documents\SilicioGeneral\3-Petals\Assembly\Tests_results\calibration_rotation_camera\gantry\measure_2\displacement_Y\',nameImageMatched]);
 end
 
 %% calculating rect of the movement %%
@@ -41,7 +41,7 @@ P = polyfit(centro(:,1),centro(:,2),1);
 angle=atan(P(1));
 
 %% transformation from the image reference system to the center %%
-calibration=1.8947; %p/um  calibration fiducial
+calibration=1.7400; %p/um  calibration fiducial
 transformationImage2Center=transform2D();
 transformationImage2Center.translate([-centerImage(1),-centerImage(2)]);
 for j=1:m
