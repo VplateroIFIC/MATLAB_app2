@@ -8,7 +8,7 @@ addpath('D:\Usuarios\Leon\ATLAS_general\3-Petals\Assembly\Tests_results\calibrat
 addpath('C:\Users\Leon\Documents\Matlap_app')
 calibration=1.74; %pixel/um
 %axis X or Y (1 o 2)
-axis=2;
+axis=1;
 
 %Loading data
 
