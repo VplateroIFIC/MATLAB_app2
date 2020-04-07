@@ -78,3 +78,12 @@ title('POSITIONS OF MATCHED FIDUCIALS')
 
 
 
+figure (2)
+plot(gantryCoordenate(:,1),gantryCoordenate(:,2),'*','MarkerSize', 10)
+hold on
+circle(mean(gantryCoordenate(:,1)),mean(gantryCoordenate(:,2)),0.0015)
+xlim([mean(gantryCoordenate(:,1))-0.002 mean(gantryCoordenate(:,1))+0.002])
+ylim([mean(gantryCoordenate(:,2))-0.002 mean(gantryCoordenate(:,2))+0.002])
+title('Error in F position','FontSize', 25)
+
+
