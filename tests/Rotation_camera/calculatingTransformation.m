@@ -6,6 +6,8 @@ clear all
 addpath('D:\Usuarios\Leon\ATLAS_general\3-Petals\Assembly\Tests_results\calibration_rotation_camera\gantry\measure_2\displacement_X')
 addpath('D:\Usuarios\Leon\ATLAS_general\3-Petals\Assembly\Tests_results\calibration_rotation_camera\gantry\measure_2\displacement_Y')
 addpath('C:\Users\Leon\Documents\Matlap_app')
+
+
 calibration=1.74; %pixel/um
 %axis X or Y (1 o 2)
 axis=1;
@@ -22,6 +24,9 @@ gantryCoord=load('coordenatesY.txt');
 imageCoord=load('coordenatesYImage.txt');  
 image=imread('imageY_1.png');
 end
+
+gantryCoord=load('coordenates.txt');
+
 
 % Calculating angle
 
