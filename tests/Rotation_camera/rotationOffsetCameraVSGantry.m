@@ -4,15 +4,16 @@ clc
 clear all
 
 % Adding the ath where results are%
-addpath('F:\Users\leon\Documents\SilicioGeneral\3-Petals\Assembly\Tests_results\calibration_rotation_camera\gantry\measure_2\displacement_Y')
+addpath('F:\Users\leon\Documents\SilicioGeneral\3-Petals\Assembly\Tests_results\calibration_rotation_camera\gantry\second measures\Horizontal')
+addpath('F:\Gantry_code\Matlab_app')
 
 fiducial=FIDUCIALS(1);
 
 %load txt results
-positions=importdata('coordenatesY.txt');
+positions=importdata('coordenates.txt');
 
 % setting the size of one image
-image=imread('imageY_1.png');
+image=imread('image_1.png');
 [Ypix,Xpix]=size(image);
 centerImage=[Xpix/2,Ypix/2];
 
@@ -20,7 +21,7 @@ centerImage=[Xpix/2,Ypix/2];
 
 [m,n]=size(positions);
 % m=7;
-name=['imageY_'];
+name=['image_'];
 for i=1:m
     image=imread([name,num2str(i),'.png']);
     match=fiducial.FmatchSURF(image,positions(i,:));
@@ -29,7 +30,7 @@ for i=1:m
     
     imageMatched=match{1}.Images{6};
     nameImageMatched=[name,num2str(i),'matched.png'];
-    imwrite(imageMatched,['F:\Users\leon\Documents\SilicioGeneral\3-Petals\Assembly\Tests_results\calibration_rotation_camera\gantry\measure_2\displacement_Y\',nameImageMatched]);
+    imwrite(imageMatched,['F:\Users\leon\Documents\SilicioGeneral\3-Petals\Assembly\Tests_results\calibration_rotation_camera\gantry\second measures\Horizontal\',nameImageMatched]);
 end
 
 %% calculating rect of the movement %%
