@@ -81,7 +81,7 @@ classdef STAGES < handle
         zNominalSpeed = 5;
         xyHighSpeed = 30;
         xyNominalSpeed = 10;
-        DefaultTimeOut = 60000;         %Default time out 60 sec      
+        DefaultTimeOut = 30000;         %Default time out 60 sec      
     end
     properties (Access=public)
         IsConnected;
@@ -113,11 +113,17 @@ classdef STAGES < handle
                     %                  NET.addAssembly('F:\Gantry_code\Matlab_app\ACS.SPiiPlusNET.dll'); %loading .NET assembly
                     %                     NET.addAssembly('D:\Code\Matlab_app\ACS.SPiiPlusNET.dll'); %loading .NET assembly
                     NET.addAssembly(fullfile(pwd, '.\ACS.SPiiPlusNET.dll')); %loading .NET assembly
-                    this.xAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_0;
-                    this.yAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_1;
-                    this.z1Axis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_4;
-                    this.z2Axis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_5;
-                    this.uAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_6;
+                    stream1 = "ACS.SPiiPlusNET.Axis.ACSC_AXIS_";
+                    this.xAxis = eval(stream1 + this.X);
+                    this.yAxis = eval(stream1 + this.Y);
+                    this.z1Axis = eval(stream1 + this.Z1);
+                    this.z2Axis = eval(stream1 + this.Z2);
+                    this.uAxis = eval(stream1 + this.U);
+%                     this.xAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_0;
+%                     this.yAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_1;
+%                     this.z1Axis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_4;
+%                     this.z2Axis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_5;
+%                     this.uAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_6;
                     this.nullAxis=ACS.SPiiPlusNET.Axis.ACSC_NONE;
                     this.HomeVelocity=15;
                     this.Acceleration=20;
@@ -276,9 +282,9 @@ classdef STAGES < handle
             
             value (1) = this.GetPosition(0);
             value (2) = this.GetPosition(1);
-            value (3) = this.GetPosition(2);
-            value (4) = this.GetPosition(3);
-            value (5) = this.GetPosition(4);
+%             value (3) = this.GetPosition(2);
+            value (4) = this.GetPosition(4);
+            value (5) = this.GetPosition(5);
         end
         
         
@@ -401,19 +407,19 @@ classdef STAGES < handle
                     %insert here MoveTo with AEROTECH gantry %
                 case 1
                     switch axis
-                        case 0
+                        case this.X
                             SetVelocity(this.GantryObj,this.xAxis,velocity);
                             ToPoint(this.GantryObj,this.Absolute,this.xAxis,target);
-                        case 1
+                        case this.Y
                             SetVelocity(this.GantryObj,this.yAxis,velocity);
                             ToPoint(this.GantryObj,this.Absolute,this.yAxis,target);
-                        case 4
+                        case this.Z1
                             SetVelocity(this.GantryObj,this.z1Axis,velocity);
                             ToPoint(this.GantryObj,this.Absolute,this.z1Axis,target);
-                        case 5
+                        case this.Z2
                             SetVelocity(this.GantryObj,this.z2Axis,velocity);
                             ToPoint(this.GantryObj,this.Absolute,this.z2Axis,target);
-                        case 6
+                        case this.U
                             SetVelocity(this.GantryObj,this.uAxis,velocity);
                             ToPoint(this.GantryObj,this.Absolute,this.uAxis,target);
                     end
@@ -479,19 +485,19 @@ classdef STAGES < handle
                     %insert here MoveBy with AEROTECH gantry %
                 case 1
                     switch axis
-                        case 0
+                        case this.X
                             SetVelocity(this.GantryObj,this.xAxis,velocity);
                             ToPoint(this.GantryObj,this.Relative,this.xAxis,delta);
-                        case 1
+                        case this.Y
                             SetVelocity(this.GantryObj,this.yAxis,velocity);
                             ToPoint(this.GantryObj,this.Relative,this.yAxis,delta);
-                        case 4
+                        case this.Z1
                             SetVelocity(this.GantryObj,this.z1Axis,velocity);
                             ToPoint(this.GantryObj,this.Relative,this.z1Axis,delta);
-                        case 5
+                        case this.Z2
                             SetVelocity(this.GantryObj,this.z2Axis,velocity);
                             ToPoint(this.GantryObj,this.Relative,this.z2Axis,delta);
-                        case 6
+                        case this.U
                             SetVelocity(this.GantryObj,this.uAxis,velocity);
                             ToPoint(this.GantryObj,this.Relative,this.uAxis,delta);
                     end
