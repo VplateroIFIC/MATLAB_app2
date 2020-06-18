@@ -44,7 +44,7 @@ classdef PetalDispensing < handle
         xyHighSpeed = 20;
         xyLowSpeed = 5;
         
-        dispSpeed = 15;
+        dispSpeed = 60;
         
     end
     
@@ -347,14 +347,17 @@ classdef PetalDispensing < handle
                 end
                 
                 %Convert to Gantry coordinates
+                fprintf('Line %d -> ',Line);
                 StartGantry = this.petal1.sensor_to_gantry(StartSensor, Sensor);
                 StopGantry = this.petal1.sensor_to_gantry(StopSensor, Sensor);
                 %When last movement finished, continue with next line
+                tic
                 this.gantry.WaitForMotionAll()
                 this.gantry.MoveToLinear(StartGantry(1), StartGantry(2), this.dispSpeed);
                 this.gantry.MoveToLinear(StopGantry(1), StopGantry(2), this.dispSpeed);
+                toc
             end
-            %%mierda Hay que dar la orden de cortar el dispensado
+            this.gantry.WaitForMotionAll()
             error = error + this.StartDispensing();
             if error ~= 0
                 fprintf ('\n DISPENSER ERROR \n');
