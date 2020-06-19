@@ -1,4 +1,4 @@
-
+ 
 % Script prepared to begin main gantry setup functions
 gantry = STAGES(2);
 gantry = gantry.Connect;
