@@ -5,7 +5,7 @@
 % matchSURF
 
 binaryFilterKernel=9;
-adaptativeThreshold=21;
+adaptativeThreshold=31;
 SURF_Extended=false;   %false 
 SURF_HessianThreshold=300;   %300 to 500 (the larger, the less keypoints we get)
 SURF_NOctaveLayers=2;       %2
@@ -34,6 +34,7 @@ ROIsize=500;
 
 FtemplatePath=('templates\F_gantry.jpg');
 cornerF=[76.0043,240.0685];
+cameraRotationOffset=0.018844464640319;
 
 % CirclesFinder
 
