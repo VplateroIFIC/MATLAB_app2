@@ -1,4 +1,4 @@
-classdef CAMERA
+classdef CAMERA < handle
     %CAMERA Class that manage different cameras of out setup (input constructor required)
     %     old camera Gantry high resolution --> 1
     %     camera Gantry visual inspection --> 2
