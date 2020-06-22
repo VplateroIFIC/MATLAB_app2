@@ -49,6 +49,10 @@ binaryFilterKernel_calibrationPlate;
 binaryFilterKernel_calibration;
 minDist;
 
+% image2gantryCoordinates
+angle;
+
+
     end
     
     methods
@@ -60,10 +64,10 @@ minDist;
        
 %             %Adding to the path the opencv library if necessary.
 %             
-%             addpath('F:\mexopencv');
-%             addpath('F:\mexopencv\opencv_contrib');
-           addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
-           addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
+            addpath('F:\mexopencv');
+            addpath('F:\mexopencv\opencv_contrib');
+%            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
+%            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
            addpath('Fiducial_config');
 
 % Loading corresponding properties to the class
@@ -121,6 +125,9 @@ this.binaryFilterKernel_calibrationPlate=binaryFilterKernel_calibrationPlate;
 % calibrationFidFinder
 this.binaryFilterKernel_calibration=binaryFilterKernel_calibration;
 this.minDist=minDist;
+
+%image2gantryCoordinates
+this.angle=angle;
 
         end
 
@@ -218,7 +225,9 @@ images{3} = this.plotTempMatched (preparedROI,preparedTemp,H);
 % plot final matches %
 images{4} = this.plotFinalMatches (scene,objeto,preparedROI,preparedTemp,H);
 
+%calculating center of the fiducial in image coordinate system
 match.Center=H(1:2,1:2)*centerTemp'+[H(1,3),H(2,3)]';
+
 timeElapsed=toc(totalTime);
 
 match.time=timeElapsed;
@@ -522,18 +531,18 @@ template=imread(this.FtemplatePath);
 %creating transfomration matrix to pass from image reference system to center of image
 transformationImage2Center=transform2D();
 transformationImage2Center.translate([-centerImage(2),-centerImage(1)]);
-
-%creating transfomration matrix to pass from center of image to gantry reference systeem
-transformationGantry2Image=transform2D();
-transformationImage2Gantry=transform2D();
-transformationGantry2Image.translate([-CurrentPos(1),-CurrentPos(2)]);
-transformationGantry2Image.rotate(2*pi-(pi/2-this.cameraRotationOffset));
-% transformationGantry2Image.rotateMirrorY(2*pi-(pi/2-this.cameraRotationOffset));
-% transformationGantry2Image.rotate(2*pi-(this.cameraRotationOffset-pi/2));
-% transformationImage2Gantry.M=inv(transformationGantry2Image.M);
-transformationImage2Gantry.M=inv(transformationGantry2Image.M).*[1 1 1 ;-1 -1 1;1 1 1];
-
-% transformationImage2Gantry.rotate(-this.cameraRotationOffset);
+ 
+% %creating transfomration matrix to pass from center of image to gantry reference systeem
+% transformationGantry2Image=transform2D();
+% transformationImage2Gantry=transform2D();
+% transformationGantry2Image.translate([-CurrentPos(1),-CurrentPos(2)]);
+% transformationGantry2Image.rotate(2*pi-(pi/2-this.cameraRotationOffset));
+% % transformationGantry2Image.rotateMirrorY(2*pi-(pi/2-this.cameraRotationOffset));
+% % transformationGantry2Image.rotate(2*pi-(this.cameraRotationOffset-pi/2));
+% % transformationImage2Gantry.M=inv(transformationGantry2Image.M);
+% transformationImage2Gantry.M=inv(transformationGantry2Image.M).*[1 1 1 ;-1 -1 1;1 1 1];
+% 
+% % transformationImage2Gantry.rotate(-this.cameraRotationOffset);
 
 % how many F detected in image, k
 [k,l]=size(ROI);
@@ -562,17 +571,21 @@ corner=[match.transformation;0 0 1]*[this.cornerF 1]';
 match.Corner(1)=corner(1)+vertex{i}(1);
 match.Corner(2)=corner(2)+vertex{i}(2);
 
-%calculating the position of the center and the corner fiducial in the new image (um), Origin in center of the image
-% center(1)=(match.Corner(1)-centerImage(2))*camCalibration;
-% center(2)=(m-(match.Corner(2)-centerImage(1)))*camCalibration;
-% corner(1)=(match.Corner(1)-centerImage(2))*camCalibration;
-% corner(2)=(m-(match.Corner(2)-centerImage(1)))*camCalibration;
-match.CenterImage=transformationImage2Center.M*[match.Center(1);m-match.Center(2);1]/this.camCalibration/1000;
-match.CornerImage=transformationImage2Center.M*[match.Corner(1);m-match.Corner(2);1]/this.camCalibration/1000;
+% %calculating the position of the center and the corner fiducial in the new image (um), Origin in center of the image
+% % center(1)=(match.Corner(1)-centerImage(2))*camCalibration;
+% % center(2)=(m-(match.Corner(2)-centerImage(1)))*camCalibration;
+% % corner(1)=(match.Corner(1)-centerImage(2))*camCalibration;
+% % corner(2)=(m-(match.Corner(2)-centerImage(1)))*camCalibration;
+% match.CenterImage=transformationImage2Center.M*[match.Center(1);m-match.Center(2);1]/this.camCalibration/1000;
+% match.CornerImage=transformationImage2Center.M*[match.Corner(1);m-match.Corner(2);1]/this.camCalibration/1000;
 
 %calculating the position of the center and the corner fiducial in Gantry system
-match.CenterGantry=transformationImage2Gantry.M*[match.CenterImage(1);match.CenterImage(2);1];
-match.CornerGantry=transformationImage2Gantry.M*[match.CornerImage(1);match.CornerImage(2);1];
+% match.CenterGantry=transformationImage2Gantry.M*[match.CenterImage(1);match.CenterImage(2);1];
+% match.CornerGantry=transformationImage2Gantry.M*[match.CornerImage(1);match.CornerImage(2);1];
+
+%calculating the position of the center and the corner fiducial in Gantry system
+match.CenterGantry=image2gantryCoordinates(match.Center,CurrentPos,[m,n]);
+match.CornerGantry=image2gantryCoordinates(match.Corner,CurrentPos,[m,n]);
 
 FmatchProvisional{i}=match;
 clearvars match
@@ -975,6 +988,43 @@ for h=1:d2(1)
     end
 end
 end  
+
+function pointGCS = image2gantryCoordinates(this, pointICS, imageCenter, sizeImage)
+% transform point form image coordinate system to gantry coordinate systemç
+%
+% this function receives the coordenates of a point in image reference system (origin in top left corner) and transforms it into Gantry reference system.
+%
+% inputs
+%   this: instance of this class
+%   pointICS: point in image coordinate system ([x,y]pixels)
+%   imageCenter: Coordinate of the center of the image in gantry system ([x,y]mm)
+%   sizeImage: Vector with the image size. this is the image where the point is observed. ([row,columns])
+% outputs
+%   pointGCS: angle offset camera-gantry.
+
+% translation from top left corner to cente rof the image
+centerImage=[sizeImage(2)/2,sizeImage(1)/2];
+transformationImage2Center=transform2D();
+transformationImage2Center.translate([-centerImage(1),-centerImage(2)]);
+pointICScentro=transformationImage2Center.M*[pointICS(1);Ypix-pointICS(2);1];
+
+
+% rotation from Image system to Gantry system
+rotation=transform2D();
+rotation.rotate(-this.angle);
+pointICSrotated=rotation.M*[pointICScentro(1);pointICScentro(2);1];
+
+% rotation transformation angle 90
+rotation90=transform2D();
+rotation90.rotate(-pi/2);
+pointICSrotated90=rotation90.M*[pointICSrotated(1);pointICSrotated(2);1];
+
+
+% translation from Imge system to Gantry system
+translate=transform2D();
+translate.translate([imageCenter(1),imageCenter(2)]);
+pointGCS(:)=translate.M*[pointICSrotated90(1);pointICSrotated90(2);1];
+
 
 end
 
