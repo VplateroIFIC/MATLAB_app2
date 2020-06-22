@@ -84,7 +84,7 @@ classdef STAGES < handle
         DefaultTimeOut = 30000;         %Default time out 60 sec      
     end
     properties (Access=public)
-        IsConnected;
+        IsConnected = 0;
     end
     
     
@@ -543,15 +543,15 @@ classdef STAGES < handle
                     %insert here MotorEnable with AEROTECH gantry %
                 case 1
                     switch axis
-                        case 0
+                        case this.X
                             Enable(this.GantryObj,this.xAxis);
-                        case 1
+                        case this.Y
                             Enable(this.GantryObj,this.yAxis);
-                        case 4
+                        case this.Z1
                             Enable(this.GantryObj,this.z1Axis);
-                        case 5
+                        case this.Z2
                             Enable(this.GantryObj,this.z2Axis);
-                        case 6
+                        case this.U
                             Enable(this.GantryObj,this.uAxis);
                     end
             end
@@ -585,15 +585,15 @@ classdef STAGES < handle
                     %insert here MotorDisable with AEROTECH gantry %
                 case 1
                     switch axis
-                        case 0
+                        case this.X
                             Disable(this.GantryObj,this.xAxis);
-                        case 1
+                        case this.Y
                             Disable(this.GantryObj,this.yAxis);
-                        case 4
+                        case this.Z1
                             Disable(this.GantryObj,this.z1Axis);
-                        case 5
+                        case this.Z2
                             Disable(this.GantryObj,this.z2Axis);
-                        case 6
+                        case this.U
                             Disable(this.GantryObj,this.uAxis);
                     end
             end
@@ -638,15 +638,15 @@ classdef STAGES < handle
                     %insert here WaitForMotion with AEROTECH gantry %
                 case 1
                     switch axis
-                        case 0
+                        case this.X
                             WaitMotionEnd(this.GantryObj,this.xAxis,time);
-                        case 1
+                        case this.Y
                             WaitMotionEnd(this.GantryObj,this.yAxis,time);
-                        case 4
+                        case this.Z1
                             WaitMotionEnd(this.GantryObj,this.z1Axis,time);
-                        case 5
+                        case this.Z2
                             WaitMotionEnd(this.GantryObj,this.z2Axis,time);
-                        case 6
+                        case this.U
                             WaitMotionEnd(this.GantryObj,this.uAxis,time);
                     end
             end
@@ -691,15 +691,15 @@ classdef STAGES < handle
                     %insert here MotionAbort with AEROTECH gantry %
                 case 1
                     switch axis
-                        case 0
+                        case this.X
                             Halt(this.GantryObj,this.xAxis);
-                        case 1
+                        case this.Y
                             Halt(this.GantryObj,this.yAxis);
-                        case 4
+                        case this.Z1
                             Halt(this.GantryObj,this.z1Axis);
-                        case 5
+                        case this.Z2
                             Halt(this.GantryObj,this.z2Axis);
-                        case 6
+                        case this.U
                             Halt(this.GantryObj,this.uAxis);
                     end
             end
@@ -722,15 +722,15 @@ classdef STAGES < handle
                         KillAll(this.GantryObj);
                     else
                         switch axis
-                            case 0
+                            case this.X
                                 Kill(this.GantryObj,this.xAxis);
-                            case 1
+                            case this.Y
                                 Kill(this.GantryObj,this.yAxis);
-                            case 4
+                            case this.Z1
                                 Kill(this.GantryObj,this.z1Axis);
-                            case 5
+                            case this.Z2
                                 Kill(this.GantryObj,this.z2Axis);
-                            case 6
+                            case this.U
                                 Kill(this.GantryObj,this.uAxis);
                         end
                     end
@@ -838,15 +838,15 @@ classdef STAGES < handle
                     %insert here MotionAbort with AEROTECH gantry %
                 case 1
                     switch axis
-                        case 0
+                        case this.X
                             State=GetMotorState(this.GantryObj,this.xAxis);
-                        case 1
+                        case this.Y
                             State=GetMotorState(this.GantryObj,this.yAxis);
-                        case 4
+                        case this.Z1
                             State=GetMotorState(this.GantryObj,this.z1Axis);
-                        case 5
+                        case this.Z2
                             State=GetMotorState(this.GantryObj,this.z2Axis);
-                        case 6
+                        case this.U
                             State=GetMotorState(this.GantryObj,this.uAxis);
                     end
             end
@@ -873,15 +873,15 @@ classdef STAGES < handle
                     %insert here MotionAbort with AEROTECH gantry %
                 case 1
                     switch axis
-                        case 0
+                        case this.X
                             State=GetAxisState(this.GantryObj,this.xAxis);
-                        case 1
+                        case this.Y
                             State=GetAxisState(this.GantryObj,this.yAxis);
-                        case 4
+                        case this.Z1
                             State=GetAxisState(this.GantryObj,this.z1Axis);
-                        case 5
+                        case this.Z2
                             State=GetAxisState(this.GantryObj,this.z2Axis);
-                        case 6
+                        case this.U
                             State=GetAxisState(this.GantryObj,this.uAxis);
                     end
             end
