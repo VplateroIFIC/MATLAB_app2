@@ -24,7 +24,7 @@ sizeParticles=5000;
 pixelAreaF=17000;  % nominal value of the F Area in pixels in IFIC setup
 deltaArea=4000;
 perimeterF=900;   % nominal value of the F Perimeter in pixels in IFIC setup
-deltaPerimeter=200;
+deltaPerimeter=150;
 
 % ROIbuilder
 
@@ -38,7 +38,7 @@ cameraRotationOffset=0.018844464640319;
 
 % CirclesFinder
 
-camCalibration=1.8947; %p/um % calibration fiducial
+camCalibration=1.74; %p/um % calibration fiducial
 % camCalibration=3.5739; %p/um % sensor CNM
 % camCalibration=3.5739; %p/um % sensor CNM
 
@@ -58,3 +58,7 @@ binaryFilterKernel_calibrationPlate=9;
 
 binaryFilterKernel_calibration=5;
 minDist=50;
+
+% Calibration rotation camera (rad)
+
+angleCamera=0.019374900026389;
