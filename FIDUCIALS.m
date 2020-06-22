@@ -50,7 +50,7 @@ binaryFilterKernel_calibration;
 minDist;
 
 % image2gantryCoordinates
-angle;
+angleCamera;
 
 
     end
@@ -127,7 +127,7 @@ this.binaryFilterKernel_calibration=binaryFilterKernel_calibration;
 this.minDist=minDist;
 
 %image2gantryCoordinates
-this.angle=angle;
+this.angleCamera=angleCamera;
 
         end
 
@@ -584,8 +584,8 @@ match.Corner(2)=corner(2)+vertex{i}(2);
 % match.CornerGantry=transformationImage2Gantry.M*[match.CornerImage(1);match.CornerImage(2);1];
 
 %calculating the position of the center and the corner fiducial in Gantry system
-match.CenterGantry=image2gantryCoordinates(match.Center,CurrentPos,[m,n]);
-match.CornerGantry=image2gantryCoordinates(match.Corner,CurrentPos,[m,n]);
+match.CenterGantry=this.image2gantryCoordinates(match.Center,CurrentPos,[m,n]);
+match.CornerGantry=this.image2gantryCoordinates(match.Corner,CurrentPos,[m,n]);
 
 FmatchProvisional{i}=match;
 clearvars match
@@ -1002,16 +1002,19 @@ function pointGCS = image2gantryCoordinates(this, pointICS, imageCenter, sizeIma
 % outputs
 %   pointGCS: angle offset camera-gantry.
 
-% translation from top left corner to cente rof the image
+
+
+
+% translation from top left corner to cente of the image
 centerImage=[sizeImage(2)/2,sizeImage(1)/2];
 transformationImage2Center=transform2D();
 transformationImage2Center.translate([-centerImage(1),-centerImage(2)]);
-pointICScentro=transformationImage2Center.M*[pointICS(1);Ypix-pointICS(2);1];
+pointICScentro=transformationImage2Center.M*[pointICS(1);sizeImage(1)-pointICS(2);1];
 
 
 % rotation from Image system to Gantry system
 rotation=transform2D();
-rotation.rotate(-this.angle);
+rotation.rotate(-this.angleCamera);
 pointICSrotated=rotation.M*[pointICScentro(1);pointICScentro(2);1];
 
 % rotation transformation angle 90
@@ -1020,12 +1023,13 @@ rotation90.rotate(-pi/2);
 pointICSrotated90=rotation90.M*[pointICSrotated(1);pointICSrotated(2);1];
 
 
+
 % translation from Imge system to Gantry system
 translate=transform2D();
 translate.translate([imageCenter(1),imageCenter(2)]);
-pointGCS(:)=translate.M*[pointICSrotated90(1);pointICSrotated90(2);1];
+pointGCS(:)=translate.M*[pointICSrotated90(1)/this.camCalibration/1000;pointICSrotated90(2)/this.camCalibration/1000;1];
 
-
+end
 end
 
 end
