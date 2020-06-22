@@ -58,3 +58,7 @@ binaryFilterKernel_calibrationPlate=9;
 
 binaryFilterKernel_calibration=5;
 minDist=50;
+
+% Calibration rotation camera (rad)
+
+angle=0.019374900026389;
