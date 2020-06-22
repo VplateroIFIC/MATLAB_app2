@@ -61,4 +61,4 @@ minDist=50;
 
 % Calibration rotation camera (rad)
 
-angle=0.019374900026389;
+angleCamera=0.019374900026389;
