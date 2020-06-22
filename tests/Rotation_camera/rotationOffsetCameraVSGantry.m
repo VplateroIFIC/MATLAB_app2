@@ -36,7 +36,7 @@ end
 %% calculating rect of the movement %%
 
 %fitting the line
-P = polyfit(centro(:,1),centro(:,2),1);
+P = polyfit(centro(1:10,1),centro(1:10,2),1);
 
 % calculating the angle
 angle=atan(P(1));
@@ -50,6 +50,7 @@ imageCS(j,:)=transformationImage2Center.M*[centro(j,1);Ypix-centro(j,2);1];
 end
 
 imageCSum=imageCS/calibration/1000;
+save('F:\Users\leon\Documents\SilicioGeneral\3-Petals\Assembly\Tests_results\calibration_rotation_camera\gantry\second measures\Horizontal\fiducialsWRTcenter.txt', 'imageCSum', '-ascii', '-double', '-tabs')
 
 
 %% transformation from the center to the gantry system %%
@@ -60,7 +61,7 @@ clearvars transformationGantry2Image  transformationImage2Gantry
 transformationGantry2Image=transform2D();
 transformationImage2Gantry=transform2D();
 transformationGantry2Image.translate([-positions(j,1),-positions(j,2)]); 
-transformationGantry2Image.rotate(2*pi-(pi/2+(pi/2-angle)));
+transformationGantry2Image.rotate(2*pi-(angle));
 transformationImage2Gantry.M=inv(transformationGantry2Image.M);
 imageGantry(j,:)=transformationImage2Gantry.M*[imageCSum(j,1);imageCSum(j,2);1];
 end
