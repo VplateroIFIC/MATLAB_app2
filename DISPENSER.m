@@ -54,6 +54,7 @@ classdef DISPENSER < handle
             %   this function close the serial port and delete all the serial port objects.
             delete(instrfindall);
             this.IsConnected=0;
+            disp('Ultimus disconnected');
         end
         
         
