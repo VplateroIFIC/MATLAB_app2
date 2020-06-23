@@ -219,15 +219,15 @@ classdef STAGES < handle
             % Arguments: object STAGES (this),axis int ()%
             % Returns: double %
             switch axis
-                case 0
+                case this.X
                     value=GetFPosition(this.GantryObj,this.xAxis);
-                case 1
+                case this.Y
                     value=GetFPosition(this.GantryObj,this.yAxis);
-                case 4
+                case this.Z1
                     value=GetFPosition(this.GantryObj,this.z1Axis);
-                case 5
+                case this.Z2
                     value=GetFPosition(this.GantryObj,this.z2Axis);
-                case 6
+                case this.U
                     value=GetFPosition(this.GantryObj,this.uAxis);
             end
         end
@@ -239,15 +239,15 @@ classdef STAGES < handle
             % Arguments: object STAGES (this),axis int ()%
             % Returns: double %
             switch axis
-                case 0
+                case this.X
                     value=GetRPosition(this.GantryObj,this.xAxis);
-                case 1
+                case this.Y
                     value=GetRPosition(this.GantryObj,this.yAxis);
-                case 4
+                case this.Z1
                     value=GetRPosition(this.GantryObj,this.z1Axis);
-                case 5
+                case this.Z2
                     value=GetRPosition(this.GantryObj,this.z2Axis);
-                case 6
+                case this.U
                     value=GetRPosition(this.GantryObj,this.uAxis);
             end
         end
