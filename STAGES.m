@@ -86,6 +86,7 @@ classdef STAGES < handle
         DefaultTimeOut = 30000;         %Default time out 60 sec      
     end
     properties (Access=public)
+        kk;
         IsConnected = 0;
     end
     
@@ -108,6 +109,8 @@ classdef STAGES < handle
                     this.yyAxis=1;
                     this.zAxis=3;
                     this.uAxis=4;
+                    
+                    
                     
                 case 2
                     
@@ -134,6 +137,7 @@ classdef STAGES < handle
                     this.JogVFlag=ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_VELOCITY; 
                     this.bufferNoneLabel=ACS.SPiiPlusNET.ProgramBuffer.ACSC_NONE;
                     this.apiNoneLabel=ACS.SPiiPlusNET.Api.ACSC_NONE;
+                    this.kk = ACS.SPiiPlusNET.MotorStates.ACSC_MST_ENABLE
             end
         end
         
@@ -844,7 +848,7 @@ classdef STAGES < handle
 %             NET.Assembly('ACS.SPiiPlusNET.MotorStates')
 
  %           compare = NET.createArray('ACS.SPiiPlusNET.MotorState',3); axis.Set(0, this.xAxis); axis.Set(1, this.yAxis); axis.Set(2, this.nullAxis);  %d2 = NET.createArray('System.String',3); d2(1) = 'one'; d2(2) = 'two'; d2(3) = 'zero';
-
+%              State = ACS.SPiiPlusNET.MotorStates.ACSC_MST_INP;
 %             ACS.SPiiPlusNET.MotorState State;
 %             disp (state);
 %             State2 = ACS.SPiiPlusNET.MotorStates.ACSC_MST_ENABLE
@@ -864,6 +868,8 @@ classdef STAGES < handle
                         case this.U
                             State=GetMotorState(this.GantryObj,this.uAxis);
                     end
+                    disp("MotorState de STAGES:")
+                    disp(State);
             end
         end
         
