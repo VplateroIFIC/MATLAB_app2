@@ -86,7 +86,6 @@ classdef STAGES < handle
         DefaultTimeOut = 30000;         %Default time out 60 sec      
     end
     properties (Access=public)
-        kk;
         IsConnected = 0;
     end
     
@@ -137,7 +136,6 @@ classdef STAGES < handle
                     this.JogVFlag=ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_VELOCITY; 
                     this.bufferNoneLabel=ACS.SPiiPlusNET.ProgramBuffer.ACSC_NONE;
                     this.apiNoneLabel=ACS.SPiiPlusNET.Api.ACSC_NONE;
-                    this.kk = ACS.SPiiPlusNET.MotorStates.ACSC_MST_ENABLE
             end
         end
         
@@ -286,7 +284,7 @@ classdef STAGES < handle
         function  value = GetPositionAll(this)
             % function  value = GetPosition(this,axis)
             % Arguments: object STAGES (this),axis int ()%
-            % Returns: double array (x,y,rot,z1,z2)%
+            % Returns: double array (x,y,rot,z1,z2,U)%
             
             value (1) = this.GetPosition(this.X);
             value (2) = this.GetPosition(this.Y);
@@ -868,8 +866,6 @@ classdef STAGES < handle
                         case this.U
                             State=GetMotorState(this.GantryObj,this.uAxis);
                     end
-                    disp("MotorState de STAGES:")
-                    disp(State);
             end
         end
         
