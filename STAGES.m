@@ -488,6 +488,12 @@ classdef STAGES < handle
                     return
             end
             
+            if delta == 0
+                return;
+            end
+            if velocity == 0
+                return;
+            end
             
             switch this.GantryType
                 case 0
