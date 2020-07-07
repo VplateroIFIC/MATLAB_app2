@@ -34,18 +34,19 @@ classdef DISPENSER < handle
             delete(instrfindall);   %closing all ports
             
             this.s1 = serial(this.ComPort,'BaudRate',115200,'DataBits',8,'Terminator','CR','BytesAvailableFcnMode','byte'); %creating serial port object
-            set(this.s1, 'BaudRate', 115200);          % set BaudRate to 115200
-            set(this.s1, 'Parity','none');             % set Parity Bit to None
-            set(this.s1, 'DataBits', 8);               % set DataBits to 8
-            set(this.s1, 'StopBit', 1);                % set StopBit to 1
-            out1 = instrfind('Port','COM1');
-            this.SetUltimus('E6  00');   %Setting pressure units
-            this.SetUltimus('TT  ');   %Setting Temporized mode
-            this.SetUltimus('PS  0500');   %Dispensing Pressure: 50 psi
-            this.SetUltimus('DS  T10000');   %Dispensing time window: 1 s
-            this.SetUltimus('VS  0050');   %Setting vacuum: 0.5
-            this.IsConnected=1;
+%             set(this.s1, 'BaudRate', 115200);          % set BaudRate to 115200
+%             set(this.s1, 'Parity','none');             % set Parity Bit to None
+%             set(this.s1, 'DataBits', 8);               % set DataBits to 8
+%             set(this.s1, 'StopBit', 1);                % set StopBit to 1
+%             out1 = instrfind('Port','COM1');
+%             this.SetUltimus('E6  00');   %Setting pressure units
+%             this.SetUltimus('TT  ');   %Setting Temporized mode
+%             this.SetUltimus('PS  0500');   %Dispensing Pressure: 50 psi
+%             this.SetUltimus('DS  T10000');   %Dispensing time window: 1 s
+%             this.SetUltimus('VS  0050');   %Setting vacuum: 0.5
+%             this.IsConnected=1;
             disp('Conection with Ultimus done')
+            this.IsConnected = 1;
         end
         
         
