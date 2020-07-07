@@ -244,7 +244,7 @@ classdef PetalDispensing < handle
         
         %% Dispensing Patterns %%
         
-        function Dispense(this, Sensor)
+        function DispenseContinius(this, Sensor)
             % Generic Dispense function
             % Dispensing procedure for indicated Sensor
             % Arguments: Sensor String
@@ -365,6 +365,129 @@ classdef PetalDispensing < handle
             end
             this.gantry.zSecurityPosition();
         end
+        
+        function DispenseTime(this, Sensor)
+            % Generic Dispense function
+            % Dispensing procedure for indicated Sensor
+            % Arguments: Sensor String
+            %
+            
+            switch Sensor
+                case 'R0'
+                    nLines = 28;
+                    this.f1 = this.petal1.fiducials_sensors.R0{4};
+                    this.f2 = this.petal1.fiducials_sensors.R0{3};
+                    this.f3 = this.petal1.fiducials_sensors.R0{1};
+                    this.f4 = this.petal1.fiducials_sensors.R0{2};
+                    %                     nLines = (this.f1(2) - this.f2(2)-2*this.OffGlueStart)/this.Pitch
+                case 'R1'
+                    nLines = 22;
+                    this.f1 = this.petal1.fiducials_sensors.R1{4};
+                    this.f2 = this.petal1.fiducials_sensors.R1{3};
+                    this.f3 = this.petal1.fiducials_sensors.R1{1};
+                    this.f4 = this.petal1.fiducials_sensors.R1{2};
+                case 'R2'
+                    nLines = 15;
+                    this.f1 = this.petal1.fiducials_sensors.R2{4};
+                    this.f2 = this.petal1.fiducials_sensors.R2{3};
+                    this.f3 = this.petal1.fiducials_sensors.R2{1};
+                    this.f4 = this.petal1.fiducials_sensors.R2{2};
+                case 'R3S0'
+                    nLines = 32;
+                    this.f1 = this.petal1.fiducials_sensors.R3S0{4};
+                    this.f2 = this.petal1.fiducials_sensors.R3S0{3};
+                    this.f3 = this.petal1.fiducials_sensors.R3S0{1};
+                    this.f4 = this.petal1.fiducials_sensors.R3S0{2};
+                case 'R3S1'
+                    nLines = 32;
+                    this.f1 = this.petal1.fiducials_sensors.R3S1{4};
+                    this.f2 = this.petal1.fiducials_sensors.R3S1{3};
+                    this.f3 = this.petal1.fiducials_sensors.R3S1{1};
+                    this.f4 = this.petal1.fiducials_sensors.R3S1{2};
+                case 'R4S0'
+                    nLines = 30;
+                    this.f1 = this.petal1.fiducials_sensors.R4S0{4};
+                    this.f2 = this.petal1.fiducials_sensors.R4S0{3};
+                    this.f3 = this.petal1.fiducials_sensors.R4S0{1};
+                    this.f4 = this.petal1.fiducials_sensors.R4S0{2};
+                case 'R4S1'
+                    nLines = 30;
+                    this.f1 = this.petal1.fiducials_sensors.R4S1{4};
+                    this.f2 = this.petal1.fiducials_sensors.R4S1{3};
+                    this.f3 = this.petal1.fiducials_sensors.R4S1{1};
+                    this.f4 = this.petal1.fiducials_sensors.R4S1{2};
+                case 'R5S0'
+                    nLines = 27;
+                    this.f1 = this.petal1.fiducials_sensors.R5S0{4};
+                    this.f2 = this.petal1.fiducials_sensors.R5S0{3};
+                    this.f3 = this.petal1.fiducials_sensors.R5S0{1};
+                    this.f4 = this.petal1.fiducials_sensors.R5S0{2};
+                case 'R5S1'
+                    nLines = 27;
+                    this.f1 = this.petal1.fiducials_sensors.R5S1{4};
+                    this.f2 = this.petal1.fiducials_sensors.R5S1{3};
+                    this.f3 = this.petal1.fiducials_sensors.R5S1{1};
+                    this.f4 = this.petal1.fiducials_sensors.R5S1{2};
+                otherwise
+                    fprintf ('\n\t Error, "%s" is not a valid sensor name', Sensor);
+            end
+            
+            Line = 0;
+            error = 0;
+            %Calculate Start and Stop gluing lines
+            this.LinesCalculation();
+            
+            % Dispense first line in Sensor coordinates
+            [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
+            
+            % Calculate first line in Gantry coordinates
+            StartGantry = this.petal1.sensor_to_gantry(StartSensor, Sensor);
+            StopGantry = this.petal1.sensor_to_gantry(StopSensor, Sensor);
+            
+            % Move to Start Position and start dispensing
+            this.gantry.MoveToFast(StartGantry(1), StartGantry(2), 1);
+            this.GPositionDispensing();
+            error = error + this.SetContiusMode();
+            if error ~= 0
+                fprintf ('\n DISPENSER ERROR \n');
+                return
+            end
+            error = error + this.StartDispensing();
+            if error ~= 0
+                fprintf ('\n DISPENSER ERROR \n');
+                return
+            end
+            this.gantry.MoveToLinear(StopGantry(1), StopGantry(2), this.dispSpeed);
+            
+            for Line=1:nLines
+                % Calculate line in Sensor coordinates
+                [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
+                % Flip Start and Stop point if line number is odd
+                if rem(Line,2) ~= 0
+                    Temporal = StartSensor;
+                    StartSensor = StopSensor;
+                    StopSensor = Temporal;
+                end
+                
+                %Convert to Gantry coordinates
+                fprintf('Line %d -> ',Line);
+                StartGantry = this.petal1.sensor_to_gantry(StartSensor, Sensor);
+                StopGantry = this.petal1.sensor_to_gantry(StopSensor, Sensor);
+                %When last movement finished, continue with next line
+                tic
+                this.gantry.WaitForMotionAll()
+                this.gantry.MoveToLinear(StartGantry(1), StartGantry(2), this.dispSpeed);
+                this.gantry.MoveToLinear(StopGantry(1), StopGantry(2), this.dispSpeed);
+                toc
+            end
+            this.gantry.WaitForMotionAll()
+            error = error + this.StartDispensing();
+            if error ~= 0
+                fprintf ('\n DISPENSER ERROR \n');
+            end
+            this.gantry.zSecurityPosition();
+        end
+        
         
         %% Plotting Patterns %%
         
