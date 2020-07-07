@@ -12,4 +12,4 @@ imaqreset
 
 % gantry.MoveToFast(350,0)
 % gantry.MoveTo(gantry.Z1,-25,10)
-% gantry.MoveTo(gantry.Z2,-70,10)
+% gantry.MoveTo(gantry.Z2,-65,10)
