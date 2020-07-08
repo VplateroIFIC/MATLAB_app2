@@ -103,10 +103,14 @@ classdef PetalDispensing < handle
             cmd = sprintf('E7--01');      % Set dispenser Vacuum unit "H2O
             error = error + this.dispenser.SetUltimus(cmd);
             
-            cmd = sprintf('PS--4000');    % Set dispenser pressure to 40 KPA = 0.4 BAR
+            value = 0.2;                    % 4 BAR
+            value = value * 1000;
+            cmd = sprintf('PS--%04d', value);    % Set dispenser pressure to 40 KPA = 0.4 BAR
             error = error + this.dispenser.SetUltimus(cmd);
             
-            cmd = sprintf('VS--0005');    % Set dispenser vacuum to 0.12 KPA = 0.5 "H2O
+            value = 0.2;                  % 0.5 "H2O
+            value = value * 10;
+            cmd = sprintf('VS--%04d', value);    % Set dispenser vacuum to 0.12 KPA = 0.5 "H2O
             error = error + this.dispenser.SetUltimus(cmd);
             
             error = error + this.SetTime(1000);    % Dispenser in timing mode and t=1000 msec
@@ -119,12 +123,21 @@ classdef PetalDispensing < handle
             % Set dispenser in timing mode and preset the desired time
             
             error = 0;
-            cmd = sprintf('TT--');           %Setting timing mode
-            error = error + this.dispenser.SetUltimus(cmd);
-            
             cmd = sprintf('DS-T%04d',time); %Setting time in ms
+            disp(cmd)
             error = error + this.dispenser.SetUltimus(cmd);
             pause(0.1);
+        end
+        
+        function error = SetTimingMode(this)
+            % SetTimingMode function (time)
+            % Arguments: none
+            % Returns: 0 if communication was OK
+            % Set dispenser in timing mode
+            
+            error = 0;
+            cmd = sprintf('TT--');           %Setting timing mode
+            error = error + this.dispenser.SetUltimus(cmd);
         end
         
         function error = SetContiusMode(this)
@@ -147,6 +160,7 @@ classdef PetalDispensing < handle
             
             cmd = sprintf('DI--');
             error = this.dispenser.SetUltimus(cmd);
+            pause(0.2)
         end
         
         function ReadDispenserStatus(this)
@@ -312,6 +326,8 @@ classdef PetalDispensing < handle
             
             Line = 0;
             error = 0;
+            %%timeStart = zeros(1,nLines);
+            timeStop = zeros(1,nLines);
             %Calculate Start and Stop gluing lines
             this.LinesCalculation();
             
@@ -348,21 +364,26 @@ classdef PetalDispensing < handle
                 end
                 
                 %Convert to Gantry coordinates
-                fprintf('Line %d -> ',Line);
+%                 fprintf('Line %d -> ',Line);
                 StartGantry = this.petal1.sensor_to_gantry(StartSensor, Sensor);
                 StopGantry = this.petal1.sensor_to_gantry(StopSensor, Sensor);
                 %When last movement finished, continue with next line
-                tic
+                
                 this.gantry.WaitForMotionAll()
+                
                 this.gantry.MoveToLinear(StartGantry(1), StartGantry(2), this.dispSpeed);
+                timeStart = tic;
                 this.gantry.MoveToLinear(StopGantry(1), StopGantry(2), this.dispSpeed);
-                toc
+                this.gantry.WaitForMotionAll()
+                timeStop(Line) = toc(timeStart);
+                fprintf('Line %d -> %.3f\n', Line, timeStop(Line))
             end
             this.gantry.WaitForMotionAll()
             error = error + this.StartDispensing();
             if error ~= 0
                 fprintf ('\n DISPENSER ERROR \n');
             end
+            save('R0.mat', 'timeStop')
             this.gantry.zSecurityPosition();
         end
         
@@ -372,6 +393,8 @@ classdef PetalDispensing < handle
             % Arguments: Sensor String
             %
             
+            this.SetTimingMode();
+            
             switch Sensor
                 case 'R0'
                     nLines = 28;
@@ -380,6 +403,7 @@ classdef PetalDispensing < handle
                     this.f3 = this.petal1.fiducials_sensors.R0{1};
                     this.f4 = this.petal1.fiducials_sensors.R0{2};
                     %                     nLines = (this.f1(2) - this.f2(2)-2*this.OffGlueStart)/this.Pitch
+                    load('R0.mat', 'timeStop');
                 case 'R1'
                     nLines = 22;
                     this.f1 = this.petal1.fiducials_sensors.R1{4};
@@ -434,6 +458,10 @@ classdef PetalDispensing < handle
             
             Line = 0;
             error = 0;
+            fprintf('%.3f ; ',timeStop);
+            disp(' ');
+            time = uint16((timeStop*1000) - 400);
+            fprintf('%d ; ',time);
             %Calculate Start and Stop gluing lines
             this.LinesCalculation();
             
@@ -447,7 +475,7 @@ classdef PetalDispensing < handle
             % Move to Start Position and start dispensing
             this.gantry.MoveToFast(StartGantry(1), StartGantry(2), 1);
             this.GPositionDispensing();
-            error = error + this.SetContiusMode();
+            error = error + this.SetTime(time(1));
             if error ~= 0
                 fprintf ('\n DISPENSER ERROR \n');
                 return
@@ -458,7 +486,7 @@ classdef PetalDispensing < handle
                 return
             end
             this.gantry.MoveToLinear(StopGantry(1), StopGantry(2), this.dispSpeed);
-            
+            tic
             for Line=1:nLines
                 % Calculate line in Sensor coordinates
                 [StartSensor, StopSensor] = this.CalculateStartAndStop(Line);
@@ -470,21 +498,31 @@ classdef PetalDispensing < handle
                 end
                 
                 %Convert to Gantry coordinates
-                fprintf('Line %d -> ',Line);
                 StartGantry = this.petal1.sensor_to_gantry(StartSensor, Sensor);
                 StopGantry = this.petal1.sensor_to_gantry(StopSensor, Sensor);
-                %When last movement finished, continue with next line
-                tic
+                %When last movement finished, continue with next line 
+                this.gantry.WaitForMotionAll()
+                toc
+                error = error + this.SetTime(time(Line));
+                if error ~= 0
+                    fprintf ('\n DISPENSER ERROR \n');
+                    return
+                end
+                fprintf('Line %d (%d) -> ',Line, time(Line));
                 this.gantry.WaitForMotionAll()
                 this.gantry.MoveToLinear(StartGantry(1), StartGantry(2), this.dispSpeed);
+                error = error + this.StartDispensing();
+                if error ~= 0
+                    fprintf ('\n DISPENSER ERROR \n');
+                end
                 this.gantry.MoveToLinear(StopGantry(1), StopGantry(2), this.dispSpeed);
-                toc
+                tic
             end
             this.gantry.WaitForMotionAll()
-            error = error + this.StartDispensing();
-            if error ~= 0
-                fprintf ('\n DISPENSER ERROR \n');
-            end
+%             error = error + this.StartDispensing();
+%             if error ~= 0
+%                 fprintf ('\n DISPENSER ERROR \n');
+%             end
             this.gantry.zSecurityPosition();
         end
         
