@@ -460,7 +460,7 @@ classdef PetalDispensing < handle
             error = 0;
             fprintf('%.3f ; ',timeStop);
             disp(' ');
-            time = uint16((timeStop*1000) - 400);
+            time = uint16((timeStop*1000) - 380);
             fprintf('%d ; ',time);
             %Calculate Start and Stop gluing lines
             this.LinesCalculation();
