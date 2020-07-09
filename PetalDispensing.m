@@ -9,7 +9,7 @@ classdef PetalDispensing < handle
         dispenser;
         ready = 0;
         zWaitingHeigh = 10;            % Z Position prepared to dispense
-        zDispensingHeigh = -71.4;             % Z Position while glue dispensing
+        zDispensingHeigh = -73.4;      % Z Position while glue dispensing
     end
     
     properties (Access = public)
@@ -103,12 +103,12 @@ classdef PetalDispensing < handle
             cmd = sprintf('E7--01');      % Set dispenser Vacuum unit "H2O
             error = error + this.dispenser.SetUltimus(cmd);
             
-            value = 0.2;                    % 4 BAR
+            value = 4;                    % 4 BAR
             value = value * 1000;
             cmd = sprintf('PS--%04d', value);    % Set dispenser pressure to 40 KPA = 0.4 BAR
             error = error + this.dispenser.SetUltimus(cmd);
             
-            value = 0.2;                  % 0.5 "H2O
+            value = 0.5;                  % 0.5 "H2O
             value = value * 10;
             cmd = sprintf('VS--%04d', value);    % Set dispenser vacuum to 0.12 KPA = 0.5 "H2O
             error = error + this.dispenser.SetUltimus(cmd);
@@ -371,7 +371,11 @@ classdef PetalDispensing < handle
                 
                 this.gantry.WaitForMotionAll()
                 
-                this.gantry.MoveToLinear(StartGantry(1), StartGantry(2), this.dispSpeed);
+%                 MoveTo(this,axis,target,velocity, wait)
+                this.gantry.MoveTo(this.gantry.X,StartGantry(1),this.dispSpeed)
+                this.gantry.MoveTo(this.gantry.Y,StartGantry(2),this.dispSpeed)
+                this.gantry.WaitForMotionAll()
+% % %                 this.gantry.MoveToLinear(StartGantry(1), StartGantry(2), this.dispSpeed);
                 timeStart = tic;
                 this.gantry.MoveToLinear(StopGantry(1), StopGantry(2), this.dispSpeed);
                 this.gantry.WaitForMotionAll()
@@ -511,6 +515,7 @@ classdef PetalDispensing < handle
                 fprintf('Line %d (%d) -> ',Line, time(Line));
                 this.gantry.WaitForMotionAll()
                 this.gantry.MoveToLinear(StartGantry(1), StartGantry(2), this.dispSpeed);
+                pause(0.5)
                 error = error + this.StartDispensing();
                 if error ~= 0
                     fprintf ('\n DISPENSER ERROR \n');
@@ -524,6 +529,7 @@ classdef PetalDispensing < handle
 %                 fprintf ('\n DISPENSER ERROR \n');
 %             end
             this.gantry.zSecurityPosition();
+            this.gantry.WaitForMotionAll();
         end
         
         
