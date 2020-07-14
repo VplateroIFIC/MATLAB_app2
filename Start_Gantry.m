@@ -32,6 +32,7 @@ pause(0.1)
 cmd = sprintf('AU---');
 Feedback = dispenser.GetUltimus(cmd)
 
+return
 
 tic
 gantry.WaitForMotionAll()
@@ -39,23 +40,6 @@ tic
 gluing.StartDispensing()
 toc
 
-return
 
-for i=1:10
-gluing.DispenseContinius('R0')
-variable = sprintf('timeStop%d',i)
-load('R0_times.mat', timeStop)
-end
-times = [timeStop1;timeStop2;timeStop3;timeStop4;timeStop5;timeStop6;timeStop7;timeStop8;timeStop9];
-save('R0_times.mat', 'times')
 
-gantry.MoveToFast(350,0)
-gantry.MoveTo(gantry.Z1,-25,10)
-gantry.MoveTo(gantry.Z2,-65,10)
-gantry.MotorDisableAll;
-gantry.Disconnect;
-
-for i=1:28
-    timeStop(i) = mean(times(i));
-end
 
