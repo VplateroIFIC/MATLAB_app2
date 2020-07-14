@@ -326,7 +326,7 @@ classdef PetalDispensing < handle
             
             Line = 0;
             error = 0;
-            %%timeStart = zeros(1,nLines);
+
             timeStop = zeros(1,nLines);
             %Calculate Start and Stop gluing lines
             this.LinesCalculation();
@@ -387,7 +387,7 @@ classdef PetalDispensing < handle
             if error ~= 0
                 fprintf ('\n DISPENSER ERROR \n');
             end
-            save('R0.mat', 'timeStop')
+            save('R0_times.mat', 'timeStop')
             this.gantry.zSecurityPosition();
         end
         
@@ -464,7 +464,7 @@ classdef PetalDispensing < handle
             error = 0;
             fprintf('%.3f ; ',timeStop);
             disp(' ');
-            time = uint16((timeStop*1000) - 380);
+            time = uint16((timeStop*1000) - 380);     %Convert from seg to ms and estimate a delay of 380ms for Ultimus
             fprintf('%d ; ',time);
             %Calculate Start and Stop gluing lines
             this.LinesCalculation();
@@ -1935,123 +1935,6 @@ classdef PetalDispensing < handle
                 end
             end
         end
-        
-        %         function xStartP = StartLine(this, yStartP)
-        %             % function Line12Start()
-        %             % Arg: none
-        %             % Return: none
-        %             % Calculate line equations between F-F: 1-2 and 3-4 in the
-        %             % petal system
-        %
-        %             this.mLine12 = (this.f2(1) - this.f1(1))/(this.f2(2) - this.f1(2));
-        %             this.qLine12 = (this.f2(2)*this.f1(1)) - (this.f1(2)*this.f2(1)) / (this.f2(2)-this.f1(2));
-        %             xStartP = this.mLine12*yStartP + this.qLine12;
-        %         end
-        
-        %         function xStopP = StopLine(this, yStopP)
-        %             % function Line12Start()
-        %             % Arg: none
-        %             % Return: none
-        %             % Calculate line equations between F-F: 1-2 and 3-4 in the
-        %             % petal system
-        %
-        %             this.mLine34 = (this.f4(1) - this.f3(1))/(this.f4(2)-this.f3(2));
-        %             this.qLine34 = ((this.f4(2)*this.f3(1)) - (this.f3(2)*this.f4(1))) / (this.f4(2)-this.f3(2));
-        %             xStopP = this.mLine34*yStopP +this.qLine34;
-        %         end
-        
-        
-        
-        
-        
-        %         function yStartP = Line12Start(this, xStartP)
-        %             % function Line12Start()
-        %             % Arg: none
-        %             % Return: none
-        %             % Calculate line equations between F-F: 1-2 and 3-4 in the
-        %             % petal system
-        %
-        %             mLine12 = (this.Yf2 - this.Yf1)/(this.Xf2 - this.Xf1);
-        %             qLine12 = ((this.Xf2*this.Yf1) - (this.Xf1*this.Yf2)) / (this.Xf2-this.Xf1);
-        %             yStartP = mLine12*xStartP +qLine12;
-        %         end
-        
-        
-        %         function R0_Pattern(this)
-        %             % DispenseTest function
-        %             % Dispense 4 dropplets
-        %             % Arguments: none
-        %             %
-        %
-        %             t = 1000;  %mseg
-        %             nLines = 28;
-        %             error = 0;
-        %
-        %             this.f1 = this.petal1.fiducials_sensors.R0{4};
-        %             this.f2 = this.petal1.fiducials_sensors.R0{3};
-        %
-        %             this.f3 = this.petal1.fiducials_sensors.R0{1};
-        %             this.f4 = this.petal1.fiducials_sensors.R0{2};
-        %
-        %             StartSensor(2) = this.f1(2,1) - this.OffGlueStart(2);
-        %             StartSensor(1) = this.StartLine(StartSensor(2) + this.OffGlueStart(1));
-        %             StopSensor(2) = this.f3(2,1) - this.OffGlueStart(2);
-        %             StopSensor(1) = this.StopLine(StopSensor(2) + this.OffGlueStart(1));
-        %
-        %             StartGantry = this.petal1.sensor_to_gantry(StartSensor, 'R0');
-        %             StopGantry = this.petal1.sensor_to_gantry(StopSensor, 'R0');
-        %
-        %             error = error + this.DispenserDefaults();
-        %             error = error + this.SetTime(t);
-        %             if error ~= 0
-        %                 fprintf ('\n DISPENSER ERROR \n');
-        %                 return
-        %             end
-        %
-        %             % Dispensing line 0
-        %             this.gantry.MoveToFast(StartGantry(1), StartGantry(2), 1);
-        %             this.GPositionDispensing();
-        %             error = error + this.StartDispensing();
-        %             if error ~= 0
-        %                 fprintf ('\n DISPENSER ERROR \n');
-        %                 return
-        %             end
-        %             this.gantry.MoveToLinear(StopGantry(1), StopGantry(2), this.dispSpeed, 1);
-        %             this.GPositionWaiting();
-        %
-        %             % Dispensing loop
-        %             for Line=1:nLines
-        %                 if 1<=Line && Line<=6
-        %                     t = 1050;
-        %                 elseif 7<=Line && Line<=12
-        %                     t = 1100;
-        %                 elseif 13<=Line && Line<=18
-        %                     t = 1200;
-        %                 elseif 19<=Line && Line<=24
-        %                     t = 1300;
-        %                 elseif 25<=Line && Line<=28
-        %                     t = 1400;
-        %                 end
-        %                 this.SetTime(t);
-        %
-        %                 %Calculate Start and Stop line position in sensor
-        %                 StartSensor(2) = this.f1(2,1) - this.Pitch * Line - this.OffGlueStart(2);
-        %                 StartSensor(1) = this.StartLine(StartSensor(2) + this.OffGlueStart(1));
-        %                 StopSensor(2) = this.f3(2,1) - this.Pitch * Line - this.OffGlueStart(2);
-        %                 StopSensor(1) = this.StopLine(StopSensor(2) + this.OffGlueStart(1));
-        %                 %Change to Gantry coordinates after dispensing
-        %                 StartGantry = this.petal1.sensor_to_gantry(StartSensor, 'R0');
-        %                 StopGantry = this.petal1.sensor_to_gantry(StopSensor, 'R0');
-        %
-        %                 %Prepare to dispense
-        %                 this.gantry.MoveToFast(StartGantry(1), StartGantry(2), 1);
-        %                 this.GPositionDispensing();
-        %                 %Dispensing line
-        %                 this.StartDispensing();
-        %                 this.gantry.MoveToLinear(StopGantry(1), StopGantry(2), this.dispSpeed, 1);
-        %                 this.GPositionWaiting()
-        %             end
-        %         end
     end
 end
 
