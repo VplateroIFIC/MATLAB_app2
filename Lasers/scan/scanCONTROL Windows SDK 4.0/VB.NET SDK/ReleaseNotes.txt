@@ -1,0 +1,5 @@
+25.05.20 Release v1.0.1
+- LLT.dll upgraded to v 3.9.0.2077
+
+21.10.19 Release v1.0
+- Features copied from C# SDK including support for scanCONTROL 30xx and 25xx
