@@ -1,0 +1,1766 @@
+#define PI Math.PI
+#define strProg  	$strglob0	// variable for outputting to "Messages"
+#define strSens		$strglob1	// variable for storing chosen sensor
+#define strTime		$strglob2	// variable for keeping track of elapsed time
+#define strOut		$strglob3	// variable for output filename
+
+//**************************************************************************************//
+// MAKE SURE TO MEASURE THE Syringe OFFSET TO GIVE THIS CODE A ROUGH START POINT
+//VALUE FOUND AFTER RE-CALIB
+
+#define camX -0.086097 // 'x' distance from camera to axis of rotation
+#define camY -95.295887   // 'y' distance from camera to axis of rotation
+#define glueOffX 96.13
+#define glueOffY 19.41
+
+#define OffGlueStartX 5    //distance from di F to glue
+#define OffGlueStartY 5
+
+
+
+//**************************************************************************************//
+//GLUE THINGS
+#define STX   		2
+#define ETX   		3
+#define EOT   		4
+#define ENQ   		5
+#define ACK   		6
+#define NACK 		21
+#define strCmd   	$strglob0
+#define strTemp  	$strglob1
+#define strChrLS 	$strglob2
+#define strChrMS 	$strglob3
+#define strData  	$strglob4
+#define ASCII_ZERO 	48
+
+///  Variable Declaration //////////////
+// User variables
+DVAR $abc1 $abc2 $abc3
+
+DVAR $xCOR $yCOR $const1 $const2 $xx1 $YY1 $YY2 $xx2 $yyy2 $yyy1 $num $gapX $gapY_in $gapY_out $NUM
+// Glue variables
+DVAR $hFile $SerialChar $NumBytes $SerialChar2 $SerialChar3 $Length $CheckSum $Lp $Data $CmdResult
+
+
+// Variable declarations (used throughout code)
+DVAR $petalXYZ1[3] $petalXYZ2[3] $sensorXYZ1[3] $sensorXYZ2[3] $fleng[4] $fang[4] $bridgeXYZ1[3] $bridgeXYZ2[3]
+DVAR $sensorAngle $bridgeAngle $petalFidAngle
+DVAR $counter $newAng[4] $newX[4] $newY[4] $cycles $current
+DVAR $hFile $nItems $temp[75] $Output $Output0
+DVAR $endXYZ[7] $expectedXYZ[12] $measuredXYZ[12] $modXYZ[12] $aveXYZ[3] $stdXYZ[3] $survey
+DVAR $store[2] $hypo $dHypo $theta $dTheta $offsetAngle[5]
+DVAR $endLength $endAngle $offLength $offAngle $holdAngle $petalEnd
+DVAR $currentP[4] $compareP[2] $countP $thresholdP
+DVAR $elapsed[3] $flag $select $petalID $sensor[10] $place $numSens
+DVAR $PickupTool[3] $Xf $Yf $X_startGlue $Y_startGlue
+DVAR $Xf1 $Yf1 $Xf2 $Yf2 $Xf3 $Yf3 $Xf4 $Yf4 $Xf1_G $Yf1_G $Xf2_G $Yf2_G $Xf3_G $Yf3_G $Xf4_G $Yf4_G
+DVAR $mLine12 $mLine34 $qLine12 $qLine34 $xStartP $xStartG $yStartP $yStartG $xStopP $xStopG $yStopP $yStopG $Z_petal $pitch $RotSys 
+
+/////////////////////////////////////////////////////////////////////////////////
+
+//-----------------------------------------------------------------------------------//
+
+//------------------------------------------------------------------//
+
+ENABLE X Y Z U
+HOME Z U CONDITIONAL // For safety, move in z first! 
+HOME X Y CONDITIONAL
+
+//------------------------------------------------------------------//
+
+RAMP TYPE SINE
+RAMP MODE TIME	// Set time it takes to
+RAMP TIME 3		// reach speed (seconds)
+
+//F velocityXYZ
+//E velocityU
+ABSOLUTE
+
+TrajectoryFIRFilter.X = 200
+TrajectoryFIRFilter.Y = 200
+TrajectoryFIRFilter.YY = 200
+TrajectoryFIRFilter.Z = 200
+
+//------------------------------------------------------------------//
+MSGCLEAR -1 
+
+
+//------------------------------------------------------------------//
+////////////////////////////
+/// Scan Petal Fiducials ///
+////////////////////////////
+
+
+
+$flag = 0
+WHILE ($flag == 0) DO
+	' Display menu of choices, allow user to pick one
+	MSGMENU (DF_MENU_REMOVE), -1 ""
+	IF ($sensor[0] == 0) THEN
+		MSGMENU (DF_MENU_ADD), 1, "Front, EoS right side"
+	ELSE
+		MSGMENU (DF_MENU_ADD), 1, "[DONE]"
+	ENDIF
+	IF ($sensor[1] == 0) THEN
+		MSGMENU (DF_MENU_ADD), 2, "Back, EoS left side"
+	ELSE
+		MSGMENU (DF_MENU_ADD), 2, "[DONE]"
+	ENDIF
+	
+	$select = MSGMENU (DF_MENU_SHOW), (DF_MSGBOX_OKCANCEL), "What side do you want to load?;", 1
+	IF ($info0 == 1) THEN
+		IF ($select == 1) THEN
+			strSens = "Front, EoS right side"
+			$numSens = 0
+		ELSEIF ($select == 2)
+			strSens = "Back, EoS left side"
+			$numSens = 1
+		ENDIF
+	ELSE
+		call endProgram
+	ENDIF
+	
+	IF ($sensor[$numSens] == 0) THEN
+		$flag = 1
+	ENDIF
+ENDWHILE
+
+IF (STRCMP(strSens,"Front, EoS right side",1) == 0)
+
+$temp[0] = 34.51733
+$temp[1] = -528.9473
+$temp[2] = -78.28
+$temp[3] = 621.1747
+$temp[4] = -659.9258
+$temp[5] = -78.3615
+$petalEnd= -12.6   //angle between x petal axis and petal locators line 
+
+ELSEIF(STRCMP(strSens,"Back, EoS left side",1) == 0)
+	
+$temp[0] = 34.22
+$temp[1] = -528.848
+$temp[2] = -77.8
+$temp[3] = 620.73       
+$temp[4] = -397.35
+$temp[5] = -78.4
+$petalEnd= 12.6   //angle between x petal axis and petal locators line 
+ENDIF
+
+
+	// Move to stored locations of inner fiducials
+	LINEAR Z-50
+	LINEAR X$temp[0] Y$temp[1]
+	LINEAR Z$temp[2]
+	// Call joystick subroutine for user input (manual alignment of fiducial)
+	call joystickCMD
+
+	// Overwrite coordinates of fiducial with new coordinates
+	$temp[0] = AXISSTATUS(X, DATAITEM_ProgramPositionFeedback)
+	$temp[1] = AXISSTATUS(Y, DATAITEM_ProgramPositionFeedback)
+	$temp[2] = AXISSTATUS(Z, DATAITEM_ProgramPositionFeedback)
+	
+	// Adjust coordinates for use in code
+	$petalXYZ1[0] = $temp[0] + camX
+	$petalXYZ1[1] = $temp[1] + camY
+	$petalXYZ1[2] = $temp[2]
+
+	DWELL 1
+	
+	strProg = "Fiducial found; moving to second petal fiducial..."
+	call writeOutput
+	// Move to stored locations of outer fiducials
+	//LINEAR Z-50
+	LINEAR X$temp[3] Y$temp[4]
+	LINEAR Z$temp[5]
+	// Call joystick subroutine for user input (manual alignment of fiducial)
+	call joystickCMD
+
+	// Overwrite coordinates of fiducial with new coordinates
+	$temp[3] = AXISSTATUS(X, DATAITEM_ProgramPositionFeedback)
+	$temp[4] = AXISSTATUS(Y, DATAITEM_ProgramPositionFeedback)
+	$temp[5] = AXISSTATUS(Z, DATAITEM_ProgramPositionFeedback)
+	
+	// Adjust coordinates for use in code
+	$petalXYZ2[0] = $temp[3] + camX
+	$petalXYZ2[1] = $temp[4] + camY
+	$petalXYZ2[2] = $temp[5]
+	
+	strProg = "Petal orientation found."
+	call writeOutput
+
+	
+	strProg = "Petal orientation skipped by user; will use default values..."
+	call writeOutput
+////////////////////////
+LINEAR Z-50
+DWELL 1
+
+
+
+// Compute angle of petal orientation
+$petalFidAngle = ((ATAN2($petalXYZ2[1] - $petalXYZ1[1], $petalXYZ2[0] - $petalXYZ1[0])*180)/PI)
+$RotSys = $petalFidAngle-$petalEnd
+MSGDISPLAY 1, "petalFiducialAngle, Petal Rotation: ", $petalFidAngle, $RotSys
+//--------------------------------------------------------------//
+FILECLOSE
+$Output = FILEOPEN strOut, 2
+strProg = "--------------------------------------"
+FILEWRITE $Output, strProg
+MSGDISPLAY 1, strProg
+strProg = " "
+FILEWRITE $Output, strProg
+MSGDISPLAY 1, strProg
+FILECLOSE
+
+$place = 1
+WHILE ($place == 1) DO
+
+$flag = 0
+WHILE ($flag == 0) DO
+	' Display menu of choices, allow user to pick one
+	MSGMENU (DF_MENU_REMOVE), -1 ""
+	IF ($sensor[0] == 0) THEN
+		MSGMENU (DF_MENU_ADD), 1, "R0"
+	ELSE
+		MSGMENU (DF_MENU_ADD), 1, "[DONE]"
+	ENDIF
+	IF ($sensor[1] == 0) THEN
+		MSGMENU (DF_MENU_ADD), 2, "R1"
+	ELSE
+		MSGMENU (DF_MENU_ADD), 2, "[DONE]"
+	ENDIF
+	IF ($sensor[2] == 0) THEN
+		MSGMENU (DF_MENU_ADD), 3, "R2"
+	ELSE
+		MSGMENU (DF_MENU_ADD), 3, "[DONE]"
+	ENDIF
+	IF ($sensor[3] == 0) THEN
+		MSGMENU (DF_MENU_ADD), 4, "R3S0"
+	ELSE
+		MSGMENU (DF_MENU_ADD), 4, "[DONE]"
+	ENDIF
+	IF ($sensor[4] == 0) THEN
+		MSGMENU (DF_MENU_ADD), 5, "R3S1"
+	ELSE
+		MSGMENU (DF_MENU_ADD), 5, "[DONE]"
+	ENDIF
+	IF ($sensor[5] == 0) THEN
+		MSGMENU (DF_MENU_ADD), 6, "R4S0"
+	ELSE
+		MSGMENU (DF_MENU_ADD), 6, "[DONE]"
+	ENDIF
+	IF ($sensor[6] == 0) THEN
+		MSGMENU (DF_MENU_ADD), 7, "R4S1"
+	ELSE
+		MSGMENU (DF_MENU_ADD), 7, "[DONE]"
+	ENDIF
+	IF ($sensor[7] == 0) THEN
+		MSGMENU (DF_MENU_ADD), 8, "R5S0"
+	ELSE
+		MSGMENU (DF_MENU_ADD), 8, "[DONE]"
+	ENDIF
+	IF ($sensor[8] == 0) THEN
+		MSGMENU (DF_MENU_ADD), 9, "R5S1"
+	ELSE
+		MSGMENU (DF_MENU_ADD), 9, "[DONE]"
+	ENDIF
+	IF ($sensor[9] == 0) THEN
+		MSGMENU (DF_MENU_ADD), 10, "Calibration"
+	ELSE
+		MSGMENU (DF_MENU_ADD), 10, "[DONE]"
+	ENDIF
+
+	$select = MSGMENU (DF_MENU_SHOW), (DF_MSGBOX_OKCANCEL), "Module select;Which module?;", 1
+	IF ($info0 == 1) THEN
+		IF ($select == 1) THEN
+			strSens = "R0"
+			$numSens = 0
+		ELSEIF ($select == 2)
+			strSens = "R1"
+			$numSens = 1
+		ELSEIF ($select == 3)
+			strSens = "R2"
+			$numSens = 2
+		ELSEIF ($select == 4)
+			strSens = "R3S0"
+			$numSens = 3
+		ELSEIF ($select == 5)
+			strSens = "R3S1"
+			$numSens = 4
+		ELSEIF ($select == 6)
+			strSens = "R4S0"
+			$numSens = 5
+		ELSEIF ($select == 7)
+			strSens = "R4S1"
+			$numSens = 6
+		ELSEIF ($select == 8)
+			strSens = "R5S0"
+			$numSens = 7
+		ELSEIF ($select == 9)
+			strSens = "R5S1"
+			$numSens = 8
+		ELSE '($select = 10)
+			strSens = "Calibration"
+			$numSens = 9
+		ENDIF
+	ELSE
+		call endProgram
+	ENDIF
+	
+	IF ($sensor[$numSens] == 0) THEN
+		$flag = 1
+	ENDIF
+ENDWHILE
+
+
+
+//------------------------------------------------------------------------------------------------------------------------//
+IF (STRCMP(strSens,"R0",1) == 0)
+$pitch=3.4
+
+//fiducial coordinates in the petal system	
+	$Xf1=0.54  +OffGlueStartX
+	$Yf1=36.13 -OffGlueStartY
+	
+	$Xf2=104.41 -OffGlueStartX
+	$Yf2=48.19 -OffGlueStartY
+
+	$Xf3=0.08  +OffGlueStartX
+	$Yf3=-40.78 +OffGlueStartY
+
+	$Xf4=104.29  -OffGlueStartX
+	$Yf4=-49.41 +OffGlueStartY
+
+//fiducial coordinates transformed in the gantry system
+
+$X_startGlue=$Xf*COS(-($petalFidAngle - $petalEnd)*PI/180)+$Yf*SIN(-($petalFidAngle - $petalEnd)*PI/180)+	$petalXYZ1[0] + glueOffX
+	$Y_startGlue=-$Xf*SIN(-($petalFidAngle - $petalEnd)*PI/180)+$Yf*COS(-($petalFidAngle - $petalEnd)*PI/180)+ $petalXYZ1[1] + glueOffY
+
+	$Xf1_G= $Xf1*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]  +glueOffX
+	$Yf1_G= -$Xf1*SIN(-($RotSys)*PI/180)+$Yf1*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+
+	$Xf2_G= $Xf2*COS(-($RotSys)*PI/180)+$Yf2*SIN(-($RotSys)*PI/180)+$petalXYZ1[0] +glueOffX
+	$Yf2_G= -$Xf2*SIN(-($RotSys)*PI/180)+$Yf2*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+	$Xf3_G= $Xf3*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]+glueOffX
+	$Yf3_G= -$Xf3*SIN(-($RotSys)*PI/180)+$Yf3*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+	$Xf4_G= $Xf4*COS(-($RotSys)*PI/180)+$Yf4*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]+glueOffX
+	$Yf4_G= -$Xf4*SIN(-($RotSys)*PI/180)+$Yf4*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+//-----------------------------------------------------------------------------------------------------------------------
+//start gluing goint to the starting point
+	
+
+/////////////////////////////////////////////////
+//Gluing code: 29 lines - 3.3 line pitch - 69mm length first line (from the bottom) +0.5 as increment - 10mm slope - 0.15mm shift
+
+RAMP TIME 0.1
+DWELL 2
+
+MSGDISPLAY 1, "R0 pattern"
+//------------------------------------
+FILECLOSE						// Close any files left open
+$hFile = FILEOPEN "COM1", 2		// Open COM1 for serial communications.
+// Initialize serial port with Baud Rate = 9600, Parity = None, Data Bits = 8 and Stop Bits = 1.
+COMMINIT $hFile, "baud=115200 parity=N data=8 stop=1"
+// Set timeout for reading data from the serial port.
+COMMSETTIMEOUT $hFile, 0, 0, 1000
+//msgclear -1
+strCmd = "TT  "			// set timed mode
+call SendCommand
+strCmd = "PS  4000"		// set pressure value (psi) - eg. "PS  0350" = 0.35 BAR
+call SendCommand
+strCmd = "E7  01"		// set vacuum unit 1=H2O
+call SendCommand
+strCmd = "VS  0007"		// set vacuum value 0010=1 H2O
+call SendCommand
+//--------------------------------------------
+ABSOLUTE
+$xStartG=$Xf1_G
+$yStartG=$Yf1_G
+$xStopG=$Xf3_G
+$yStopG=$Yf3_G
+	
+	LINEAR X+$xStartG   Y+$yStartG
+	LINEAR Z-93
+call joystickZ
+$Z_petal = AXISSTATUS(Z, DATAITEM_ProgramPositionFeedback)
+
+strCmd = "DS  T10000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG    Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+//----------------------------------------------------------------------------
+FOR $NUM=1 TO 6 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180) + $Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T10500"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+//----------------------------------------------------------------------------------
+
+FOR $NUM=7 TO 12 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T11000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F50
+NEXT $NUM
+//----------------------------------------------------------------------------------
+FOR $NUM=13 TO 18 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T12000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+//----------------------------------------------------------------------------------
+
+FOR $NUM=19 TO 24 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T13000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40 
+NEXT $NUM
+//----------------------------------------------------------------------------------
+FOR $NUM=25 TO 28 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T14000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+//----------------------------------------------------------------------------------
+LINEAR Z-50
+
+////////////////////////////////////////////////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ELSEIF (STRCMP(strSens,"R1",1) == 0)
+$pitch=3.4
+	//fiducial coordinates in the petal system	
+	$Xf1= 105.36 +OffGlueStartX
+	$Yf1=46.43 -OffGlueStartY
+	
+	$Xf2=189.81 -OffGlueStartX
+	$Yf2=56.25 -OffGlueStartY
+
+	$Xf3=104.86  +OffGlueStartX
+	$Yf3=-51.43 +OffGlueStartY
+
+	$Xf4=189.58  -OffGlueStartX
+	$Yf4=-58.46 +OffGlueStartY
+
+//fiducial coordinates transformed in the gantry system
+
+	$Xf1_G= $Xf1*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]  +glueOffX
+	$Yf1_G= -$Xf1*SIN(-($RotSys)*PI/180)+$Yf1*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+
+	$Xf2_G= $Xf2*COS(-($RotSys)*PI/180)+$Yf2*SIN(-($RotSys)*PI/180)+$petalXYZ1[0] +glueOffX
+	$Yf2_G= -$Xf2*SIN(-($RotSys)*PI/180)+$Yf2*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+	$Xf3_G= $Xf3*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]+glueOffX
+	$Yf3_G= -$Xf3*SIN(-($RotSys)*PI/180)+$Yf3*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+	$Xf4_G= $Xf4*COS(-($RotSys)*PI/180)+$Yf4*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]+glueOffX
+	$Yf4_G= -$Xf4*SIN(-($RotSys)*PI/180)+$Yf4*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+//--------------------------------------------------------------------------------------------------
+//start gluing goint to the starting point
+	
+
+/////////////////////////////////////////////////
+//Gluing code: 29 lines - 3.3 line pitch - 69mm length first line (from the bottom) +0.5 as increment - 10mm slope - 0.15mm shift
+
+RAMP TIME 0.1
+DWELL 2
+
+MSGDISPLAY 1, "R1 pattern"
+//------------------------------------
+FILECLOSE						// Close any files left open
+$hFile = FILEOPEN "COM1", 2		// Open COM1 for serial communications.
+// Initialize serial port with Baud Rate = 9600, Parity = None, Data Bits = 8 and Stop Bits = 1.
+COMMINIT $hFile, "baud=115200 parity=N data=8 stop=1"
+// Set timeout for reading data from the serial port.
+COMMSETTIMEOUT $hFile, 0, 0, 1000
+//msgclear -1
+strCmd = "TT  "			// set timed mode
+call SendCommand
+strCmd = "PS  4000"		// set pressure value (psi) - eg. "PS  0350" = 0.35 BAR
+call SendCommand
+strCmd = "E7  01"		// set vacuum unit 1=H2O
+call SendCommand
+strCmd = "VS  0007"		// set vacuum value 0010=1 H2O
+call SendCommand
+//--------------------------------------------
+ABSOLUTE
+$xStartG=$Xf1_G
+$yStartG=$Yf1_G
+$xStopG=$Xf3_G
+$yStopG=$Yf3_G
+	
+	LINEAR X+$xStartG   Y+$yStartG
+	LINEAR Z-93
+call joystickZ
+$Z_petal = AXISSTATUS(Z, DATAITEM_ProgramPositionFeedback)
+
+strCmd = "DS  T14000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG    Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+//----------------------------------------------------------------------------
+FOR $NUM=1 TO 7 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T14000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+//----------------------------------------------------------------------------------
+FOR $NUM=8 TO 13 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T15000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+//----------------------------------------------------------------------------------
+FOR $NUM=14 TO 22 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T16000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+//----------------------------------------------------------------------------------
+
+LINEAR Z-50
+
+
+//===============================================================================
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ELSEIF (STRCMP(strSens,"R2",1) == 0)
+$pitch=3.4
+	//fiducial coordinates in the petal system	
+	$Xf1= 190.71 +OffGlueStartX+1
+	$Yf1=54.9 -OffGlueStartY
+	
+	$Xf2=252.55 -OffGlueStartX
+	$Yf2=62.1 -OffGlueStartY
+
+	$Xf3=190.2  +OffGlueStartX+1
+	$Yf3=-60.05 +OffGlueStartY
+
+	$Xf4=252.24  -OffGlueStartX
+	$Yf4=-65.2 +OffGlueStartY
+
+//fiducial coordinates transformed in the gantry system
+
+	$Xf1_G= $Xf1*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]  +glueOffX
+	$Yf1_G= -$Xf1*SIN(-($RotSys)*PI/180)+$Yf1*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+
+	$Xf2_G= $Xf2*COS(-($RotSys)*PI/180)+$Yf2*SIN(-($RotSys)*PI/180)+$petalXYZ1[0] +glueOffX
+	$Yf2_G= -$Xf2*SIN(-($RotSys)*PI/180)+$Yf2*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+	$Xf3_G= $Xf3*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]+glueOffX
+	$Yf3_G= -$Xf3*SIN(-($RotSys)*PI/180)+$Yf3*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+	$Xf4_G= $Xf4*COS(-($RotSys)*PI/180)+$Yf4*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]+glueOffX
+	$Yf4_G= -$Xf4*SIN(-($RotSys)*PI/180)+$Yf4*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+//--------------------------------------------------------------------------------------------------
+//start gluing goint to the starting point
+	
+
+/////////////////////////////////////////////////
+//Gluing code: 29 lines - 3.3 line pitch - 69mm length first line (from the bottom) +0.5 as increment - 10mm slope - 0.15mm shift
+
+RAMP TIME 0.1
+DWELL 2
+
+MSGDISPLAY 1, "R2 pattern"
+//------------------------------------
+FILECLOSE						// Close any files left open
+$hFile = FILEOPEN "COM1", 2		// Open COM1 for serial communications.
+// Initialize serial port with Baud Rate = 9600, Parity = None, Data Bits = 8 and Stop Bits = 1.
+COMMINIT $hFile, "baud=115200 parity=N data=8 stop=1"
+// Set timeout for reading data from the serial port.
+COMMSETTIMEOUT $hFile, 0, 0, 1000
+//msgclear -1
+strCmd = "TT  "			// set timed mode
+call SendCommand
+strCmd = "PS  4000"		// set pressure value (psi) - eg. "PS  0350" = 0.35 BAR
+call SendCommand
+strCmd = "E7  01"		// set vacuum unit 1=H2O
+call SendCommand
+strCmd = "VS  0007"		// set vacuum value 0010=1 H2O
+call SendCommand
+//--------------------------------------------
+ABSOLUTE
+$xStartG=$Xf1_G
+$yStartG=$Yf1_G
+$xStopG=$Xf3_G
+$yStopG=$Yf3_G
+	
+	LINEAR X+$xStartG   Y+$yStartG
+	LINEAR Z-93
+call joystickZ
+$Z_petal = AXISSTATUS(Z, DATAITEM_ProgramPositionFeedback)
+
+strCmd = "DS  T17000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG    Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+//----------------------------------------------------------------------------
+FOR $NUM=1 TO 8 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180) +$petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T17000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+//------------------------------------------------
+
+FOR $NUM=9 TO 15 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T18000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+//--------------------------------------------------------------
+
+
+ABSOLUTE
+LINEAR Z-50
+
+
+//---------------------------------------------------------------------------------------------------------------	
+ELSEIF (STRCMP(strSens,"R3S0",1) == 0) //a=right, b=left
+	$pitch=3.4
+	//fiducial coordinates in the petal system	
+	$Xf1= 256.34 +OffGlueStartX
+	$Yf1=-3.73 -OffGlueStartY
+	
+	$Xf2=373.9 -OffGlueStartX
+	$Yf2=-1.93 -OffGlueStartY
+
+	$Xf3=252.8  +OffGlueStartX
+	$Yf3=-67.25 +OffGlueStartY
+
+	$Xf4=369.96  -OffGlueStartX
+	$Yf4=-77.01 +OffGlueStartY
+
+//fiducial coordinates transformed in the gantry system
+
+	$Xf1_G= $Xf1*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]  +glueOffX
+	$Yf1_G= -$Xf1*SIN(-($RotSys)*PI/180)+$Yf1*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+
+	$Xf2_G= $Xf2*COS(-($RotSys)*PI/180)+$Yf2*SIN(-($RotSys)*PI/180)+$petalXYZ1[0] +glueOffX
+	$Yf2_G= -$Xf2*SIN(-($RotSys)*PI/180)+$Yf2*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+	$Xf3_G= $Xf3*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]+glueOffX
+	$Yf3_G= -$Xf3*SIN(-($RotSys)*PI/180)+$Yf3*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+	$Xf4_G= $Xf4*COS(-($RotSys)*PI/180)+$Yf4*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]+glueOffX
+	$Yf4_G= -$Xf4*SIN(-($RotSys)*PI/180)+$Yf4*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+//--------------------------------------------------------------------------------------------------
+//start gluing goint to the starting point
+	
+
+/////////////////////////////////////////////////
+//Gluing code: 29 lines - 3.3 line pitch - 69mm length first line (from the bottom) +0.5 as increment - 10mm slope - 0.15mm shift
+
+RAMP TIME 0.1
+DWELL 2
+
+MSGDISPLAY 1, "R3S0 pattern"
+//------------------------------------
+FILECLOSE						// Close any files left open
+$hFile = FILEOPEN "COM1", 2		// Open COM1 for serial communications.
+// Initialize serial port with Baud Rate = 9600, Parity = None, Data Bits = 8 and Stop Bits = 1.
+COMMINIT $hFile, "baud=115200 parity=N data=8 stop=1"
+// Set timeout for reading data from the serial port.
+COMMSETTIMEOUT $hFile, 0, 0, 1000
+//msgclear -1
+strCmd = "TT  "			// set timed mode
+call SendCommand
+strCmd = "PS  4000"		// set pressure value (psi) - eg. "PS  0350" = 0.35 BAR
+call SendCommand
+strCmd = "E7  01"		// set vacuum unit 1=H2O
+call SendCommand
+strCmd = "VS  0007"		// set vacuum value 0010=1 H2O
+call SendCommand
+//--------------------------------------------
+ABSOLUTE
+$xStartG=$Xf1_G
+$yStartG=$Yf1_G
+$xStopG=$Xf3_G
+$yStopG=$Yf3_G
+	
+	LINEAR X+$xStartG   Y+$yStartG
+	LINEAR Z-93
+call joystickZ
+$Z_petal = AXISSTATUS(Z, DATAITEM_ProgramPositionFeedback)
+
+strCmd = "DS  T08000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG    Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+//----------------------------------------------------------------------------
+FOR $NUM=1 TO 10 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T08500"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+//----------------------------------------------------------------------------
+FOR $NUM=11 TO 20 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T09000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+//----------------------------------------------------------------------------
+FOR $NUM=21 TO 32 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T10000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+
+
+LINEAR Z-50
+//==================================================================================================
+//---------------------------------------------------------------------------------------------------------------------------------------------
+ELSEIF (STRCMP(strSens,"R3S1",1) == 0)  //left
+	$pitch=3.4
+	//fiducial coordinates in the petal system	
+	$Xf1= 253.48 +OffGlueStartX
+	$Yf1=60.56 -OffGlueStartY
+	
+	$Xf2=370.25 -OffGlueStartX
+	$Yf2=74.18 -OffGlueStartY
+
+	$Xf3=256.35  +OffGlueStartX
+	$Yf3=-2.99 +OffGlueStartY
+
+	$Xf4=373.88  -OffGlueStartX
+	$Yf4=-0.9 +OffGlueStartY
+
+//fiducial coordinates transformed in the gantry system
+
+	$Xf1_G= $Xf1*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]  +glueOffX
+	$Yf1_G= -$Xf1*SIN(-($RotSys)*PI/180)+$Yf1*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+
+	$Xf2_G= $Xf2*COS(-($RotSys)*PI/180)+$Yf2*SIN(-($RotSys)*PI/180)+$petalXYZ1[0] +glueOffX
+	$Yf2_G= -$Xf2*SIN(-($RotSys)*PI/180)+$Yf2*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+	$Xf3_G= $Xf3*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]+glueOffX
+	$Yf3_G= -$Xf3*SIN(-($RotSys)*PI/180)+$Yf3*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+	$Xf4_G= $Xf4*COS(-($RotSys)*PI/180)+$Yf4*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]+glueOffX
+	$Yf4_G= -$Xf4*SIN(-($RotSys)*PI/180)+$Yf4*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+//--------------------------------------------------------------------------------------------------
+//start gluing goint to the starting point
+	
+
+/////////////////////////////////////////////////
+//Gluing code: 29 lines - 3.3 line pitch - 69mm length first line (from the bottom) +0.5 as increment - 10mm slope - 0.15mm shift
+
+RAMP TIME 0.1
+DWELL 2
+
+MSGDISPLAY 1, "R3S1 pattern"
+//------------------------------------
+FILECLOSE						// Close any files left open
+$hFile = FILEOPEN "COM1", 2		// Open COM1 for serial communications.
+// Initialize serial port with Baud Rate = 9600, Parity = None, Data Bits = 8 and Stop Bits = 1.
+COMMINIT $hFile, "baud=115200 parity=N data=8 stop=1"
+// Set timeout for reading data from the serial port.
+COMMSETTIMEOUT $hFile, 0, 0, 1000
+//msgclear -1
+strCmd = "TT  "			// set timed mode
+call SendCommand
+strCmd = "PS  4000"		// set pressure value (psi) - eg. "PS  0350" = 0.35 BAR
+call SendCommand
+strCmd = "E7  01"		// set vacuum unit 1=H2O
+call SendCommand
+strCmd = "VS  0007"		// set vacuum value 0010=1 H2O
+call SendCommand
+//--------------------------------------------
+ABSOLUTE
+$xStartG=$Xf1_G
+$yStartG=$Yf1_G
+$xStopG=$Xf3_G
+$yStopG=$Yf3_G
+	
+	LINEAR X+$xStartG   Y+$yStartG
+	LINEAR Z-93
+call joystickZ
+$Z_petal = AXISSTATUS(Z, DATAITEM_ProgramPositionFeedback)
+
+strCmd = "DS  T08000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG    Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+//----------------------------------------------------------------------------
+FOR $NUM=1 TO 10 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T08500"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+//----------------------------------------------------------------------------
+FOR $NUM=11 TO 20 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T09000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+//----------------------------------------------------------------------------
+FOR $NUM=21 TO 32 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T10000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+//----------------------------------------------------------------------------
+
+LINEAR Z-50
+
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+	
+ELSEIF (STRCMP(strSens,"R4S0",1) == 0)  //right
+	$pitch=3.4
+	//fiducial coordinates in the petal system	
+	$Xf1= 374.66  +OffGlueStartX
+	$Yf1=-4.06  -OffGlueStartY
+	
+	$Xf2=484.37 -OffGlueStartX
+	$Yf2=-2.37 -OffGlueStartY
+
+	$Xf3=370.49  +OffGlueStartX
+	$Yf3=-79.46 +OffGlueStartY
+
+	$Xf4=479.95  -OffGlueStartX
+	$Yf4=-88.59 +OffGlueStartY
+
+//fiducial coordinates transformed in the gantry system
+
+	$Xf1_G= $Xf1*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]  +glueOffX
+	$Yf1_G= -$Xf1*SIN(-($RotSys)*PI/180)+$Yf1*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+
+	$Xf2_G= $Xf2*COS(-($RotSys)*PI/180)+$Yf2*SIN(-($RotSys)*PI/180)+$petalXYZ1[0] +glueOffX
+	$Yf2_G= -$Xf2*SIN(-($RotSys)*PI/180)+$Yf2*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+	$Xf3_G= $Xf3*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]+glueOffX
+	$Yf3_G= -$Xf3*SIN(-($RotSys)*PI/180)+$Yf3*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+	$Xf4_G= $Xf4*COS(-($RotSys)*PI/180)+$Yf4*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]+glueOffX
+	$Yf4_G= -$Xf4*SIN(-($RotSys)*PI/180)+$Yf4*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+//--------------------------------------------------------------------------------------------------
+//start gluing goint to the starting point
+	
+
+/////////////////////////////////////////////////
+//Gluing code: 29 lines - 3.3 line pitch - 69mm length first line (from the bottom) +0.5 as increment - 10mm slope - 0.15mm shift
+
+RAMP TIME 0.1
+DWELL 2
+
+MSGDISPLAY 1, "R4S0 pattern"
+//------------------------------------
+FILECLOSE						// Close any files left open
+$hFile = FILEOPEN "COM1", 2		// Open COM1 for serial communications.
+// Initialize serial port with Baud Rate = 9600, Parity = None, Data Bits = 8 and Stop Bits = 1.
+COMMINIT $hFile, "baud=115200 parity=N data=8 stop=1"
+// Set timeout for reading data from the serial port.
+COMMSETTIMEOUT $hFile, 0, 0, 1000
+//msgclear -1
+strCmd = "TT  "			// set timed mode
+call SendCommand
+strCmd = "PS  4000"		// set pressure value (psi) - eg. "PS  0350" = 0.35 BAR
+call SendCommand
+strCmd = "E7  01"		// set vacuum unit 1=H2O
+call SendCommand
+strCmd = "VS  0007"		// set vacuum value 0010=1 H2O
+call SendCommand
+//--------------------------------------------
+ABSOLUTE
+$xStartG=$Xf1_G
+$yStartG=$Yf1_G
+$xStopG=$Xf3_G
+$yStopG=$Yf3_G
+	
+	LINEAR X+$xStartG   Y+$yStartG
+	LINEAR Z-93
+call joystickZ
+$Z_petal = AXISSTATUS(Z, DATAITEM_ProgramPositionFeedback)
+
+strCmd = "DS  T10000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG    Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+//----------------------------------------------------------------------------
+FOR $NUM=1 TO 10 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T10000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+//----------------------------------------------------------------------------
+FOR $NUM=11 TO 20 STEP 1  
+
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T10500"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+
+//-------------------------------------
+FOR $NUM=21 TO 30 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T11500"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+LINEAR Z-50
+
+//---------------------------------------------------------------------------------------------------------------------------------------------
+
+	
+ELSEIF (STRCMP(strSens,"R4S1",1) == 0) //left
+	$pitch=3.4
+	//fiducial coordinates in the petal system	
+	$Xf1= 371.23  +OffGlueStartX
+	$Yf1=72.1  -OffGlueStartY
+	
+	$Xf2=480.32 -OffGlueStartX
+	$Yf2=84.84 -OffGlueStartY
+
+	$Xf3=374.67  +OffGlueStartX
+	$Yf3=-3.33 +OffGlueStartY
+
+	$Xf4=484.49  -OffGlueStartX
+	$Yf4=-1.4 +OffGlueStartY
+
+//fiducial coordinates transformed in the gantry system
+
+	$Xf1_G= $Xf1*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]  +glueOffX
+	$Yf1_G= -$Xf1*SIN(-($RotSys)*PI/180)+$Yf1*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+
+	$Xf2_G= $Xf2*COS(-($RotSys)*PI/180)+$Yf2*SIN(-($RotSys)*PI/180)+$petalXYZ1[0] +glueOffX
+	$Yf2_G= -$Xf2*SIN(-($RotSys)*PI/180)+$Yf2*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+	$Xf3_G= $Xf3*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]+glueOffX
+	$Yf3_G= -$Xf3*SIN(-($RotSys)*PI/180)+$Yf3*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+	$Xf4_G= $Xf4*COS(-($RotSys)*PI/180)+$Yf4*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]+glueOffX
+	$Yf4_G= -$Xf4*SIN(-($RotSys)*PI/180)+$Yf4*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+//--------------------------------------------------------------------------------------------------
+//start gluing goint to the starting point
+	
+
+/////////////////////////////////////////////////
+//Gluing code: 29 lines - 3.3 line pitch - 69mm length first line (from the bottom) +0.5 as increment - 10mm slope - 0.15mm shift
+
+RAMP TIME 0.1
+DWELL 2
+
+MSGDISPLAY 1, "R4S1 pattern"
+//------------------------------------
+FILECLOSE						// Close any files left open
+$hFile = FILEOPEN "COM1", 2		// Open COM1 for serial communications.
+// Initialize serial port with Baud Rate = 9600, Parity = None, Data Bits = 8 and Stop Bits = 1.
+COMMINIT $hFile, "baud=115200 parity=N data=8 stop=1"
+// Set timeout for reading data from the serial port.
+COMMSETTIMEOUT $hFile, 0, 0, 1000
+//msgclear -1
+strCmd = "TT  "			// set timed mode
+call SendCommand
+strCmd = "PS  4000"		// set pressure value (psi) - eg. "PS  0350" = 0.35 BAR
+call SendCommand
+strCmd = "E7  01"		// set vacuum unit 1=H2O
+call SendCommand
+strCmd = "VS  0007"		// set vacuum value 0010=1 H2O
+call SendCommand
+//--------------------------------------------
+ABSOLUTE
+$xStartG=$Xf1_G
+$yStartG=$Yf1_G
+$xStopG=$Xf3_G
+$yStopG=$Yf3_G
+	
+	LINEAR X+$xStartG   Y+$yStartG
+	LINEAR Z-93
+call joystickZ
+$Z_petal = AXISSTATUS(Z, DATAITEM_ProgramPositionFeedback)
+
+strCmd = "DS  T10000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG    Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+//----------------------------------------------------------------------------
+FOR $NUM=1 TO 10 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T10500"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+//----------------------------------------------------------------------------
+FOR $NUM=11 TO 20 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T11000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+
+//-------------------------------------
+FOR $NUM=21 TO 30 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T11500"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+LINEAR Z-50
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	
+ELSEIF (STRCMP(strSens,"R5S0",1) == 0)  // right
+	$pitch=3.4
+	//fiducial coordinates in the petal system	
+	$Xf1= 485.07  +OffGlueStartX
+	$Yf1=-4.36  -OffGlueStartY
+	
+	$Xf2=586.24 -OffGlueStartX
+	$Yf2=-2.79 -OffGlueStartY
+
+	$Xf3=480.49  +OffGlueStartX
+	$Yf3=-90.89 +OffGlueStartY
+
+	$Xf4=581.14  -OffGlueStartX
+	$Yf4=-99.3 +OffGlueStartY
+
+//fiducial coordinates transformed in the gantry system
+
+	$Xf1_G= $Xf1*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]  +glueOffX
+	$Yf1_G= -$Xf1*SIN(-($RotSys)*PI/180)+$Yf1*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+
+	$Xf2_G= $Xf2*COS(-($RotSys)*PI/180)+$Yf2*SIN(-($RotSys)*PI/180)+$petalXYZ1[0] +glueOffX
+	$Yf2_G= -$Xf2*SIN(-($RotSys)*PI/180)+$Yf2*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+	$Xf3_G= $Xf3*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]+glueOffX
+	$Yf3_G= -$Xf3*SIN(-($RotSys)*PI/180)+$Yf3*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+	$Xf4_G= $Xf4*COS(-($RotSys)*PI/180)+$Yf4*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]+glueOffX
+	$Yf4_G= -$Xf4*SIN(-($RotSys)*PI/180)+$Yf4*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+//--------------------------------------------------------------------------------------------------
+//start gluing goint to the starting point
+	
+
+/////////////////////////////////////////////////
+//Gluing code: 29 lines - 3.3 line pitch - 69mm length first line (from the bottom) +0.5 as increment - 10mm slope - 0.15mm shift
+
+RAMP TIME 0.1
+DWELL 2
+
+MSGDISPLAY 1, "R5S0 pattern"
+//------------------------------------
+FILECLOSE						// Close any files left open
+$hFile = FILEOPEN "COM1", 2		// Open COM1 for serial communications.
+// Initialize serial port with Baud Rate = 9600, Parity = None, Data Bits = 8 and Stop Bits = 1.
+COMMINIT $hFile, "baud=115200 parity=N data=8 stop=1"
+// Set timeout for reading data from the serial port.
+COMMSETTIMEOUT $hFile, 0, 0, 1000
+//msgclear -1
+strCmd = "TT  "			// set timed mode
+call SendCommand
+strCmd = "PS  4000"		// set pressure value (psi) - eg. "PS  0350" = 0.35 BAR
+call SendCommand
+strCmd = "E7  01"		// set vacuum unit 1=H2O
+call SendCommand
+strCmd = "VS  0007"		// set vacuum value 0010=1 H2O
+call SendCommand
+//--------------------------------------------
+ABSOLUTE
+$xStartG=$Xf1_G
+$yStartG=$Yf1_G
+$xStopG=$Xf3_G
+$yStopG=$Yf3_G
+	
+	LINEAR X+$xStartG   Y+$yStartG
+	LINEAR Z-93
+call joystickZ
+$Z_petal = AXISSTATUS(Z, DATAITEM_ProgramPositionFeedback)
+
+strCmd = "DS  T12000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG    Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+//----------------------------------------------------------------------------
+FOR $NUM=1 TO 9 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T12000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+//----------------------------------------------------------------------------
+FOR $NUM=10 TO 18 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T13000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+
+//-------------------------------------
+FOR $NUM=19 TO 27 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T14000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+LINEAR Z-50
+
+//-------------------------------------------------------------------------------------------------------------------------------------
+	
+ELSEIF (STRCMP(strSens,"R5S1",1) == 0)
+	$pitch=3.4
+	//fiducial coordinates in the petal system	
+	$Xf1= 481.29  +OffGlueStartX
+	$Yf1=82.94  -OffGlueStartY
+	
+	$Xf2=582.64 -OffGlueStartX
+	$Yf2=94.67 -OffGlueStartY
+
+	$Xf3=485.26  +OffGlueStartX
+	$Yf3=-3.63 +OffGlueStartY
+
+	$Xf4=586.24  -OffGlueStartX
+	$Yf4=-1.87 +OffGlueStartY
+
+//fiducial coordinates transformed in the gantry system
+
+	$Xf1_G= $Xf1*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]  +glueOffX
+	$Yf1_G= -$Xf1*SIN(-($RotSys)*PI/180)+$Yf1*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+
+	$Xf2_G= $Xf2*COS(-($RotSys)*PI/180)+$Yf2*SIN(-($RotSys)*PI/180)+$petalXYZ1[0] +glueOffX
+	$Yf2_G= -$Xf2*SIN(-($RotSys)*PI/180)+$Yf2*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+	$Xf3_G= $Xf3*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]+glueOffX
+	$Yf3_G= -$Xf3*SIN(-($RotSys)*PI/180)+$Yf3*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+	$Xf4_G= $Xf4*COS(-($RotSys)*PI/180)+$Yf4*SIN(-($RotSys)*PI/180)+$petalXYZ1[0]+glueOffX
+	$Yf4_G= -$Xf4*SIN(-($RotSys)*PI/180)+$Yf4*COS(-($RotSys)*PI/180)+ $petalXYZ1[1]+glueOffY
+
+//--------------------------------------------------------------------------------------------------
+//start gluing goint to the starting point
+	
+
+/////////////////////////////////////////////////
+//Gluing code: 29 lines - 3.3 line pitch - 69mm length first line (from the bottom) +0.5 as increment - 10mm slope - 0.15mm shift
+
+RAMP TIME 0.1
+DWELL 2
+
+MSGDISPLAY 1, "R5S1 pattern"
+//------------------------------------
+FILECLOSE						// Close any files left open
+$hFile = FILEOPEN "COM1", 2		// Open COM1 for serial communications.
+// Initialize serial port with Baud Rate = 9600, Parity = None, Data Bits = 8 and Stop Bits = 1.
+COMMINIT $hFile, "baud=115200 parity=N data=8 stop=1"
+// Set timeout for reading data from the serial port.
+COMMSETTIMEOUT $hFile, 0, 0, 1000
+//msgclear -1
+strCmd = "TT  "			// set timed mode
+call SendCommand
+strCmd = "PS  4000"		// set pressure value (psi) - eg. "PS  0350" = 0.35 BAR
+call SendCommand
+strCmd = "E7  01"		// set vacuum unit 1=H2O
+call SendCommand
+strCmd = "VS  0007"		// set vacuum value 0010=1 H2O
+call SendCommand
+//--------------------------------------------
+ABSOLUTE
+$xStartG=$Xf1_G
+$yStartG=$Yf1_G
+$xStopG=$Xf3_G
+$yStopG=$Yf3_G
+	
+	LINEAR X+$xStartG   Y+$yStartG
+	LINEAR Z-93
+call joystickZ
+$Z_petal = AXISSTATUS(Z, DATAITEM_ProgramPositionFeedback)
+
+strCmd = "DS  T12000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG    Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+//----------------------------------------------------------------------------
+FOR $NUM=1 TO 9 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T12000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+//----------------------------------------------------------------------------
+FOR $NUM=10 TO 18 STEP 1  
+
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T13000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+
+//-------------------------------------
+FOR $NUM=19 TO 27 STEP 1  
+	
+$xStartP = $Xf1+$pitch*$NUM
+$xStartG =$xStartP*COS(-($RotSys)*PI/180)+$Yf1*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line12Start
+$yStartG=-$xStartP*SIN(-($RotSys)*PI/180)+$yStartP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+	LINEAR Z+$Z_petal X+$xStartG Y+$yStartG
+$xStopP= $Xf3+$pitch*$NUM
+$xStopG =$xStopP*COS(-($RotSys)*PI/180)+$Yf3*SIN(-($RotSys)*PI/180)+ $petalXYZ1[0]+glueOffX
+call Line34Stop
+$yStopG=-$xStopP*SIN(-($RotSys)*PI/180)+$yStopP*COS(-($RotSys)*PI/180)+ $petalXYZ1[1] +glueOffY
+strCmd = "DS  T14000"	
+call SendCommand
+strCmd = "DI  "         
+call SendCommand
+	LINEAR X+$xStopG Y+$yStopG F60
+	LINEAR Z-80 X+$xStartG    Y+$yStartG F40
+NEXT $NUM
+
+
+ABSOLUTE
+LINEAR Z-50
+//----------------------------------------------------------------------------------------------------------------------------------
+	
+
+ENDIF
+	
+ENDWHILE	
+M2	// end of program
+
+//------------------------------------------------------------------//
+DFS endProgram
+	$elapsed[0] = TIMER(0,PERFORMANCE)/1000	// elapsed time in seconds
+	$elapsed[1] = $elapsed[0]/60			// elapsed time in minutes
+	$elapsed[2] = $elapsed[1]/60			// elapsed time in hours
+	
+	$elapsed[2] = ROUND($elapsed[2] - FRAC($elapsed[1]/60))
+	$elapsed[1] = ROUND($elapsed[1] - FRAC($elapsed[0]/60) - 60*$elapsed[2])
+	$elapsed[0] = ROUND($elapsed[0] - 60*$elapsed[1])
+		
+	IF ($elapsed[2] > 0) THEN
+		strTime = MAKESTRING "{%d}",$elapsed[2],"h ",$elapsed[1],"m ",$elapsed[0],"s "	
+	ELSEIF ($elapsed[1] > 0) THEN
+		strTime = MAKESTRING "{%d}",$elapsed[1],"m ",$elapsed[0],"s "
+	ELSE
+		strTime = MAKESTRING "{%d}",$elapsed[0],"s "
+	ENDIF
+	
+	FILECLOSE
+	strProg = "#TS"
+	$Output = FILEOPEN strOut, 2
+	FILEWRITE $Output, strProg, " "
+	MSGDISPLAY 1, strProg
+	FILEWRITE $Output, "Placement cancelled by user after ", strTime, " "
+	MSGDISPLAY 1, "Placement cancelled by user after" strTime
+	FILECLOSE
+	END PROGRAM
+ENDDFS
+
+DFS writeOutput
+	// Output messages and write to .txt file
+	FILECLOSE
+	$Output = FILEOPEN strOut, 2
+	
+	FILEWRITE $Output, "#TS"
+	MSGDISPLAY 1, "#TS"
+	FILEWRITE $Output, strProg
+	MSGDISPLAY 1, strProg
+	FILEWRITE $Output, " "
+	MSGDISPLAY 1, " "
+	
+	FILECLOSE
+ENDDFS
+
+
+DFS joystickCMD
+	JOYSTICK 2D RESET				// *BUTTON LAYOUT*
+	JOYSTICK 2D AXISGROUP 0 NONE Z	// A - Z <-> X/Y
+	JOYSTICK 2D AXISGROUP 1 X Y		// B - Fast <-> Slow
+	JOYSTICK 2D ON					// C - Turn off and proceed with code
+ENDDFS
+
+DFS joystickZ
+	JOYSTICK 2D RESET				// *BUTTON LAYOUT*
+	JOYSTICK 2D AXISGROUP 0 NONE Z	// A - Z <-> Z
+	JOYSTICK 2D AXISGROUP 1 NONE Z  // B - Fast <-> Slow
+	JOYSTICK 2D ON					// C - Turn off and proceed with code
+ENDDFS
+
+//------------------GLUE------------------------------------------
+dfs SendCommand
+	call WritePacket
+	FILEWRITENOTERM $hFile, "{#C}" EOT
+	
+	if( $CmdResult ne ASCII_ZERO )
+		msgdisplay 1, "Command/Execution Error"
+		m2
+	endif
+enddfs 
+
+; write a command packet and headers, etc 
+dfs WritePacket
+	FILEWRITENOTERM $hFile, "{#C}" ENQ					' send pre-amble
+	$NumBytes = FILEREAD $hFile, 4, $SerialChar			; read ACK
+	FILEWRITENOTERM $hFile, "{#C}" STX					' send packet start
+	call SendCommandLength
+	filewritenoterm $hFile, strCmd						' send cmd string
+	call SendCheckSum
+	FILEWRITENOTERM $hFile, "{#C}" ETX					' send packet end
+	call ReadCommandResult 								' read $CmdResult
+enddfs 	
+
+; returns value in $CmdResult
+dfs ReadCommandResult
+	call ReadNumberOfBytes
+	$NumBytes = FILEREAD $hFile, 4, $SerialChar			; should ba "A" - 65
+	$NumBytes = FILEREAD $hFile, 4, $CmdResult			; should be "2"-50 or "0"-48
+	call ReadCheckSum
+enddfs	
+
+; emptys serial buffer, no return value
+dfs ReadCheckSum
+	$NumBytes = FILEREAD $hFile, 4, $SerialChar			; read MS checksum
+	$NumBytes = FILEREAD $hFile, 4, $SerialChar			; read LS checksum
+	$NumBytes = FILEREAD $hFile, 4, $SerialChar			; read ETX
+enddfs
+
+; returns $Length of data packet
+dfs ReadNumberOfBytes
+  ReadAgain:	
+	$NumBytes = FILEREAD $hFile, 4, $SerialChar				; read STX
+	if( $NumBytes < 1) then goto ReadAgain
+	$NumBytes = FILEREAD $hFile, 4, $SerialChar2			; read MS number of bytes
+	$NumBytes = FILEREAD $hFile, 4, $SerialChar3			; read LS number of bytes
+	; convert from char's/string to number
+	strTemp = makestring "{#C#C}", "0x", $SerialChar2, $SerialChar3
+	$Length = STRTODBL(strTemp )							; number of bytes to read
+enddfs	
+
+' calculate checksum of ASCII characters in strCmd command string, and send as 2 ASCII digita
+dfs SendCheckSum
+	$CheckSum = 0
+	' checksum = 0 - NumBytes - AsciiCmdChars - AsciiCmdData
+	$CheckSum = $CheckSum - strtoascii(strChrLS, 0)
+	$CheckSum = $CheckSum - strtoascii(strChrMS, 0)
+	
+	; loop through each character in cmdstr and subtract its ascii value
+	for $Lp = 0 to $Length-1
+		$CheckSum = $CheckSum - strtoascii( strCmd, $Lp )
+	next $Lp		
+	$CheckSum = $CheckSum % 256
+	$CheckSum = $CheckSum + 256					; checksum value 
+	
+	; send 2 hex character representation of checksum value
+	;strTemp = makestring "{#H}", $CheckSum
+	strTemp = makestring "{%02x}", $CheckSum
+	strTemp = strupr( strTemp)					; make uppercase
+	strChrMS = strmid( strTemp, 0, 0)
+	filewritenoterm $hFile, strChrMS
+	strChrLS = strmid( strTemp, 1, 1)
+	filewritenoterm $hFile, strChrLS
+enddfs 
+
+' calculate length of command and data string, and send 2 digit length in ASCII
+dfs SendCommandLength
+	$Length = strlen( strCmd )
+	if( $Length > 99) 
+		msgdisplay 99, "Error - command string > 99 characters!"
+		m2
+	endif
+	strTemp = makestring "{%02d}" $Length 
+	strChrMS = strmid( strTemp, 0, 0 )
+	FILEWRITENOTERM $hFile, ""	strChrMS		' send MS num bytes
+	strChrLS = strmid( strTemp, 1, 1 )
+	FILEWRITENOTERM $hFile, ""	strChrLS		' send LS num bytes
+enddfs 
+
+//------------------------------------------------------------------//
+
+//lines for gluing Start and Stop
+
+DFS Line12Start                //calculate line equations between F-F: 1-2 and 3-4 in the petal system
+$mLine12 = ($Yf2 - $Yf1)/($Xf2-$Xf1)
+$qLine12 = (($Xf2*$Yf1) - ($Xf1*$Yf2)) / ($Xf2-$Xf1)
+$yStartP = $mLine12*$xStartP +$qLine12
+ENDDFS
+
+DFS Line34Stop
+$mLine34 = ($Yf4 - $Yf3)/($Xf4-$Xf3)
+$qLine34 = (($Xf4*$Yf3) - ($Xf3*$Yf4)) / ($Xf4-$Xf3)
+$yStopP = $mLine34*$xStopP +$qLine34
+ENDDFS
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+

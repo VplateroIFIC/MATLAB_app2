@@ -30,6 +30,7 @@ ROIsize;
 
 % FmatchSURF
 FtemplatePath;
+cornerF;
 
 % CirclesFinder
 camCalibration; %um/pixel
@@ -60,8 +61,10 @@ minDist;
 %             
 %             addpath('F:\mexopencv');
 %             addpath('F:\mexopencv\opencv_contrib');
-           addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
-           addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
+%            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
+%            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
+           addpath('.\opencvCompiler\mexopencv');
+           addpath('.\opencvCompiler\mexopencv\opencv_contrib');
            addpath('Fiducial_config');
 
 % Loading corresponding properties to the class
@@ -101,6 +104,7 @@ this.ROIsize=ROIsize;
 
 % FmatchSURF
 this.FtemplatePath=FtemplatePath;
+this.cornerF=cornerF;
 
 % CirclesFinder
 this.camCalibration=camCalibration; 
@@ -120,235 +124,6 @@ this.minDist=minDist;
 
         end
 
-% 
-
-function calibrate_camera(this)
-    
-% close all open figures
-close all
-    
-%imfilename = ("/Users/cescobar/Nextcloud/ITk/Petals/Assembly/Pictures_general/images_mini_camera_calibration/mitutoyo/imagen_3.tif");
-%imfilename = ("/Users/cescobar/Nextcloud/ITk/Petals/Assembly/Pictures_general/images_mini_camera_calibration/mitutoyo/imagen_3.tif");
-%imfilename = ("/Users/cescobar/Desktop/imagen_3_3.jpeg");
-imfilename = ("/Users/cescobar/Desktop/horizontal_1.png");
-% read and show the image
-imageIn = imread(imfilename);
-%figure, imshow(imageIn)
-
-% passing to gray image if necessary
-if size(imageIn,3)==3
-imageIn = rgb2gray(imageIn);
-end
-% now it is gray scale with range of 0 to 255
-
-% get information (imtool)
-info = imfinfo(imfilename);
-image_width = info.Width;
-image_height = info.Height;
-
-%imageIn = imsharpen(imageIn,'Radius',10,'Amount',5,'Threshold',0.7);
-figure, imshow(imageIn)
-
-% apply median blur
-medianFilter = cv.medianBlur(imageIn,'KSize',this.binaryFilterKernel);
-% figure, imshow(medianFilter)
-
-imageBW = imbinarize(medianFilter,'adaptive','ForegroundPolarity','bright','Sensitivity',0.3);
-% figure, imshow(imageBW)
-
-% apply canny edge detectors to the image to detect edges prior to the application of Hough transform
-BWEd = edge(imageBW, 'canny');
-% figure, imshow(BWEd);
-% figure, imshow(imageIn);
-
-% create the Hough transform using the binary image. 
-% (source: https://www.mathworks.com/help/images/ref/houghlines.html)
-[H,T,R] = hough(BWEd);
-% imshow(H,[],'XData',T,'YData',R,'InitialMagnification','fit');
-% xlabel('\theta'), ylabel('\rho');
-% axis on, axis normal, hold on;
-
-% find peaks in the Hough transform of the image
-% need to change number e.g., 15 to increase the lines
-P  = houghpeaks(H,20,'threshold',ceil(0.3*max(H(:))));
-x = T(P(:,2)); y = R(P(:,1));
-% plot(x,y,'s','color','white');
-
-% find lines and plot them over the initial image
-lines = houghlines(imageIn,T,R,P,'FillGap',5,'MinLength',7);
-figure, imshow(imageIn), hold on
-max_len = 0;
-
-for k = 1:length(lines)
-    %k
-    %lines(k)
-    xy = [lines(k).point1; lines(k).point2];
-    
-    % plot line
-    plot(xy(:,1),xy(:,2),'LineWidth',2,'Color','green');
-    
-    % get the angle wrt the horizontal
-    %slope = diff(lines(k).point2) ./ diff(lines(k).point1)
-    %rot_angle = atan(slope)
-
-    % plot beginnings and ends of lines
-    % plot(xy(1,1),xy(1,1),'x','LineWidth',2,'Color','yellow');
-    % plot(xy(1,1),xy(1,1),'x','LineWidth',2,'Color','red');
-    plot(xy(1,1),xy(1,2),'x','LineWidth',2,'Color','yellow');
-    plot(xy(2,1),xy(2,2),'x','LineWidth',2,'Color','red');
-     
-    % plot reference line
-    % reflines = refline([0 -lines(k).rho]); reflines.Color = 'r'; reflines.LineWidth = 2; reflines.LineStyle = '--';
-    % reflines
-
-    % compute the slope and rotating angle
-    % slope = (xy(2,2) - xy(1,2)) / (xy(2,1) - xy(1,1))
-    % angle = atan(slope) * 180/pi
-    
-    % xmin = xy(2,2) - reflines.YData(1,1);
-    % ymin = xmin;
-    
-    % image_width
-    % image_height
-    % image_rotated = imrotate(imageIn,angle,'bilinear','crop'); 
-    % figure, imshow(image_rotated)
-    % image_cropped = imcrop(image_rotated,[xmin ymin image_width-2*xmin image_height-2*ymin]);
-    % figure, imshow(image_cropped)
-    %return
-    
-    %xmean(k) = (xy(2,1)-xy(1,1))/2;
-    %ymean(k) = xy(1,2);
-    
-    %xmean = [ (xy(2,1)-xy(1,1))/2 xy(1,2) ]
-    
-end
-
-return
-
-
-
-for k = 1:length(lines)/2
-    
-    xy1 = [lines(k).point1; lines(k).point2];
-    xy2 = [lines(k+1).point1; lines(k+1).point2];
-    
-    xy1
-    xy2
-end
-end
-
-
-
-
-%% apply canny edge detectors to the image to  detect edges prior to the
-%% application of Hough transform
-%BW1 = edge(image, 'Canny');
-% figure, imshow(image);
-%BW2 = edge(image,'Prewitt');
-%imshowpair(BW1,BW2,'montage')
-%imshowpair(image,BW2,'montage')
-%lines = houghlines(BW,T,R,P,'FillGap',5,'MinLength',7); 
-
-%image = imread("hybrid_circle_fid_1.png");
-%image = imresize(image, 0.1);
-%image = imread("detectcirclesexample_01_es.png");
-%imshow(image);
-%imshow(image);
-
-%botHatImage = imbothat(image, true(15)); % Whatever value works for you.
-% imshow(botHatImage, []);
-% topHatImage = imtophat(image, true(5)); % Whatever value works for you.
-% imshow(topHatImage, []);
-% regMaxImage = imregionalmax(image);
-% imshow(regMaxImage, []);
-% regMinImage = imregionalmin(image);
-% imshow(regMinImage, []);
-
-% d = imdistline;
-
-%image = rgb2gray(image);
-% imshow(image2);
-%image = imsharpen(image,'Radius',10,'Amount',10);
-%image2 = cv.medianBlur(botHatImage);
-% imshow(imagen2);
-% imshowpair(botHatImage,image2,'montage');
-
-%level = graythresh(image)
-%BW = imbinarize(image,level);
-% BW = imbinarize(image,'adaptive','ForegroundPolarity','bright','Sensitivity',0.2);
-% BW = imbinarize(image,'adaptive','ForegroundPolarity','dark','Sensitivity',0.3);
-%imshowpair(image2,BW,'montage');
-% imshow(BW)
-
-%[centers,radii] = imfindcircles(BW,[20 25],'ObjectPolarity','bright','Sensitivity',0.95)
-%imshow(BW)
-%h = viscircles(centers,radii);
-
-
-
-
-%J = imnoise(image2,'gaussian');
-%J = imnoise(image,'gaussian',m);
-%J = imnoise(image,'gaussian',m,var_gauss);
-%J = imnoise(image,'localvar',var_local);
-%J = imnoise(image,'localvar',intensity_map,var_local);
-%J = imnoise(image,'poisson');
-%J = imnoise(image,'salt & pepper');
-%J = imnoise(BW,'salt & pepper',0.02);
-%J = imnoise(image,'speckle');
-%J = imnoise(image,'speckle',var_speckle);    
-% imshow(J);
-
-%Kaverage = filter2(fspecial('average',3),J)/255;
-%%imshowpair(J,Kaverage,'montage');
-%Kmedian = medfilt2(J);
-%imshowpair(BW,Kmedian,'montage')
-
-
-
-
-
-
-%b = imsharpen(imageB,'Radius',2,'Amount',1);
-%imshowpair(imageB,b,'montage');
-
-
-% I = gpuArray(imread('hybrid_circle_fid_1.png'));
-%Iblur = imgaussfilt(image, 2);
-%imshowpair(image,Iblur,'montage');
-
-
-%meanIntensity = mean(image(:));
-%image_binary = image > meanIntensity;
-%imshow(image_binary);
-
-
-%level = graythresh(image)
-
-% threshold the image to reveal light regions in the blurred image
-%% thresh = cv.threshold(image);
-%BW = imbinarize(image,level);
-%imshowpair(image,BW,'montage');
-%imshow(image);
-%%d = imdistline;
-
-%[centers,radii] = imfindcircles(image,[270 280],'ObjectPolarity','dark','Sensitivity',0.98)
-%imshow(image)
-%h = viscircles(centers,radii);
-
-%circles = cv.HoughCircles(BW,'MaxRadius',0,'Param1',50,'Param2',30,'MinRadius',80*this.camCalibration,'MaxRadius',120*this.camCalibration);
-
-%[m,n]=size(circles);
-
-%for i=1:n
-%    X(i)=circles{i}(1);
-%    Y(i)=circles{i}(2);
-%    R(i)=circles{i}(3);
-%end
-
-%end        
-        
-        
         
         function match = matchSURF(this,imageIn,tempIn)
 % matchSURF match template on given image using SURF method
@@ -739,6 +514,11 @@ for i=1:k
 match=this.matchSURF(ROI{i},template);
 match.Center(1)=match.Center(1)+vertex{i}(1);
 match.Center(2)=match.Center(2)+vertex{i}(2);
+% corner=inv([match.transformation;0 0 1])*[this.cornerF 1]';
+corner=[match.transformation;0 0 1]*[this.cornerF 1]';
+% corner=[this.cornerF 1]*[match.transformation;0 0 1];
+match.Corner(1)=corner(1)+vertex{i}(1);
+match.Corner(2)=corner(2)+vertex{i}(2);
 Fmatch{i}=match;
 clearvars match
 end
@@ -750,6 +530,7 @@ imshow(image);
 title('Final match','FontSize', 18);
 hold on
 plot(Fmatch{i}.Center(1),Fmatch{i}.Center(2), 'r+', 'MarkerSize', 30, 'LineWidth', 2);
+plot(Fmatch{i}.Corner(1),Fmatch{i}.Corner(2), 'r+', 'MarkerSize', 30, 'LineWidth', 2);
 fig2image=getframe(fig);
 plotImage=fig2image.cdata;
 Fmatch{i}.Images{5}=plotImage;
@@ -762,6 +543,7 @@ title('Final match','FontSize', 18);
 for i=1:k
 hold on
 plot(Fmatch{i}.Center(1),Fmatch{i}.Center(2), 'r+', 'MarkerSize', 30, 'LineWidth', 2);
+plot(Fmatch{i}.Corner(1),Fmatch{i}.Corner(2), 'r+', 'MarkerSize', 30, 'LineWidth', 2);
 end
 fig2image=getframe(fig);
 plotImage=fig2image.cdata;

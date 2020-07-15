@@ -43,7 +43,7 @@ classdef FOCUS
             
             switch setup
                 case 1
-                    this.zAxis=4;
+                    this.zAxis=gantry_obj.Z1;
                 case 2
                     this.zAxis=3;
             end

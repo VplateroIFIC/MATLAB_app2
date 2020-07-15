@@ -1,0 +1,304 @@
+
+Errors to debug in the near future:
+1- Dispenser communication fail-rate about 5-8% (Improve wiring; Add a retry instruccion in method "DISPENSER.SetUltimus(cmd)")
+
+Error to be debugged in the future:
+1- function WaitForMotion --> A timeout error have no real effect. An error appear in the Command Window and program execution continues
+2- function WaitForMotion --> It doesn't separate correctly axis. WaitForMotion(oneAxis) will wait until ALL the axis movements finishes.
+3- STAGES and OWIS_STAGES classes --> Different uses of internal variables may cause confusion during debugging.
+
+
+
+
+Line 1 -> Elapsed time is 1.425700 seconds.
+Line 2 -> Elapsed time is 1.805638 seconds.
+Line 3 -> Elapsed time is 1.877282 seconds.
+Line 4 -> Elapsed time is 1.738568 seconds.
+Line 5 -> Elapsed time is 1.876963 seconds.
+Line 6 -> Elapsed time is 1.759074 seconds.
+Line 7 -> Elapsed time is 1.875398 seconds.
+Line 8 -> Elapsed time is 1.925956 seconds.
+Line 9 -> Elapsed time is 1.798004 seconds.
+Line 10 -> Elapsed time is 1.917021 seconds.
+Line 11 -> Elapsed time is 1.820061 seconds.
+Line 12 -> Elapsed time is 1.920938 seconds.
+Line 13 -> Elapsed time is 1.907928 seconds.
+Line 14 -> Elapsed time is 1.846525 seconds.
+Line 15 -> Elapsed time is 1.987004 seconds.
+Line 16 -> Elapsed time is 1.870448 seconds.
+Line 17 -> Elapsed time is 1.980552 seconds.
+Line 18 -> Elapsed time is 2.029419 seconds.
+Line 19 -> Elapsed time is 1.908044 seconds.
+Line 20 -> Elapsed time is 2.026977 seconds.
+Line 21 -> Elapsed time is 1.927485 seconds.
+Line 22 -> Elapsed time is 2.025453 seconds.
+Line 23 -> Elapsed time is 2.077877 seconds.
+Line 24 -> Elapsed time is 1.956368 seconds.
+Line 25 -> Elapsed time is 2.085893 seconds.
+Line 26 -> Elapsed time is 1.990207 seconds.
+Line 27 -> Elapsed time is 2.088781 seconds.
+Line 28 -> Elapsed time is 2.135405 seconds.
+
+Line 1 -> Elapsed time is 1.530636 seconds.
+Line 2 -> Elapsed time is 1.810978 seconds.
+Line 3 -> Elapsed time is 1.868038 seconds.
+Line 4 -> Elapsed time is 1.730402 seconds.
+Line 5 -> Elapsed time is 1.872496 seconds.
+Line 6 -> Elapsed time is 1.752023 seconds.
+Line 7 -> Elapsed time is 1.867964 seconds.
+Line 8 -> Elapsed time is 1.915407 seconds.
+Line 9 -> Elapsed time is 1.803944 seconds.
+Line 10 -> Elapsed time is 1.920964 seconds.
+Line 11 -> Elapsed time is 1.812912 seconds.
+Line 12 -> Elapsed time is 1.909544 seconds.
+Line 13 -> Elapsed time is 1.968203 seconds.
+Line 14 -> Elapsed time is 1.844306 seconds.
+Line 15 -> Elapsed time is 1.981912 seconds.
+Line 16 -> Elapsed time is 2.017127 seconds.
+Line 17 -> Elapsed time is 1.974501 seconds.
+Line 18 -> Elapsed time is 2.025577 seconds.
+Line 19 -> Elapsed time is 1.904472 seconds.
+Line 20 -> Elapsed time is 2.018370 seconds.
+Line 21 -> Elapsed time is 2.002343 seconds.
+Line 22 -> Elapsed time is 1.937358 seconds.
+Line 23 -> Elapsed time is 2.083995 seconds.
+Line 24 -> Elapsed time is 1.961902 seconds.
+Line 25 -> Elapsed time is 2.079573 seconds.
+Line 26 -> Elapsed time is 2.129468 seconds.
+Line 27 -> Elapsed time is 2.084944 seconds.
+Line 28 -> Elapsed time is 2.135219 seconds.
+
+
+Line Calculation 1 -> Elapsed time is 0.000364 seconds.
+Line Dispensing 1 -> Elapsed time is 1.436280 seconds.
+Line Calculation 2 -> Elapsed time is 0.000326 seconds.
+Line Dispensing 2 -> Elapsed time is 1.807090 seconds.
+Line Calculation 3 -> Elapsed time is 0.000258 seconds.
+Line Dispensing 3 -> Elapsed time is 1.865906 seconds.
+Line Calculation 4 -> Elapsed time is 0.000516 seconds.
+Line Dispensing 4 -> Elapsed time is 1.736499 seconds.
+Line Calculation 5 -> Elapsed time is 0.001296 seconds.
+Line Dispensing 5 -> Elapsed time is 1.877693 seconds.
+Line Calculation 6 -> Elapsed time is 0.000035 seconds.
+Line Dispensing 6 -> Elapsed time is 1.755946 seconds.
+Line Calculation 7 -> Elapsed time is 0.000036 seconds.
+Line Dispensing 7 -> Elapsed time is 1.876880 seconds.
+Line Calculation 8 -> Elapsed time is 0.000052 seconds.
+Line Dispensing 8 -> Elapsed time is 1.926869 seconds.
+Line Calculation 9 -> Elapsed time is 0.000053 seconds.
+Line Dispensing 9 -> Elapsed time is 1.877193 seconds.
+Line Calculation 10 -> Elapsed time is 0.000038 seconds.
+Line Dispensing 10 -> Elapsed time is 1.925373 seconds.
+Line Calculation 11 -> Elapsed time is 0.000036 seconds.
+Line Dispensing 11 -> Elapsed time is 1.815477 seconds.
+Line Calculation 12 -> Elapsed time is 0.000050 seconds.
+Line Dispensing 12 -> Elapsed time is 1.927359 seconds.
+Line Calculation 13 -> Elapsed time is 0.000040 seconds.
+Line Dispensing 13 -> Elapsed time is 1.989937 seconds.
+Line Calculation 14 -> Elapsed time is 0.000057 seconds.
+Line Dispensing 14 -> Elapsed time is 1.849456 seconds.
+Line Calculation 15 -> Elapsed time is 0.000038 seconds.
+Line Dispensing 15 -> Elapsed time is 1.992967 seconds.
+Line Calculation 16 -> Elapsed time is 0.000038 seconds.
+Line Dispensing 16 -> Elapsed time is 1.872693 seconds.
+Line Calculation 17 -> Elapsed time is 0.000296 seconds.
+Line Dispensing 17 -> Elapsed time is 1.988762 seconds.
+Line Calculation 18 -> Elapsed time is 0.000034 seconds.
+Line Dispensing 18 -> Elapsed time is 2.030397 seconds.
+Line Calculation 19 -> Elapsed time is 0.000035 seconds.
+Line Dispensing 19 -> Elapsed time is 1.985943 seconds.
+Line Calculation 20 -> Elapsed time is 0.000036 seconds.
+Line Dispensing 20 -> Elapsed time is 2.031964 seconds.
+Line Calculation 21 -> Elapsed time is 0.000048 seconds.
+Line Dispensing 21 -> Elapsed time is 1.931352 seconds.
+Line Calculation 22 -> Elapsed time is 0.000059 seconds.
+Line Dispensing 22 -> Elapsed time is 2.031902 seconds.
+Line Calculation 23 -> Elapsed time is 0.000051 seconds.
+Line Dispensing 23 -> Elapsed time is 2.088439 seconds.
+Line Calculation 24 -> Elapsed time is 0.000058 seconds.
+Line Dispensing 24 -> Elapsed time is 1.958910 seconds.
+Line Calculation 25 -> Elapsed time is 0.000036 seconds.
+Line Dispensing 25 -> Elapsed time is 2.094877 seconds.
+Line Calculation 26 -> Elapsed time is 0.000051 seconds.
+Line Dispensing 26 -> Elapsed time is 1.978154 seconds.
+Line Calculation 27 -> Elapsed time is 0.000036 seconds.
+Line Dispensing 27 -> Elapsed time is 2.093628 seconds.
+Line Calculation 28 -> Elapsed time is 0.000038 seconds.
+Line Dispensing 28 -> Elapsed time is 2.144128 seconds.
+
+
+Line Calculation 1 -> Elapsed time is 0.001739 seconds.
+Line Dispensing 1 -> Elapsed time is 1.516254 seconds.
+Line Calculation 2 -> Elapsed time is 0.001198 seconds.
+Line Dispensing 2 -> Elapsed time is 1.816649 seconds.
+Line Calculation 3 -> Elapsed time is 0.001207 seconds.
+Line Dispensing 3 -> Elapsed time is 1.796110 seconds.
+Line Calculation 4 -> Elapsed time is 0.004162 seconds.
+Line Dispensing 4 -> Elapsed time is 1.727612 seconds.
+Line Calculation 5 -> Elapsed time is 0.001622 seconds.
+Line Dispensing 5 -> Elapsed time is 1.879891 seconds.
+Line Calculation 6 -> Elapsed time is 0.000083 seconds.
+Line Dispensing 6 -> Elapsed time is 1.756419 seconds.
+Line Calculation 7 -> Elapsed time is 0.000142 seconds.
+Line Dispensing 7 -> Elapsed time is 1.878334 seconds.
+Line Calculation 8 -> Elapsed time is 0.000062 seconds.
+Line Dispensing 8 -> Elapsed time is 1.926315 seconds.
+Line Calculation 9 -> Elapsed time is 0.000553 seconds.
+Line Dispensing 9 -> Elapsed time is 1.877960 seconds.
+Line Calculation 10 -> Elapsed time is 0.000106 seconds.
+Line Dispensing 10 -> Elapsed time is 1.919354 seconds.
+Line Calculation 11 -> Elapsed time is 0.000148 seconds.
+Line Dispensing 11 -> Elapsed time is 1.815207 seconds.
+Line Calculation 12 -> Elapsed time is 0.000078 seconds.
+Line Dispensing 12 -> Elapsed time is 1.927863 seconds.
+Line Calculation 13 -> Elapsed time is 0.000060 seconds.
+Line Dispensing 13 -> Elapsed time is 1.985867 seconds.
+Line Calculation 14 -> Elapsed time is 0.000074 seconds.
+Line Dispensing 14 -> Elapsed time is 1.846882 seconds.
+Line Calculation 15 -> Elapsed time is 0.000129 seconds.
+Line Dispensing 15 -> Elapsed time is 1.986977 seconds.
+Line Calculation 16 -> Elapsed time is 0.000062 seconds.
+Line Dispensing 16 -> Elapsed time is 1.867332 seconds.
+Line Calculation 17 -> Elapsed time is 0.000095 seconds.
+Line Dispensing 17 -> Elapsed time is 1.983015 seconds.
+Line Calculation 18 -> Elapsed time is 0.000090 seconds.
+Line Dispensing 18 -> Elapsed time is 2.033274 seconds.
+Line Calculation 19 -> Elapsed time is 0.000071 seconds.
+Line Dispensing 19 -> Elapsed time is 1.906373 seconds.
+Line Calculation 20 -> Elapsed time is 0.000129 seconds.
+Line Dispensing 20 -> Elapsed time is 2.035283 seconds.
+Line Calculation 21 -> Elapsed time is 0.000065 seconds.
+Line Dispensing 21 -> Elapsed time is 1.937869 seconds.
+Line Calculation 22 -> Elapsed time is 0.000073 seconds.
+Line Dispensing 22 -> Elapsed time is 2.025174 seconds.
+Line Calculation 23 -> Elapsed time is 0.000056 seconds.
+Line Dispensing 23 -> Elapsed time is 2.093237 seconds.
+Line Calculation 24 -> Elapsed time is 0.000092 seconds.
+Line Dispensing 24 -> Elapsed time is 1.958608 seconds.
+Line Calculation 25 -> Elapsed time is 0.000080 seconds.
+Line Dispensing 25 -> Elapsed time is 2.093502 seconds.
+Line Calculation 26 -> Elapsed time is 0.000069 seconds.
+Line Dispensing 26 -> Elapsed time is 1.982932 seconds.
+Line Calculation 27 -> Elapsed time is 0.000061 seconds.
+Line Dispensing 27 -> Elapsed time is 2.091553 seconds.
+Line Calculation 28 -> Elapsed time is 0.000077 seconds.
+Line Dispensing 28 -> Elapsed time is 2.139799 seconds.
+
+
+############################## Paramos la dispensación cada vez que termina una línea ##########################################
+
+
+Line Calculation 1 -> Elapsed time is 0.002090 seconds.
+Line Dispensing 1 -> Elapsed time is 1.864513 seconds.
+Line Calculation 2 -> Elapsed time is 0.001409 seconds.
+Line Dispensing 2 -> Elapsed time is 1.930406 seconds.
+Line Calculation 3 -> Elapsed time is 0.001393 seconds.
+Line Dispensing 3 -> Elapsed time is 1.788619 seconds.
+Line Calculation 4 -> Elapsed time is 0.004253 seconds.
+Line Dispensing 4 -> Elapsed time is 1.927749 seconds.
+Line Calculation 5 -> Elapsed time is 0.001298 seconds.
+Line Dispensing 5 -> Elapsed time is 1.809177 seconds.
+Line Calculation 6 -> Elapsed time is 0.000150 seconds.
+Line Dispensing 6 -> Elapsed time is 1.926481 seconds.
+Line Calculation 7 -> Elapsed time is 0.000114 seconds.
+Line Dispensing 7 -> Elapsed time is 1.978445 seconds.
+Line Calculation 8 -> Elapsed time is 0.000111 seconds.
+Line Dispensing 8 -> Elapsed time is 1.851301 seconds.
+Line Calculation 9 -> Elapsed time is 0.000429 seconds.
+Line Dispensing 9 -> Elapsed time is 1.969210 seconds.
+Line Calculation 10 -> Elapsed time is 0.000102 seconds.
+Line Dispensing 10 -> Elapsed time is 1.869444 seconds.
+Line Calculation 11 -> Elapsed time is 0.000148 seconds.
+Line Dispensing 11 -> Elapsed time is 1.979616 seconds.
+Line Calculation 12 -> Elapsed time is 0.000097 seconds.
+Line Dispensing 12 -> Elapsed time is 2.028466 seconds.
+Line Calculation 13 -> Elapsed time is 0.000101 seconds.
+Line Dispensing 13 -> Elapsed time is 1.897797 seconds.
+Line Calculation 14 -> Elapsed time is 0.000084 seconds.
+Line Dispensing 14 -> Elapsed time is 2.028397 seconds.
+Line Calculation 15 -> Elapsed time is 0.000070 seconds.
+Line Dispensing 15 -> Elapsed time is 1.916617 seconds.
+Line Calculation 16 -> Elapsed time is 0.000087 seconds.
+Line Dispensing 16 -> Elapsed time is 2.028359 seconds.
+Line Calculation 17 -> Elapsed time is 0.000099 seconds.
+Line Dispensing 17 -> Elapsed time is 2.088551 seconds.
+Line Calculation 18 -> Elapsed time is 0.000057 seconds.
+Line Dispensing 18 -> Elapsed time is 2.028941 seconds.
+Line Calculation 19 -> Elapsed time is 0.000086 seconds.
+Line Dispensing 19 -> Elapsed time is 2.078742 seconds.
+Line Calculation 20 -> Elapsed time is 0.000101 seconds.
+Line Dispensing 20 -> Elapsed time is 1.988524 seconds.
+Line Calculation 21 -> Elapsed time is 0.000070 seconds.
+Line Dispensing 21 -> Elapsed time is 2.087659 seconds.
+Line Calculation 22 -> Elapsed time is 0.000089 seconds.
+Line Dispensing 22 -> Elapsed time is 2.140460 seconds.
+Line Calculation 23 -> Elapsed time is 0.000072 seconds.
+Line Dispensing 23 -> Elapsed time is 2.009515 seconds.
+Line Calculation 24 -> Elapsed time is 0.000070 seconds.
+Line Dispensing 24 -> Elapsed time is 2.147244 seconds.
+Line Calculation 25 -> Elapsed time is 0.000100 seconds.
+Line Dispensing 25 -> Elapsed time is 2.030435 seconds.
+Line Calculation 26 -> Elapsed time is 0.000099 seconds.
+Line Dispensing 26 -> Elapsed time is 2.152301 seconds.
+Line Calculation 27 -> Elapsed time is 0.000107 seconds.
+Line Dispensing 27 -> Elapsed time is 2.199646 seconds.
+Line Calculation 28 -> Elapsed time is 0.000085 seconds.
+Line Dispensing 28 -> Elapsed time is 2.071671 seconds.
+
+
+Line Calculation 1 -> Elapsed time is 0.000552 seconds.
+Line Dispensing 1 -> Elapsed time is 1.867367 seconds.
+Line Calculation 2 -> Elapsed time is 0.000091 seconds.
+Line Dispensing 2 -> Elapsed time is 1.919436 seconds.
+Line Calculation 3 -> Elapsed time is 0.000071 seconds.
+Line Dispensing 3 -> Elapsed time is 1.790480 seconds.
+Line Calculation 4 -> Elapsed time is 0.000098 seconds.
+Line Dispensing 4 -> Elapsed time is 1.929486 seconds.
+Line Calculation 5 -> Elapsed time is 0.000069 seconds.
+Line Dispensing 5 -> Elapsed time is 1.807580 seconds.
+Line Calculation 6 -> Elapsed time is 0.000101 seconds.
+Line Dispensing 6 -> Elapsed time is 1.930247 seconds.
+Line Calculation 7 -> Elapsed time is 0.000069 seconds.
+Line Dispensing 7 -> Elapsed time is 1.968584 seconds.
+Line Calculation 8 -> Elapsed time is 0.000070 seconds.
+Line Dispensing 8 -> Elapsed time is 1.848526 seconds.
+Line Calculation 9 -> Elapsed time is 0.000056 seconds.
+Line Dispensing 9 -> Elapsed time is 1.980579 seconds.
+Line Calculation 10 -> Elapsed time is 0.000092 seconds.
+Line Dispensing 10 -> Elapsed time is 1.868445 seconds.
+Line Calculation 11 -> Elapsed time is 0.000070 seconds.
+Line Dispensing 11 -> Elapsed time is 1.977483 seconds.
+Line Calculation 12 -> Elapsed time is 0.000058 seconds.
+Line Dispensing 12 -> Elapsed time is 2.036649 seconds.
+Line Calculation 13 -> Elapsed time is 0.000070 seconds.
+Line Dispensing 13 -> Elapsed time is 1.901964 seconds.
+Line Calculation 14 -> Elapsed time is 0.000090 seconds.
+Line Dispensing 14 -> Elapsed time is 2.028630 seconds.
+Line Calculation 15 -> Elapsed time is 0.000100 seconds.
+Line Dispensing 15 -> Elapsed time is 1.917273 seconds.
+Line Calculation 16 -> Elapsed time is 0.000109 seconds.
+Line Dispensing 16 -> Elapsed time is 2.038581 seconds.
+Line Calculation 17 -> Elapsed time is 0.000097 seconds.
+Line Dispensing 17 -> Elapsed time is 2.081592 seconds.
+Line Calculation 18 -> Elapsed time is 0.000069 seconds.
+Line Dispensing 18 -> Elapsed time is 1.957510 seconds.
+Line Calculation 19 -> Elapsed time is 0.000072 seconds.
+Line Dispensing 19 -> Elapsed time is 2.077374 seconds.
+Line Calculation 20 -> Elapsed time is 0.000072 seconds.
+Line Dispensing 20 -> Elapsed time is 1.980588 seconds.
+Line Calculation 21 -> Elapsed time is 0.000113 seconds.
+Line Dispensing 21 -> Elapsed time is 2.075674 seconds.
+Line Calculation 22 -> Elapsed time is 0.000053 seconds.
+Line Dispensing 22 -> Elapsed time is 2.138633 seconds.
+Line Calculation 23 -> Elapsed time is 0.000070 seconds.
+Line Dispensing 23 -> Elapsed time is 2.007595 seconds.
+Line Calculation 24 -> Elapsed time is 0.000114 seconds.
+Line Dispensing 24 -> Elapsed time is 2.146377 seconds.
+Line Calculation 25 -> Elapsed time is 0.000085 seconds.
+Line Dispensing 25 -> Elapsed time is 2.187510 seconds.
+Line Calculation 26 -> Elapsed time is 0.000087 seconds.
+Line Dispensing 26 -> Elapsed time is 2.146667 seconds.
+Line Calculation 27 -> Elapsed time is 0.000135 seconds.
+Line Dispensing 27 -> Elapsed time is 2.186533 seconds.
+Line Calculation 28 -> Elapsed time is 0.000069 seconds.
+Line Dispensing 28 -> Elapsed time is 2.076515 seconds.

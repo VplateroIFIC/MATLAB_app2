@@ -1,4 +1,4 @@
-classdef JOYSTICK
+classdef JOYSTICK < handle
     %JOYSTICK Control over joystick device
     %   This class provide control over joystick device connected to Gantry
     
@@ -6,7 +6,6 @@ classdef JOYSTICK
   
     end
     properties (Access=protected)
-        JoystickIsReady=0;
         gantry;
         t;
         threshold=0.1;
@@ -20,13 +19,23 @@ classdef JOYSTICK
         uAxis=6;
     end
     
+    properties (Access = public)
+        JoystickIsReady=0;
+        IsConnected = 0;
+    end
+    
     methods
         function this = JOYSTICK(gantry_obj)
             %JOYSTICK Construct an instance of this class
             %   receiving gantry object and creating joystick instance
         this.gantry=gantry_obj;
+        this.xAxis = this.gantry.X
+             this.yAxis = this.gantry.Y
+             this.z1Axis = this.gantry.Z1
+             this.z2Axis = this.gantry.Z2
+             this.uAxis = this.gantry.U
          if (this.gantry.IsConnected==1)
-   
+
         else
             disp('joystick can not be used: gantry is not connected')
         end
@@ -46,6 +55,7 @@ classdef JOYSTICK
         start(this.t);
         disp('Joystick is ready to be used')
         this.JoystickIsReady=1;
+        this.IsConnected = 1;
         end
         
         function this = Disconnect(this)

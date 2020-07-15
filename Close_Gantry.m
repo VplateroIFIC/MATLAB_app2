@@ -4,8 +4,12 @@
 joy = joy.Disconnect;
 
 gantry.MotorDisableAll;
-gantry = gantry.Disconnect;
+gantry.Disconnect;
 
 cam = cam.Disconnect;
 
 imaqreset
+
+% gantry.MoveToFast(350,0)
+% gantry.MoveTo(gantry.Z1,-25,10)
+% gantry.MoveTo(gantry.Z2,-65,10)
