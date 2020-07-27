@@ -1,0 +1,232 @@
+<HTML>
+<HEAD>
+<TITLE>MEDAQLib.lvlib:OpenSensorIF2008.vi</TITLE>
+<META NAME="Author" CONTENT="">
+<META NAME="GENERATOR" CONTENT="G Development Environment">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A NAME="MEDAQLib.lvlib:OpenSensorIF2008.vi"></A><H2>MEDAQLib.lvlib:OpenSensorIF2008.vi</H2>
+<P>ERR_CODE  OpenSensorIF2008  (DWORD  instanceHandle,  int  cardInstance, int  channelNumber);</P>
+<P></P>
+<P>Set the parameters for IF2008 interface card before calling OpenSensor.</P>
+<P><IMG SRC="MEDAQLib OpenSensorIF2008c.png" ALT="MEDAQLib.lvlib:OpenSensorIF2008.vi"></P>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cu32.png" ALT="cu32"></P>
+</TD>
+<TD>
+<B>instanceHandle</B> <P>Parameter: DWORD instanceHandle</P>
+<P>Direction: [IN]</P>
+<P>Description: Number of the sensor instance, previously returned by</P>
+<P>CreateSensorInstance.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cerrcodeclst.png" ALT="cerrcodeclst"></P>
+</TD>
+<TD>
+<B>Fehler (Eingang, kein Fehler)</B> <P><B>Fehler (Eingang)</B> kann Fehlerangaben der vorherigen VIs aufnehmen. Auf Grundlage dieser Angaben kann entschieden werden, ob bei Entstehen eines Fehlers in einem anderen VI eine bestimmte Funktion übersprungen werden soll.</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Anzeigeelement <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+<UL>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cbool.png" ALT="cbool"></P>
+</TD>
+<TD>
+<B>status</B> <P><B>Status</B> ist TRUE (rotes Kreuz), wenn ein Fehler auftritt, andernfalls FALSE (grüner Haken).</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Element <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ci32.png" ALT="ci32"></P>
+</TD>
+<TD>
+<B>code</B> <P><B>Code</B> ist der Fehler- oder Warnungscode.</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Element <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü die Option <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cstr.png" ALT="cstr"></P>
+</TD>
+<TD>
+<B>source</B> <P><B>Quelle</B> beschreibt den Ursprung des Fehlers oder der Warnung.</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Element <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+</UL>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cpath.png" ALT="cpath"></P>
+</TD>
+<TD>
+<B>DLL-Path</B> <P>INPUT: Path to library &quot;MEDAQLib.dll&quot;.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ci32.png" ALT="ci32"></P>
+</TD>
+<TD>
+<B>cardInstance</B> <P>Parameter:  int cardInstance</P>
+<P>Direction:  [IN]</P>
+<P>Valid values:</P>
+<P>Minimum:  0</P>
+<P>Maximum:  15</P>
+<P>Description:  Instance number of the IF2008 interface card.  The cards</P>
+<P>are enumerated by the OS and the only way to distinguish is the card</P>
+<P>instance number. It does not change at least there are no changes at</P>
+<P>the PCI bus.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ci32.png" ALT="ci32"></P>
+</TD>
+<TD>
+<B>channelNumber</B> <P>Parameter:  int channelNumber</P>
+<P>Direction:  [IN]</P>
+<P>Valid values:</P>
+<P>Condition:  PCI_CARD_IF2008</P>
+<P>-1= No data acquisition</P>
+<P>6= Encoder 1</P>
+<P>7= Encoder 2</P>
+<P>8= Digital IN</P>
+<P>9= Digital RxD</P>
+<P>10= ADC 1 (Analog/Digtal converter)</P>
+<P>11= ADC 2 (Analog/Digtal converter)</P>
+<P>Valid values:</P>
+<P>Condition:  otherwise (sensors)</P>
+<P>0= Sensor 1 (Base Board, Connector X1)</P>
+<P>1= Sensor 2 (Base Board, Connector X1)</P>
+<P>2= Sensor 3 (Base Board, Connector X2)</P>
+<P>3= Sensor 4 (Base Board, Connector X2)</P>
+<P>4= Sensor 5 (Extension Board, Connector X1)</P>
+<P>5= Sensor 6 (Extension Board, Connector X1)</P>
+<P>Description:  Channel  nummer  on  IF2008  Interface  card.    Attention!</P>
+<P>Sensor  5  and  6  are  only  available  if  IF2008E  extension  card  is</P>
+<P>installed.   Digital IN is only available if IF2008E extension card or</P>
+<P>IF2008IO extension slot is installed. ADC is only available if IF2008E</P>
+<P>extension card is installed.</P>
+<P>-1 means, no data channel is written to FIFO and can be read using</P>
+<P>TransferData or Poll.  This mode can be used if IF2008 should only</P>
+<P>be parametrized.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ii32.png" ALT="ii32"></P>
+</TD>
+<TD>
+<B>ERR_CODE</B> <P>Returns:</P>
+<P>ERR_NOERROR (0) on success.</P>
+<P>ERR_INSTANCE_NOT_EXTST (-24) if instanceHandle is not valid.</P>
+<P>ERR_ALREADY_OPEN (-11) if the specified connection is already open.</P>
+<P>ERR_INTERFACE_NOT_SUPPORTED (-10) if the specified interface (parameter &quot;IP_Interface&quot;) is not supported.</P>
+<P>ERR_CANNOT_CREATE_INTERFACE (-12) if the interface cannot be created.</P>
+<P>ERR_CANNOT_OPEN (-2) if interface cannot be opened.</P>
+<P>ERR_WRONG_PARAMETER (-18) if a parameter is not valid (e.g. out of range).</P>
+<P>ERR_NOMEMORY (-19) if there is not enough memory to allocate driver memory.</P>
+<P>ERR_APPLYING_PARAMS (-4) if parameters cannot applied to driver.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ierrcodeclst.png" ALT="ierrcodeclst"></P>
+</TD>
+<TD>
+<B>Fehler (Ausgang)</B> <P><B>Fehler (Eingang)</B> kann Fehlerangaben der vorherigen VIs aufnehmen. Auf Grundlage dieser Angaben kann entschieden werden, ob bei Entstehen eines Fehlers in einem anderen VI eine bestimmte Funktion übersprungen werden soll.</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Anzeigeelement <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+<UL>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ibool.png" ALT="ibool"></P>
+</TD>
+<TD>
+<B>status</B> <P><B>Status</B> ist TRUE (rotes Kreuz), wenn ein Fehler auftritt, andernfalls FALSE (grüner Haken).</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Element <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ii32.png" ALT="ii32"></P>
+</TD>
+<TD>
+<B>code</B> <P><B>Code</B> ist der Fehler- oder Warnungscode.</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Element <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü die Option <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="istr.png" ALT="istr"></P>
+</TD>
+<TD>
+<B>source</B> <P><B>Quelle</B> beschreibt den Ursprung des Fehlers oder der Warnung.</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Element <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+</UL>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="iu32.png" ALT="iu32"></P>
+</TD>
+<TD>
+<B>instanceHandle</B> <P>Parameter: DWORD instanceHandle</P>
+<P>Direction: [OUT]</P>
+<P>Description: Number of the sensor instance, copied from input.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ipath.png" ALT="ipath"></P>
+</TD>
+<TD>
+<B>DLL-Path</B> <P>OUTPUT: Path to library &quot;MEDAQLib.dll&quot;.</P>
+</TD>
+</TR>
+</Table>
+</BODY>
+</HTML>

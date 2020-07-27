@@ -1,0 +1,21 @@
+WinUSB\IFD24x1
+- USB Driver for IFD2401 and IFD2431
+
+WinUSB\C-Box
+- USB Driver for C-Box
+
+IF2004
+- Plug and Play (WDM, 32 Bit, Win2000 or higher) driver for IF2004 PCI card.
+- Support for Sensors ILD1302, ILD1402, ILD1700, ILD2200, ILD2220, ILD2300, IFD2451, IFD2471, ODC2500, ODC2600, CSP2008
+- Support for 5V TTL Encoder (16 bit)
+
+IF2008
+- Plug and Play (KMDF, 32/64 Bit, WinXP or higher) driver for IF2008 PCI card.
+- Support for Sensors ILR110x_115x, ILR118x, ILR1191, ILD1302, ILD1402, ILD1700, ILD2200, ILD2220, ILD2300, IFD2401, IFD2431, IFD2451, IFD2471, ODC2500, ODC2600, CSP2008
+- Support for 2 Encoder (5V TTL and 1Vss sine), 32 bit
+- Support for 2 ADC (+-10V, +-5V, 0-10V, 0-5V), 16 bit
+- Support for 4 DI and 4 DO, 6 Trg
+
+FTDI
+- Driver for IF2004_USB adapter and for FTDI converter from RS422 to USB (RS232 emulation)
+- Support for same Sensors as IF2008

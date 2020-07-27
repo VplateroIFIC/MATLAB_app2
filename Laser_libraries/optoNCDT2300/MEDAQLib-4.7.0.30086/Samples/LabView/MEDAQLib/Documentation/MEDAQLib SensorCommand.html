@@ -1,0 +1,189 @@
+<HTML>
+<HEAD>
+<TITLE>MEDAQLib.lvlib:SensorCommand.vi</TITLE>
+<META NAME="Author" CONTENT="">
+<META NAME="GENERATOR" CONTENT="G Development Environment">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A NAME="MEDAQLib.lvlib:SensorCommand.vi"></A><H2>MEDAQLib.lvlib:SensorCommand.vi</H2>
+<P>ERR_CODE SensorCommand (DWORD instanceHandle);</P>
+<P></P>
+<P>Before sending a command to the sensor the command and parameters must</P>
+<P>be specified with SetParameter... functions. After the command is executed the</P>
+<P>answer can be read using GetParameter... functions. At start of this function,</P>
+<P>all internal parameters starting with SA_, and IA_ are cleard (like at function</P>
+<P>ClearAllParameters). At end of this function, all internal parameters starting</P>
+<P>with SP_, CP_, and IP_ are cleared (like at function ClearAllParameters).</P>
+<P><IMG SRC="MEDAQLib SensorCommandc.png" ALT="MEDAQLib.lvlib:SensorCommand.vi"></P>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cu32.png" ALT="cu32"></P>
+</TD>
+<TD>
+<B>instanceHandle</B> <P>Parameter: DWORD instanceHandle</P>
+<P>Direction: [IN]</P>
+<P>Description: Number of the sensor instance, previously returned by</P>
+<P>CreateSensorInstance.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cerrcodeclst.png" ALT="cerrcodeclst"></P>
+</TD>
+<TD>
+<B>Fehler (Eingang, kein Fehler)</B> <P><B>Fehler (Eingang)</B> kann Fehlerangaben der vorherigen VIs aufnehmen. Auf Grundlage dieser Angaben kann entschieden werden, ob bei Entstehen eines Fehlers in einem anderen VI eine bestimmte Funktion übersprungen werden soll.</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Anzeigeelement <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+<UL>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cbool.png" ALT="cbool"></P>
+</TD>
+<TD>
+<B>status</B> <P><B>Status</B> ist TRUE (rotes Kreuz), wenn ein Fehler auftritt, andernfalls FALSE (grüner Haken).</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Element <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ci32.png" ALT="ci32"></P>
+</TD>
+<TD>
+<B>code</B> <P><B>Code</B> ist der Fehler- oder Warnungscode.</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Element <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü die Option <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cstr.png" ALT="cstr"></P>
+</TD>
+<TD>
+<B>source</B> <P><B>Quelle</B> beschreibt den Ursprung des Fehlers oder der Warnung.</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Element <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+</UL>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cpath.png" ALT="cpath"></P>
+</TD>
+<TD>
+<B>DLL-Path</B> <P>INPUT: Path to library &quot;MEDAQLib.dll&quot;.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ii32.png" ALT="ii32"></P>
+</TD>
+<TD>
+<B>ERR_CODE</B> <P>Returns:</P>
+<P>ERR_NOERROR (0) on success.</P>
+<P>ERR_INSTANCE_NOT_EXTST (-24) if instanceHandle is not valid.</P>
+<P>ERR_NOT_OPEN (-3) if connection is not established</P>
+<P>ERR_UNKNOWN_SENSOR_COMMAND (-14) if parameter &quot;S_Command&quot; is not valid.</P>
+<P>ERR_BAUDRATE_TOO_LOW (-22) if at sensor IFD2430 over RS232 with Baudrate&lt;38400 the CCD line (Get_CCD) or other binary data (Get_DarkSig, Get_...) should be read.</P>
+<P>ERR_APPLYING_PARAMS (-4) if interface parameters changed by command (e.g. change baudrate) and cannot be applied.</P>
+<P>ERR_NO_ANSWER_RECEIVED (-20) if no answer but other data is received within answer time.</P>
+<P>ERR_TIMEOUT_READING_FROM_SENSOR (-8) if no answer is received within answer time.</P>
+<P>ERR_CLEARING_BUFFER (-6) for command &quot;Clear_Buffers&quot; if specified device could not be cleared.</P>
+<P>ERR_NOMEMORY (-19) if a data buffer could not be allocated.</P>
+<P>ERR_UNKNOWN_SENSOR_ANSWER (-15) if sensor answer is not an answer to a command.</P>
+<P>ERR_SENSOR_ANSWER_ERROR (-16) if sensor answer cannot be interpreted or sensor returned an error number.</P>
+<P>ERR_SENSOR_ANSWER_TOO_SHORT (-17) if sensor answer is too short.</P>
+<P>ERR_SENSOR_ANSWER_DOES_NOT_MATCH_COMMAND (-21) if answer does not match the command.</P>
+<P>ERR_SENSOR_ANSWER_WARNING (-27) if sensor returned a warning.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ierrcodeclst.png" ALT="ierrcodeclst"></P>
+</TD>
+<TD>
+<B>Fehler (Ausgang)</B> <P><B>Fehler (Eingang)</B> kann Fehlerangaben der vorherigen VIs aufnehmen. Auf Grundlage dieser Angaben kann entschieden werden, ob bei Entstehen eines Fehlers in einem anderen VI eine bestimmte Funktion übersprungen werden soll.</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Anzeigeelement <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+<UL>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ibool.png" ALT="ibool"></P>
+</TD>
+<TD>
+<B>status</B> <P><B>Status</B> ist TRUE (rotes Kreuz), wenn ein Fehler auftritt, andernfalls FALSE (grüner Haken).</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Element <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ii32.png" ALT="ii32"></P>
+</TD>
+<TD>
+<B>code</B> <P><B>Code</B> ist der Fehler- oder Warnungscode.</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Element <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü die Option <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="istr.png" ALT="istr"></P>
+</TD>
+<TD>
+<B>source</B> <P><B>Quelle</B> beschreibt den Ursprung des Fehlers oder der Warnung.</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Element <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+</UL>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="iu32.png" ALT="iu32"></P>
+</TD>
+<TD>
+<B>instanceHandle</B> <P>Parameter: DWORD instanceHandle</P>
+<P>Direction: [OUT]</P>
+<P>Description: Number of the sensor instance, copied from input.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ipath.png" ALT="ipath"></P>
+</TD>
+<TD>
+<B>DLL-Path</B> <P>OUTPUT: Path to library &quot;MEDAQLib.dll&quot;.</P>
+</TD>
+</TR>
+</Table>
+</BODY>
+</HTML>

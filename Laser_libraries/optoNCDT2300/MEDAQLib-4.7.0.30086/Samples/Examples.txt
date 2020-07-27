@@ -1,0 +1,65 @@
+LibExample:
+  - C command line program using MEDAQLib.lib for linking MEDAQLib.dll at program start.
+  - Create sensor instance for ILD1750 using RS232 interface (RS422 to USB Converter, e.g. IF2001/USB).
+  - Open, get some information, get some data blocks, close.
+  
+IF2008:
+  - C command line program using MEDAQLib.lib for linking MEDAQLib.dll at program start.
+  - Create and opens several ILD2300 over IF2008 and an encoder channel.
+  - Get sensor information, parametrize encoder.
+  - Poll data, synchronize channels, Transfer data.
+  - Close and release sensors.
+
+DLLExample:
+  - C command line program dynamically loading MEDAQLib.dll after program start.
+  - Create sensor instance for ILD2300 using IF2008/ETH interface.
+  - Open, get some information, poll some values, close.
+
+UnicodeExample
+  - C command line program dynamically loading MEDAQLib.dll after program start.
+  - Create sensor instance for IFD2421 using TCP/IP interface.
+  - Use event to check for data and read blocks.
+  - Can be compiled for ANSI and UNICODE.
+  
+VBAExample
+  - VBA (Excel sheet) dynamically loading MEDAQLib.dll after program start.
+  - Create Sensor instance for ODC2520 using IF2004_USB interface.
+  - User Interface for Open/Close.
+  - Get some information, poll value with button click.
+  - The second example (VBAExample2.xls) does the same but with sensor ILD1750.
+  
+DelphiExample
+  - Delphi command line program dynamically loading MEDAQLib.dll after program start.
+  - Create sensor instance for ILD1420 using RS232 interface (RS422 to USB Converter, e.g. IF2001/USB).
+  - Open, get some information, get some data blocks, close.
+  
+C-Sharp Example
+  - C# command line program using MEDAQLib.NET.dll.
+  - Create sensor instance for ILD2300 using TCP/IP interface.
+  - Open, get some information, get video signal, get some data blocks, poll data, close.
+
+VB2013Example
+  - Visual Basic 2013 console application using MEDAQLib.NET.dll.
+  - Create sensor instance for ILD1420 using IF2001/USB (COM port emulation) interface.
+  - Open, get some information, transfer data, close
+
+LabView
+  - Contains VI's for calling all MEDAQLib functions using LabView's Call Library Function Node
+  - Interface-Ethernet.vi shows how to connect with Ethernet sensors
+  - Interface-IF2004_USB.vi shows how to connect a sensor via IF2004_USB
+  - Interface-RS232.vi shows how to connect a sensor via RS232 or RS422 (USB converter)
+  - All these samples connect to sensor and get data from one sensor channel
+
+X64Example
+  - C command line program using MEDAQLib.lib for linking MEDAQLib.dll (64 Bit) at program start.
+  - Create sensor instance for ILD2300 using TCP/IP interface.
+  - Open, get some information, get info on transmitted data, get some data blocks, close.
+
+SensorFinder
+  - C command line program using MEDAQLib.lib for linking MEDAQLib.dll at program start.
+	- Search for sensor ILD2300 and (if found over TCP/IP) change it's IP address (using SetIPConfig).
+
+SensorTest
+	- C command line program using MEDAQLib.lib for linking MEDAQLib.dll at program start.
+	- Search/Open any sensor, show information about transmitted data from sensor, retrieve continously data.
+	

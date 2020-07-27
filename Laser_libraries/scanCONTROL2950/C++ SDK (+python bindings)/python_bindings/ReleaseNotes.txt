@@ -1,0 +1,14 @@
+v1.2.1 - 25.05.2020
+- Update: LLT.dll 3.9.0.2077
+
+v1.2.0 - 21.10.19
+- Update: scanCONTROL 25xx support
+- Update: LLT.dll 3.9.0.1969 functions added
+
+
+v1.1.0 - 14.06.2019
+- Update: scanCONTROL 30xx support
+- Update: LLT.dll 3.9.0.1969 functions added
+
+v1.0.0 - 10.01.2017
+- Note: Initial Release, full ctypes wrapper for LLT.dll v3.7.0.x#

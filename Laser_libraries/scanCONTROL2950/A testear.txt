@@ -1,0 +1,1 @@
+Testear a poner eTime, iTime y ver si se puede cambiar ambos o está puesto para que mantenga la frecuencia.

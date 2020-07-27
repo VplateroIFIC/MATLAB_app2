@@ -15,3 +15,9 @@ cam = cam.Connect;
 cam.DispCam
 
 focus = FOCUS(gantry, cam,1);
+
+importLaserLibraries;       %Libraries for laser integration
+scaner = SCANCONTROL2950;
+scaner.Connect;
+laser = OPTOPNCDT2300;
+laser.SetupConnect;

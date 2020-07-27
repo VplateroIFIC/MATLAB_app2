@@ -1,0 +1,111 @@
+;/*++
+;
+;Copyright (c) Micro-Epsilon Messtechnik.  All rights reserved.
+;
+;Module Name:
+;
+;    IF2008.INF
+;
+;Abstract:
+;    INF file for the IF2008 Sensor-Interface card driver.
+;
+;--*/
+
+[Version]
+Signature="$WINDOWS NT$"
+Class="Micro-Epsilon PCI"
+ClassGuid={9BDC3666-F5A1-4605-81FB-16ED92657A45}
+Provider=%MSFT%
+DriverVer=12/07/2018,3.0.0.28425
+CatalogFile=IF2008.cat
+
+[DestinationDirs]
+DefaultDestDir = 12
+CoInstaller_CopyFiles = 11
+
+; ================= Class section =====================
+
+[ClassInstall32]
+Addreg=IF2008ClassAddReg     
+
+[IF2008ClassAddReg]
+HKR,,,0,%ClassName%
+HKR,,Icon,,-5
+HKR,,DeviceCharacteristics,0x10001,0x100     ;Use same security checks on relative opens
+HKR,,Security,,"D:P(A;;GA;;;SY)(A;;GA;;;BA)(A;;GXGWGR;;;WD)(A;;GXGWGR;;;RC)" ;Allow generic all access to system and built-in Admin, execute, write and read to world and restricted code. 
+
+
+; ================= Device Install section =====================
+
+[ControlFlags]
+ExcludeFromSelect=*
+
+[Manufacturer]
+%MSFT%=MSFT,NTAMD64
+
+[SourceDisksFiles]
+IF2008.sys=1
+WdfCoInstaller01009.dll=1 ; make sure the number matches with SourceDisksNames
+
+[SourceDisksNames]
+1=%DISK_NAME%,
+
+[MSFT.NTAMD64]
+; DisplayName           Section           DeviceId
+; -----------           -------           --------
+%IF2008A.DRVDESC%=       IF2008_Inst,      PCI\VEN_10b5&DEV_9030&SUBSYS_23022810&REV_01
+%IF2008B.DRVDESC%=       IF2008_Inst,      PCI\VEN_1204&DEV_1910&SUBSYS_20081204&REV_01
+
+[IF2008_Inst.NT]
+CopyFiles=IF2008.CopyFiles
+
+[IF2008.CopyFiles]
+IF2008.sys
+
+[IF2008_Inst.NT.HW]
+Addreg=IF2008HWAddReg     
+
+[IF2008HWAddReg]
+HKR,,DeviceCharacteristics,0x10001,0x100     ;Use same security checks on relative opens
+HKR,,Security,,"D:P(A;;GA;;;SY)(A;;GA;;;BA)(A;;GXGWGR;;;WD)(A;;GXGWGR;;;RC)" ;Allow generic all access to system and built-in Admin, execute, write and read to world and restricted code. 
+
+[IF2008_Inst.NT.Services]
+AddService=IF2008,0x00000002,IF2008_Service 
+
+[IF2008_Service]
+DisplayName    = %IF2008.SVCDESC%                            
+ServiceType    = 1                  ; SERVICE_KERNEL_DRIVER
+StartType      = 3                  ; SERVICE_DEMAND_START
+ErrorControl   = 1                  ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\IF2008.sys                            
+AddReg         = IF2008_Parameters_AddReg
+
+[IF2008_Parameters_AddReg]
+HKR, Parameters\Wdf, VerboseOn,       0x00010001, 1
+HKR, Parameters\Wdf, VerifierOn,      0x00010001, 1
+HKR, Parameters\Wdf, DbgBreakOnError, 0x00010001, 1
+
+
+;-------------- Coinstaller installation
+[IF2008_Inst.NT.CoInstallers]
+AddReg=CoInstaller_AddReg
+CopyFiles=CoInstaller_CopyFiles
+
+[CoInstaller_CopyFiles]
+WdfCoInstaller01009.dll
+
+[CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoInstaller01009.dll,WdfCoInstaller"
+
+[IF2008_Inst.NT.Wdf]
+KmdfService = IF2008, IF2008_wdfsect
+[IF2008_wdfsect]
+KmdfLibraryVersion = 1.9
+
+[Strings]
+MSFT = "Micro-Epsilon"
+ClassName = "Micro-Epsilon PCI"
+IF2008A.DRVDESC = "IF2008A Sensor-Interface Card (PCI)"
+IF2008B.DRVDESC = "IF2008B Sensor-Interface Card (PCIe)"
+DISK_NAME = "IF2008 Sensor-Interface Driver Install Disk"
+IF2008.SVCDESC = "IF2008 Service"
