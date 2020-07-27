@@ -21,5 +21,6 @@ function data = measurePoint(laser,gantry,radius,n)
     for i=2:n
         data(i) = MoveAndMeasure(laser,gantry,Xposition(i-1),Yposition(i-1),velocity,wait);
         gantry.MoveTo(gantry.X,startPosition(1),velocity,wait);
+        gantry.MoveTo(gantry.Y,startPosition(2),velocity,wait);
     end   
 end
