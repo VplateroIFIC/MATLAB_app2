@@ -325,7 +325,7 @@ classdef OPTONCDT2300 < handle
             if err ~= clib.MEDAQLib.ERR_CODE.ERR_NOERROR
                 warning('While setting S_Command, something occurred: %s',string(err));
             end
-            err = clib.MEDAQLib.SetParameterInt(this.hSensor, "SP_TriggerCount", this.SP_MeasureValueCnt);
+            err = clib.MEDAQLib.SetParameterInt(this.hSensor, "SP_TriggerCount", this.SP_TriggerCount);
             if err ~= clib.MEDAQLib.ERR_CODE.ERR_NOERROR
                 warning('While setting SP_TriggerCount, something occurred: %s',string(err));
             end
@@ -408,15 +408,18 @@ classdef OPTONCDT2300 < handle
             %for them and stores them in rawData and scaledData with
             %this.PollData
             
+            
             err = this.ClearBuffer;
             if err ~= clib.MEDAQLib.ERR_CODE.ERR_NOERROR
-                warning('While clearing the buffer, something occurred: %s',string(err1));
+                warning('While clearing the buffer, something occurred: %s',string(err));
             end
             
             err = clib.MEDAQLib.SetParameterString(this.hSensor, "S_Command", "Software_Trigger");
             if err ~= clib.MEDAQLib.ERR_CODE.ERR_NOERROR
-                warning('While triggering the sensor, something occurred: %s',string(err1));
+                warning('While triggering the sensor, something occurred: %s',string(err));
             end
+            
+            err = clib.MEDAQLib.SensorCommand(this.hSensor);
             
             while this.AvailableValues < this.SP_TriggerCount     %Wait for values to be available (maybe there's a proper way to do this)
             end
