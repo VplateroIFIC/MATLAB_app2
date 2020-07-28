@@ -13,11 +13,12 @@ function [Z,X,Y] = measureSensor(laser,gantry,x1,x2,y1,y2,nX,nY,velocity)
             end
             gantry.WaitForMotionAll(-1);
             try
-                Z(i,j) = 10-mean(measurePoint(laser,gantry,0.01,10));
+                laser.TriggerValuesAndPoll;
+                Z(j,i) = 10-laser.scaledData;        %Estaba mal j e i
             catch ME
                 warning("Something occured during measurement")
                 fprintf(ME.msgtext);
-                Z(i,j)=0;
+                Z(j,i)=0;
             end
         end
     end
