@@ -27,22 +27,20 @@ classdef SCANCONTROL2950 < handle
         %ERROR_GENERAL_SECOND_CONNECTION_TO_LLT=-1008
         
     properties (Constant = true, Access = private)
-        temperatureAsk = 0x86000000;
+        temperatureAsk = 0x86000000; 
     end
     properties (Access=protected)
         interfacesCount = 5;
         interfaces;
         pLLT int32;
+        resolutionsCount = 4
     end
     properties (SetAccess=protected, GetAccess=public)
         scannerType = clib.LLT.TScannerType.scanCONTROL29xx_50;
-        interfaceType = clib.LLT.TInterfaceType.INTF_TYPE_ETHERNET;
         isConnected = 0;
-        transferMode = clib.LLT.TTransferProfileType.NORMAL_TRANSFER;
-        profileType = clib.LLT.TProfileConfig.PROFILE;
         bytesPerProfile = 0;
         isTransfering = 0;
-        resolutions = clibArray('clib.LLT.UnsignedLong',4);
+        resolutions;
         currentResolution = 0;
         exposureTime = 0;
         idleTime = 0;
@@ -51,28 +49,48 @@ classdef SCANCONTROL2950 < handle
         laser = 0;
         lastTemperature = 0;
     end
+    properties (Access = public)
+        interfaceType = clib.LLT.TInterfaceType.INTF_TYPE_ETHERNET;
+        transferMode = clib.LLT.TTransferProfileType.NORMAL_TRANSFER;
+        profileType = clib.LLT.TProfileConfig.PROFILE;
+    end
     
     methods
         
         function this = SCANCONTROL2950(interface)
-            %SCANCONTROL2950 constructor. Assigns the interface type to
-            %this.interfaceType if desired and creates a device handle
-            %(s_CreateLLTDevice) of the selected interface.
+            %SCANCONTROL2950 constructor. 
+            %   First imports the clib.LLT library and the necessary
+            %   enumerations.
+            %   Then assigns the interface type to
+            %   this.interfaceType if desired and creates a device handle
+            %   (s_CreateLLTDevice) of the selected interface.
             
+            %Parameters:
             %   interface (clib.LLT.TInterfaceType) is the desired
-            %       interface with which the sensor will be controlled
-            %       (default: INTF_TYPE_ETHERNET) 
+            %       interface, via which the sensor will be controlled, if
+            %       it is left blank, this.interfaceType is used (default: INTF_TYPE_ETHERNET).
+            
+            addpath('Laser_libraries\scanCONTROL2950\');
+            addpath('Laser_libraries\scanCONTROL2950\LLT\') %Add the compiled .dll to the MATLAB search Path
+            err = setPath('Laser_libraries\scanCONTROL2950\C++ SDK (+python bindings)\lib\x64'); %Add the original library to the System PATH
+            if err
+                try
+                    clib.LLT.TInterfaceType;
+                catch
+                    fprintf("clib.LLT library was imported successfully\n");
+                end
+            end
             
             if exist('interface','var') 
                 this.interfaceType = interface;
             end
             retValue = clib.LLT.s_CreateLLTDevice(this.interfaceType);
             if retValue < 1
-                error('Could not create LLT device, error code: %d',retValue);
+                warning('Could not create LLT device, error code: %d',retValue);
             else
                 this.pLLT = retValue;
             end
-            fprintf('Scaner handle created: %d',this.pLLT);
+            fprintf('Scaner handle created successfully. Number: %d\n',this.pLLT);
             
         end
         
@@ -80,8 +98,12 @@ classdef SCANCONTROL2950 < handle
             %Destructor for SCANCONTROL2950, deletes de device handle befor
             %   deleting the object
             
+            %Parameters:
             %   this (SCANCONTROL2950) is the object to delete
-            clib.LLT.s_DelDevice(this.pLLT);
+            err = clib.LLT.s_DelDevice(this.pLLT);
+            if err < 0
+                warning('While deleting the handle device, something occurred, code: %d',err);
+            end
             delete(this);
         end
         
@@ -93,6 +115,7 @@ classdef SCANCONTROL2950 < handle
             %   (s_GetDeviceInterfacesFast), chooses the iNum-th scanner  
             %   (s_SetInterface) and stablishes connection (s_Connect).
             
+            %Parameters:
             %   this (SCANCONTROL2950) is the scanCONTROL object
             %   iNum (int) is the number of the device you want to connect with (default: 1)
             %   iCount (int) is the maximum number of connected devices you look for (default: 5)
@@ -111,7 +134,7 @@ classdef SCANCONTROL2950 < handle
                 warning('There are more devices than expected. We have found %d and we expected %d', errorCode, this.interfacesCount);
             else
                 if errorCode < 1
-                    error('There was an unexpected error while getting available interfaces, code: %d', errorCode);
+                    warning('There was an unexpected error while getting available interfaces, code: %d', errorCode);
                 end
             end
             
@@ -120,7 +143,7 @@ classdef SCANCONTROL2950 < handle
                 warning('While setting the interface, something occurred, code: %d',errorCode);
             else
                 if errorCode < 1
-                    error('There was an unexpected error while setting the interfaces, code %d',errorCode);
+                    warning('There was an unexpected error while setting the interfaces, code %d',errorCode);
                 end
             end
             
@@ -131,18 +154,18 @@ classdef SCANCONTROL2950 < handle
             else
                 if errorCode < 1
                     this.isConnected = 0;
-                    error('There was an unexpected error while connecting to the sensor, code %d',errorCode);
+                    warning('There was an unexpected error while connecting to the sensor, code %d',errorCode);
                 else
                     this.isConnected = 1;
-                    fprintf('Connection stablished successfully!');
+                    fprintf('Connection stablished successfully!\n');
                 end
             end
         end
         
         function errorCode = Disconnect(this) 
-            %Diconnect terminates connection to the sensor, so another
-            %sensor can be selected.
+            %Diconnect terminates connection to the sensor.
             
+            %Parameters:
             %   this (SCANCONTROL2950) is the object
             
             errorCode = clib.LLT.s_Disconnect(this.pLLT);
@@ -152,10 +175,10 @@ classdef SCANCONTROL2950 < handle
             else
                 if errorCode < 1
                     this.isConnected = 0;
-                    error('There was an unexpected error while disconnecting the sensor, code %d',errorCode);
+                    warning('There was an unexpected error while disconnecting the sensor, code %d',errorCode);
                 else
                     this.isConnected = 1;
-                     fprintf('Disconnection done successfully!');
+                     fprintf('Disconnection done successfully!\n');
                 end
             end
             
@@ -175,21 +198,23 @@ classdef SCANCONTROL2950 < handle
             %Get the available resolutions and store them in
             %this.resolutions
             
-            %this (SCANCONTROL2950) is the current object
+            %Parameters
+            %   this (SCANCONTROL2950) is the current object
             
-            errorCode = clib.LLT.s_GetResolutions(this.pLLT,this.resolutions);
+            resolutions = clibArray('clib.LLT.UnsignedLong',this.resolutionsCount);
+            
+            errorCode = clib.LLT.s_GetResolutions(this.pLLT,resolutions);
             if errorCode == -156
-                error('Resolutions size is too small, please update it in the class definition');
+                warning('Resolutions size is too small, please update it in the class definition');
             else
                 if errorCode < 1
-                    error('There was an unexpected error while querying for the available resolutions, code %d',errorCode);
+                    warning('There was an unexpected error while querying for the available resolutions, code %d',errorCode);
                 end
             end
-            resolutions = this.resolutions;
             fprintf('There are %d available resolutions: \n',errorCode);
-            for i = 1:errorCode
-                fprintf('%d\n',this.resolutions(i));
-            end
+            
+            resolutions = uint32(resolutions);
+            this.resolutions = resolutions;
         end
         
         function resolution = GetCurrentResolution(this)
@@ -204,7 +229,7 @@ classdef SCANCONTROL2950 < handle
                 warning('While querying for the current resolution, something occurred, code: %d',errorCode);
             else
                 if errorCode < 1
-                    error('There was an unexpected error while querying for the current resolution, code %d',errorCode);
+                    warning('There was an unexpected error while querying for the current resolution, code %d',errorCode);
                 end
             end
             this.currentResolution = resolution(1);
@@ -224,10 +249,10 @@ classdef SCANCONTROL2950 < handle
                 warning('While getting the laser power, something occurred, code: %d',errorCode);
             else
                 if errorCode == -155
-                    error('Wrong address');
+                    warning('Wrong address');
                 else
                     if errorCode < 1
-                        error('There was an unexpected error while getting the laser power, code %d',errorCode);
+                        warning('There was an unexpected error while getting the laser power, code %d',errorCode);
                     end
                 end
             end
@@ -258,10 +283,10 @@ classdef SCANCONTROL2950 < handle
                 warning('While asking for the temperature, something occurred, code: %d',errorCode);
             else
                 if errorCode == -155
-                    error('Wrong address');
+                    warning('Wrong address');
                 else
                     if errorCode < 1
-                        error('There was an unexpected error while asking for the temperature, code %d',errorCode);
+                        warning('There was an unexpected error while asking for the temperature, code %d',errorCode);
                     end
                 end
             end
@@ -272,10 +297,10 @@ classdef SCANCONTROL2950 < handle
                 warning('While reading the temperature, something occurred, code: %d',errorCode);
             else
                 if errorCode == -155
-                    error('Wrong address');
+                    warning('Wrong address');
                 else
                     if errorCode < 1
-                        error('There was an unexpected error while reading the temperature, code %d',errorCode);
+                        warning('There was an unexpected error while reading the temperature, code %d',errorCode);
                     end
                 end
             end
@@ -296,10 +321,10 @@ classdef SCANCONTROL2950 < handle
                 warning('While asking for the exposure time, something occurred, code: %d',errorCode);
             else
                 if errorCode == -155
-                    error('Wrong address');
+                    warning('Wrong address');
                 else
                     if errorCode < 1
-                        error('There was an unexpected error while asking for the exposure time, code %d',errorCode);
+                        warning('There was an unexpected error while asking for the exposure time, code %d',errorCode);
                     end
                 end
             end
@@ -321,10 +346,10 @@ classdef SCANCONTROL2950 < handle
                 warning('While asking for the exposure time, something occurred, code: %d',errorCode);
             else
                 if errorCode == -155
-                    error('Wrong address');
+                    warning('Wrong address');
                 else
                     if errorCode < 1
-                        error('There was an unexpected error while asking for the exposure time, code %d',errorCode);
+                        warning('There was an unexpected error while asking for the exposure time, code %d',errorCode);
                     end
                 end
             end
@@ -359,10 +384,10 @@ classdef SCANCONTROL2950 < handle
                 warning('While setting the profile configuration, something occurred, code: %d',errorCode);
             else
                 if errorCode == -152
-                    error('Profile configuration not available');
+                    warning('Profile configuration not available');
                 else
                     if errorCode < 1
-                        error('There was an unexpected error while setting the profile configuration, code %d',errorCode);
+                        warning('There was an unexpected error while setting the profile configuration, code %d',errorCode);
                     end
                 end
             end
@@ -390,10 +415,10 @@ classdef SCANCONTROL2950 < handle
                 warning('While setting the laser, something occurred, code: %d',errorCode);
             else
                 if errorCode == -155
-                    error('Wrong address');
+                    warning('Wrong address');
                 else
                     if errorCode < 1
-                        error('There was an unexpected error while setting the laser power, code %d',errorCode);
+                        warning('There was an unexpected error while setting the laser power, code %d',errorCode);
                     end
                 end
             end
@@ -413,10 +438,10 @@ classdef SCANCONTROL2950 < handle
                 warning('While setting the exposure time, something occurred, code: %d',errorCode);
             else
                 if errorCode == -155
-                    error('Wrong address');
+                    warning('Wrong address');
                 else
                     if errorCode < 1
-                        error('There was an unexpected error while setting the exposure time, code %d',errorCode);
+                        warning('There was an unexpected error while setting the exposure time, code %d',errorCode);
                     end
                 end
             end
@@ -439,10 +464,10 @@ classdef SCANCONTROL2950 < handle
                 warning('While setting the exposure time, something occurred, code: %d',errorCode);
             else
                 if errorCode == -155
-                    error('Wrong address');
+                    warning('Wrong address');
                 else
                     if errorCode < 1
-                        error('There was an unexpected error while setting the exposure time, code %d',errorCode);
+                        warning('There was an unexpected error while setting the exposure time, code %d',errorCode);
                     end
                 end
             end
@@ -474,7 +499,7 @@ classdef SCANCONTROL2950 < handle
             else
                 if retValue < 1
                     this.isTransfering = 0;
-                    error('There was an unexpected error while asking for transmition, code %d',retValue);
+                    warning('There was an unexpected error while asking for transmition, code %d',retValue);
                 end
             end
         end
@@ -488,7 +513,7 @@ classdef SCANCONTROL2950 < handle
             retValue = clib.LLT.s_TransferProfiles(this.pLLT,this.transferMode,false);
             if retValue < 0
                 this.isTransfering = 1;
-                error('There was an unexpected error while ending transmition, code %d',retValue);
+                warning('There was an unexpected error while ending transmition, code %d',retValue);
             else
                 this.isTransfering = 0;
                 fprintf('Transmition stopped successfully');
@@ -541,7 +566,7 @@ classdef SCANCONTROL2950 < handle
                     warning('While setting the resolution, something occurred, code: %d', errorCode);
                 else 
                     if errorCode < 1
-                        error('There was an unexpected error while setting the resolution, code: %d', errorCode);
+                        warning('There was an unexpected error while setting the resolution, code: %d', errorCode);
                     end
                 end
             end
@@ -556,7 +581,7 @@ classdef SCANCONTROL2950 < handle
             lProfiles = clibArray('clib.LLT.UnsignedInt',1);
             transferredBytes = clib.LLT.s_GetActualProfile(this.pLLT,pBuffer,this.profileType,lProfiles);
             if transferredBytes < 1
-                error('There was an unexpected error while reading the profile, code: %d', transferredBytes);
+                warning('There was an unexpected error while reading the profile, code: %d', transferredBytes);
             else
                 fprintf('Profile reading completed successfully, %d bytes transferred\n',transferredBytes);
             end
@@ -567,7 +592,7 @@ classdef SCANCONTROL2950 < handle
                 warning('While processing the profiles, something occurred, code: %d',retValue);
             else
                 if retValue < 1
-                    error('There was an unexpected error while processing the profile, code: %d', retValue);
+                    warning('There was an unexpected error while processing the profile, code: %d', retValue);
                 else
                     fprintf('Profile processing completed successfully');
                 end
