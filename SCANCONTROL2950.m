@@ -36,7 +36,7 @@ classdef SCANCONTROL2950 < handle
         resolutionsCount = 4
     end
     properties (SetAccess=protected, GetAccess=public)
-        scannerType = clib.LLT.TScannerType.scanCONTROL29xx_50;
+        scannerType;
         isConnected = 0;
         bytesPerProfile = 0;
         isTransfering = 0;
@@ -50,9 +50,9 @@ classdef SCANCONTROL2950 < handle
         lastTemperature = 0;
     end
     properties (Access = public)
-        interfaceType = clib.LLT.TInterfaceType.INTF_TYPE_ETHERNET;
-        transferMode = clib.LLT.TTransferProfileType.NORMAL_TRANSFER;
-        profileType = clib.LLT.TProfileConfig.PROFILE;
+        interfaceType;
+        transferMode;
+        profileType;
     end
     
     methods
@@ -63,7 +63,13 @@ classdef SCANCONTROL2950 < handle
             %   enumerations.
             %   Then assigns the interface type to
             %   this.interfaceType if desired and creates a device handle
-            %   (s_CreateLLTDevice) of the selected interface.
+            %   (s_CreateLLTDevice) of the selected interface, and sets the
+            %   default properties that need clib.LLT members.
+            %   Sets:
+            %       interfaceType = interface (default: INTF_TYPE_ETHERNET),
+            %       scannerType = clib.LLT.TScannerType.scanCONTROL29xx_50,
+            %       transferMode = clib.LLT.TTransferProfileType.NORMAL_TRANSFER,
+            %       profileType = clib.LLT.TProfileConfig.PROFILE,
             
             %Parameters:
             %   interface (clib.LLT.TInterfaceType) is the desired
@@ -83,13 +89,21 @@ classdef SCANCONTROL2950 < handle
             
             if exist('interface','var') 
                 this.interfaceType = interface;
+            else
+                this.interfaceType = clib.LLT.TInterfaceType.INTF_TYPE_ETHERNET;
             end
+            
             retValue = clib.LLT.s_CreateLLTDevice(this.interfaceType);
             if retValue < 1
                 warning('Could not create LLT device, error code: %d',retValue);
             else
                 this.pLLT = retValue;
             end
+            
+            this.scannerType = clib.LLT.TScannerType.scanCONTROL29xx_50;
+            this.transferMode = clib.LLT.TTransferProfileType.NORMAL_TRANSFER;
+            this.profileType = clib.LLT.TProfileConfig.PROFILE;
+            
             fprintf('Scaner handle created successfully. Number: %d\n',this.pLLT);
             
         end

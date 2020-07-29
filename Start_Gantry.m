@@ -16,7 +16,6 @@ joy = joy.Connect;
 
 %focus = FOCUS(gantry, cam,1);
 
-importLaserLibraries;       %Libraries for laser integration
 scaner = SCANCONTROL2950;
 scaner.Connect;
 laser = OPTONCDT2300;
