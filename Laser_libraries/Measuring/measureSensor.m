@@ -14,9 +14,14 @@ function [Z,X,Y] = measureSensor(laser,gantry,x1,x2,y1,y2,nX,nY,velocity,minValu
     %   minValue, maxValue are the minimum and maximun accepted (or expected) 
     %       values for the measure
     
+    laser.SP_TriggerCount = 1000;   %Set trigger mode
+    laser.SP_TriggerMode = 3;
+    laser.dataSize = 1000;
+    laser.SetTriggerMode;
+    
     X = linspace(x1,x2,nX);     % X coordinates of the points to measure
     Y = linspace(y1,y2,nY);     % Y coordinates of the points to measure
-    Z = zeros(nX,nY);
+    Z = zeros(nY,nX);
     
     for i = 1:nX                                    %For each X position
         gantry.MoveTo(gantry.X,X(i),velocity,0);
@@ -30,6 +35,7 @@ function [Z,X,Y] = measureSensor(laser,gantry,x1,x2,y1,y2,nX,nY,velocity,minValu
             try
                 laser.TriggerValuesAndPoll;         %Measure laser.SP_TriggerCount values
                 measure = laser.AverageValues;      %Averages the values and get the mean
+                laser.ClearBuffer;
                 if measure > maxValue || measure < minValue
                     Z(j,i) = -1;                    %-1 = not an accepted value
                 else
@@ -43,6 +49,6 @@ function [Z,X,Y] = measureSensor(laser,gantry,x1,x2,y1,y2,nX,nY,velocity,minValu
         end
     end
     
-    save("Results\sensorMeasuringResults.mat",...   %Store it in a file
+    save("C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app\Laser_libraries\Results\sensorMeasuringResults.mat",...   %Store it in a file
         'X','Y','Z'); 
 end

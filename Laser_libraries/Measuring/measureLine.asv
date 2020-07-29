@@ -1,4 +1,4 @@
-function [line,distancePoints] = measureLine(laser,gantry,fromX,fromY,toX,toY,velocity)
+function line = measureLine(laser,gantry,fromX,fromY,toX,toY,velocity)
 %Measure one line from (fromX,fromY) to (toX,toY) while moving at
 %   (velocity) speed.
 
@@ -33,7 +33,6 @@ function [line,distancePoints] = measureLine(laser,gantry,fromX,fromY,toX,toY,ve
         warning("You are going to need a bigger buffer size: %d",ceil(points/4));
     end
     laser.dataSize = points;
-    distancePoints=linspace(0,distance,points);
     
     %Wait until starting possition is reached
     gantry.WaitForMotionAll(-1);
@@ -41,15 +40,15 @@ function [line,distancePoints] = measureLine(laser,gantry,fromX,fromY,toX,toY,ve
     %Measure, move and when movement finishes, get the data and stop output. 
     laser.SoftwareTrigger;
     gantry.MoveTo(gantry.X,toX,velocity,0);                  %Move the gantry to the final possition.
-    gantry.MoveTo(gantry.Y,toY,velocity,0); 
+    gantry.MoveTo(gantry.Y,toY,13,0); 
     gantry.WaitForMotionAll(-1);
     laser.PollData;
     laser.SP_TriggerCount = 0;                              %For stopping data output (0 = no data transferred when triggered)
     laser.SetTriggerMode;
     
     %Save the data
-    line = 10.-laser.scaledData;                            %Get the measured line reversed (so it outputs depth and not heaight)
-    save("C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app\Laser_libraries\Results\lineMeasuringResults.mat",...             %Store it in a file
-        'line','velocity','distance','distancePoints');      
+    line = laser.scaledData;                                %Get the measured line
+    save("Results\lineMeasuringResults.mat",...             %Store it in a file
+        'line','velocity','distance');      
     
 end

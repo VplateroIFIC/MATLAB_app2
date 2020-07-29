@@ -498,33 +498,7 @@ classdef OPTONCDT2300 < handle
             this.PollData;
         end
         
-        function err = SaveParameters(this,number)
-            err = clib.MEDAQLib.SetParameterString(this.hSensor, "S_Command", "Save_Parameters");
-            if err ~= clib.MEDAQLib.ERR_CODE.ERR_NOERROR
-                warning('While setting S_Command, something occurred: %s',string(err));
-            end
-            err = clib.MEDAQLib.SetParameterInt(this.hSensor, "SP_ParameterSet", number);
-            if err ~= clib.MEDAQLib.ERR_CODE.ERR_NOERROR
-                warning('While setting SP_ParameterSet, something occurred: %s',string(err));
-            end
-            err = clib.MEDAQLib.SensorCommand(this.hSensor);
-        end
-        
-        function err = LoadParameters(this,number) %1=Continous sending, 2=Trigger continous sending
-            err = clib.MEDAQLib.SetParameterString(this.hSensor, "S_Command", "Load_Parameters");
-            if err ~= clib.MEDAQLib.ERR_CODE.ERR_NOERROR
-                warning('While setting S_Command, something occurred: %s',string(err));
-            end
-            err = clib.MEDAQLib.SetParameterInt(this.hSensor, "SP_ParameterSet", number);
-            if err ~= clib.MEDAQLib.ERR_CODE.ERR_NOERROR
-                warning('While setting SP_ParameterSet, something occurred: %s',string(err));
-            end
-            err = clib.MEDAQLib.SetParameterInt(this.hSensor, "SP_ParameterType", 1);
-            if err ~= clib.MEDAQLib.ERR_CODE.ERR_NOERROR
-                warning('While setting SP_ParameterType, something occurred: %s',string(err));
-            end
-            err = clib.MEDAQLib.SensorCommand(this.hSensor);
-        end
+        function err = saveParameters(
         
         %Some set functions to assure a correct parameter selection ---------------------------------
         function set.IP_ScaleErrorValues(this,value)
