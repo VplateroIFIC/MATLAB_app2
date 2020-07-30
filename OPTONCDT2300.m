@@ -60,8 +60,8 @@ classdef OPTONCDT2300 < handle
     
     properties (Access = public)
         IP_RemoteAddr = "169.254.168.150";
-        IP_RingBufferSize = 1048576; % Byte capacity of the buffer from which data is retrieved. MAX = 1073741824 (1GB)
-        bufferValueSize; %Value capacity of the buffer (IP_RingBufferSize/4, updated when called this.SetupConnect) 
+        IP_RingBufferSize = 104857600; % Byte capacity of the buffer from which data is retrieved. MAX = 1073741824 (1GB)
+        bufferValueSize; %Value capacity of the buffer (IP_RingBufferSize/4, updated when called this.SetupConnect) (Maybe this is not right)
         IP_ScaleErrorValues = 3; % 1=Last valid value, 2=Fixed Value, 3=Negative error value
         SP_MeasureMode = 1; %0=Diffuse reflection, 1=Direct reflexion
         SP_MeasurePeak = 0; %0=Greatest amplitude, 1=Greatest area, 2=First peak
@@ -90,9 +90,10 @@ classdef OPTONCDT2300 < handle
             %   sensor (clib.MEDAQLib.ME_SENSOR) is the sensor model.
             %       This class currently supports sensor optoNCDT2300 (clib.MEDAQLib.ME_SENSOR.SENSOR_ILD2300).
             
-            addpath('Laser_libraries\optoNCDT2300\');
-            addpath('Laser_libraries\optoNCDT2300\MEDAQLib\') %Add the compiled .dll to the MATLAB search Path
-            err = setPath('Laser_libraries\optoNCDT2300\MEDAQLib-4.7.0.30086\Release-x64\'); %Add the original library to the System PATH
+            addpath('C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app');    %add the class folder to the matlab path
+            addpath('C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app\Laser_libraries\optoNCDT2300');       %add the setPath forlder to the matlab path
+            addpath('C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app\Laser_libraries\optoNCDT2300\MEDAQLib') %Add the compiled .dll to the MATLAB search Path
+            err = setPath('C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app\Laser_libraries\optoNCDT2300\MEDAQLib-4.7.0.30086\Release-x64'); %Add the original library to the System PATH
             if err
                 try
                     clib.LLT.TInterfaceType;
@@ -187,6 +188,12 @@ classdef OPTONCDT2300 < handle
             %Disconnect the sensor. Call it before deleting the
             %   OPTONCDT2300 object
             err = clib.MEDAQLib.CloseSensor(this.hSensor);
+        end
+        
+        function this = GetConfiguration(this)
+            this.GetMeasurementConfig;
+            this.GetOutputConfig;
+            this.GetTriggerMode;
         end
         
         function [err, err1, err2] = SetMeasurementConfig(this)
@@ -295,14 +302,18 @@ classdef OPTONCDT2300 < handle
             %Averages the last (this.dataSize) measurements made (from
             %   scaledData) and store the computed mean in this.meanDistance
            
+            lastError=0;
             mean = 0;
             n = 0;
             for i=1:this.dataSize
-                if(this.scaledData(i)>0)
+                if(this.scaledData(i)>-1)
                     mean = mean + this.scaledData(i);
                     n = n + 1;
                 else
-                    warning("Error value found in scaledValues, position: %d, error code: %d",i,this.scaledData(i));
+                    if lastError == 0 || this.scaledData(i) ~= lastError
+                        warning("Error value found in scaledValues, position: %d, error code: %d",i,this.scaledData(i));
+                    end
+                    lastError = this.scaledData(i);
                 end
             end
             if n ~= 0
@@ -510,7 +521,7 @@ classdef OPTONCDT2300 < handle
             err = clib.MEDAQLib.SensorCommand(this.hSensor);
         end
         
-        function err = LoadParameters(this,number) %1=Continous sending, 2=Trigger continous sending
+        function err = LoadParameters(this,number) %1=Continous sending, 2=Trigger continous sending, 3=Trigger 1000 values
             err = clib.MEDAQLib.SetParameterString(this.hSensor, "S_Command", "Load_Parameters");
             if err ~= clib.MEDAQLib.ERR_CODE.ERR_NOERROR
                 warning('While setting S_Command, something occurred: %s',string(err));
