@@ -51,7 +51,7 @@ classdef OPTONCDT2300 < handle
         sensorType;  %sensor model in use
         IP_LogFile = "C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app\Laser_libraries\LogFile\Laser-log.txt"; %Path of the debugging file
         IP_interface = "TCP/IP"; %Connection interface (currently supported TCP/IP)
-        IP_EnableLogging = 1; %Enables (1) or not (0) logging to the debugging log file
+        IP_EnableLogging = 0; %Enables (1) or not (0) logging to the debugging log file
         IP_LogAppend = 0; %0=Clear the log file when connecting, 1=Append info to the log file
         IP_RemotePort = 23; %Default, not changed
         IP_AutomaticMode = 3; %A bit combination of: first bit (1)=Retrieve sensor information for setup the library, second bit (2)=Activate data output
