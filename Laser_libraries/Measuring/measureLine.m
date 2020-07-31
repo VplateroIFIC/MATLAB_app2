@@ -12,11 +12,10 @@ function [line,distancePoints] = measureLine(laser,gantry,fromX,fromY,toX,toY,ve
 %   toY (double) is the ending Y possition (mm),
 %   velocity (double) is the speed at which the gantry will move (mm/s)
     
-    gantry.MoveTo(gantry.X,fromX,13,0);                  %Move the gantry to the initial possition.
-    gantry.MoveTo(gantry.Y,fromY,13,0);                  %Move the gantry to the initial possition.
+    gantry.MoveTo(gantry.X,fromX,velocity,0);                  %Move the gantry to the initial possition.
+    gantry.MoveTo(gantry.Y,fromY,velocity,0);                  %Move the gantry to the initial possition.
     from = [fromX,fromY];
     to = [toX,toY];
-    offTime = 0.0066;                                       %Time the function laser.PollData delays to get the data.
     distance = pdist([from;to],'euclidean');                %Distance the gantry has to travel.
     
     %Configure future output
@@ -26,26 +25,22 @@ function [line,distancePoints] = measureLine(laser,gantry,fromX,fromY,toX,toY,ve
     laser.SetOutputConfig;                                  %For setting SP_Measrate (measuring frequency)
     laser.ClearBuffer;
     
-    %Get the number of points we are going to mmeasure
-    points = ceil((distance/velocity+offTime)*laser.SP_Measrate*1000); %Points to measure = time spent * measuring frequency. Time spent = time while moving + offTime
-    fprintf("You are going to measure %d points\n",points);
-    if points > laser.bufferValueSize
-        warning("You are going to need a bigger buffer size: %d",ceil(points/4));
-    end
-    laser.dataSize = points;
-    distancePoints=linspace(0,distance,points);
-    
     %Wait until starting possition is reached
     gantry.WaitForMotionAll(-1);
     
     %Measure, move and when movement finishes, get the data and stop output. 
+    laser.ClearBuffer;
     laser.SoftwareTrigger;
+    %while laser.AvailableValues < 1
+    %end
     gantry.MoveTo(gantry.X,toX,velocity,0);                  %Move the gantry to the final possition.
     gantry.MoveTo(gantry.Y,toY,velocity,0); 
     gantry.WaitForMotionAll(-1);
+    laser.dataSize = laser.AvailableValues;
     laser.PollData;
-    laser.SP_TriggerCount = 0;                              %For stopping data output (0 = no data transferred when triggered)
+    laser.SP_TriggerCount = 1000;                              %For stopping data output (0 = no data transferred when triggered)
     laser.SetTriggerMode;
+    distancePoints=linspace(0,distance,laser.dataSize);
     
     %Save the data
     line = 10.-laser.scaledData;                            %Get the measured line reversed (so it outputs depth and not heaight)

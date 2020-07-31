@@ -61,7 +61,7 @@ classdef OPTONCDT2300 < handle
     properties (Access = public)
         IP_RemoteAddr = "169.254.168.150";
         IP_RingBufferSize = 104857600; % Byte capacity of the buffer from which data is retrieved. MAX = 1073741824 (1GB)
-        bufferValueSize; %Value capacity of the buffer (IP_RingBufferSize/4, updated when called this.SetupConnect) (Maybe this is not right)
+        bufferValueSize; %Value capacity of the buffer (IP_RingBufferSize/4, updated when called this.SetupConnect) (This is not accurate)
         IP_ScaleErrorValues = 3; % 1=Last valid value, 2=Fixed Value, 3=Negative error value
         SP_MeasureMode = 1; %0=Diffuse reflection, 1=Direct reflexion
         SP_MeasurePeak = 0; %0=Greatest amplitude, 1=Greatest area, 2=First peak
@@ -530,7 +530,7 @@ classdef OPTONCDT2300 < handle
             if err ~= clib.MEDAQLib.ERR_CODE.ERR_NOERROR
                 warning('While setting SP_ParameterSet, something occurred: %s',string(err));
             end
-            err = clib.MEDAQLib.SetParameterInt(this.hSensor, "SP_ParameterType", 1);
+            err = clib.MEDAQLib.SetParameterInt(this.hSensor, "SP_ParameterType", 0);
             if err ~= clib.MEDAQLib.ERR_CODE.ERR_NOERROR
                 warning('While setting SP_ParameterType, something occurred: %s',string(err));
             end

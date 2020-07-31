@@ -14,11 +14,8 @@ function [Z,X,Y] = measureSensor(laser,gantry,x1,x2,y1,y2,nX,nY,velocity,minValu
     %   minValue, maxValue are the minimum and maximun accepted (or expected) 
     %       values for the measure
     
-    laser.SP_TriggerCount = 1000;   %Set trigger mode
-    laser.SP_TriggerMode = 3;
-    laser.dataSize = 1000;
-    laser.SetTriggerMode;
-    
+    laser.LoadParameters(3);   %Set trigger mode
+
     X = linspace(x1,x2,nX);     % X coordinates of the points to measure
     Y = linspace(y1,y2,nY);     % Y coordinates of the points to measure
     Z = zeros(nY,nX);
@@ -28,23 +25,36 @@ function [Z,X,Y] = measureSensor(laser,gantry,x1,x2,y1,y2,nX,nY,velocity,minValu
         for j = 1:nY                                %For each Y position
             if mod(i,2)                             %So the gantry zigzags
                 gantry.MoveTo(gantry.Y,Y(nY-j+1),velocity,0);
+                gantry.WaitForMotionAll(-1);            %When in possition
+                try
+                    laser.TriggerValuesAndPoll;
+                    measure = laser.AverageValues;      %Averages the values and get the mean
+                    if measure > maxValue || measure < minValue
+                        Z(nY-j+1,i) = -1;                    %-1 = not an accepted value
+                    else
+                        Z(nY-j+1,i) = 10-measure;            %To store height and not depth
+                    end
+                catch ME
+                    warning("There were error measures:")
+                    fprintf(ME.message);
+                    Z(nY-j+1,i)=-2;                          %-2 = error measure
+                end
             else
                 gantry.MoveTo(gantry.Y,Y(j),velocity,0);
-            end
-            gantry.WaitForMotionAll(-1);            %When in possition
-            try
-                laser.TriggerValuesAndPoll;         %Measure laser.SP_TriggerCount values
-                measure = laser.AverageValues;      %Averages the values and get the mean
-                laser.ClearBuffer;
-                if measure > maxValue || measure < minValue
-                    Z(j,i) = -1;                    %-1 = not an accepted value
-                else
-                    Z(j,i) = 10-measure;            %To store height and not depth
+                gantry.WaitForMotionAll(-1);            %When in possition
+                try
+                    laser.TriggerValuesAndPoll;
+                    measure = laser.AverageValues;      %Averages the values and get the mean
+                    if measure > maxValue || measure < minValue
+                        Z(j,i) = -1;                    %-1 = not an accepted value
+                    else
+                        Z(j,i) = 10-measure;            %To store height and not depth
+                    end
+                catch ME
+                    warning("There were error measures:")
+                    fprintf(ME.msgtext);
+                    Z(j,i)=-2;                          %-2 = error measure
                 end
-            catch ME
-                warning("There were error measures:")
-                fprintf(ME.msgtext);
-                Z(j,i)=-2;                          %-2 = error measure
             end
         end
     end
