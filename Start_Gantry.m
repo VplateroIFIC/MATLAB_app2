@@ -16,7 +16,7 @@ joy = joy.Connect;
 
 %focus = FOCUS(gantry, cam,1);
 
-scaner = SCANCONTROL2950;
-scaner.Connect;
+scanner = SCANCONTROL2950;
+scanner.Connect;
 laser = OPTONCDT2300;
 laser.SetupConnect;
