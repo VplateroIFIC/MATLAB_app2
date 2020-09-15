@@ -64,10 +64,10 @@ angleCamera;
        
 %             %Adding to the path the opencv library if necessary.
 %             
-            addpath('F:\mexopencv');
-            addpath('F:\mexopencv\opencv_contrib');
-%            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
-%            addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
+%             addpath('F:\mexopencv');
+%             addpath('F:\mexopencv\opencv_contrib');
+           addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
+           addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
            addpath('Fiducial_config');
 
 % Loading corresponding properties to the class
