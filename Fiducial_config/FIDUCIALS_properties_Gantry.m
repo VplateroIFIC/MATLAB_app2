@@ -5,7 +5,7 @@
 % matchSURF
 
 binaryFilterKernel=9;
-adaptativeThreshold=21;
+adaptativeThreshold=31;
 SURF_Extended=false;   %false 
 SURF_HessianThreshold=300;   %300 to 500 (the larger, the less keypoints we get)
 SURF_NOctaveLayers=2;       %2
@@ -22,9 +22,9 @@ sizeParticles=5000;
 % FROIbuilder
 
 pixelAreaF=17000;  % nominal value of the F Area in pixels in IFIC setup
-deltaArea=2000;
+deltaArea=4000;
 perimeterF=900;   % nominal value of the F Perimeter in pixels in IFIC setup
-deltaPerimeter=200;
+deltaPerimeter=150;
 
 % ROIbuilder
 
@@ -34,10 +34,11 @@ ROIsize=500;
 
 FtemplatePath=('templates\F_gantry.jpg');
 cornerF=[76.0043,240.0685];
+cameraRotationOffset=0.018844464640319;
 
 % CirclesFinder
 
-camCalibration=1.8947; %p/um % calibration fiducial
+camCalibration=1.74; %p/um % calibration fiducial
 % camCalibration=3.5739; %p/um % sensor CNM
 % camCalibration=3.5739; %p/um % sensor CNM
 
@@ -57,3 +58,7 @@ binaryFilterKernel_calibrationPlate=9;
 
 binaryFilterKernel_calibration=5;
 minDist=50;
+
+% Calibration rotation camera (rad)
+
+angleCamera=0.019374900026389;
