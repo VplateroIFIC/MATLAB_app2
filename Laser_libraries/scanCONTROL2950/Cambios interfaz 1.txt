@@ -1,0 +1,133 @@
+s_ExportLLTConfig
+	"pFileName"->"string" ("nullTerminated")
+s_ExportLLTConfigString
+	"configData"->"char" ("configDataSize")
+s_ImportLLTConfig
+	"pFileName"->"string" ("nullTerminated")
+s_ImportLLTConfigString
+	"configData"->"char" ("configDataSize")
+s_GetDeviceInterfaces
+	"pInterfaces"-> ("nSize")
+s_GetDeviceInterfacesFast
+	"pInterfaces"-> ("nSize")
+s_GetDeviceName
+	"pDevName"->"int8" ("nDevNameSize")
+	"pVenName"->"int8" ("nVenNameSize")
+s_GetSerialNumber
+	"pSerialNumber"->"int8" ("nSerialNumberSize")
+s_GetLLTVersions
+	"pDSP"-> (1)					?!
+	"pFPGA1"-> (1)
+	"pFPGA2"-> (1)
+s_GetMinMaxPacketSize
+	"pMinPacketSize"-> (1)
+	"pMaxPacketSize"-> (1)
+s_GetResolutions
+	"pValue"-> ("nsize)
+s_GetFeature
+	"pValue"-> (1)
+s_GetBufferCount
+	"pValue"-> (1)
+s_GetMainReflection
+	"pValue"-> (1)
+s_GetMaxFileSize
+	"pValue"-> (1)
+s_GetPacketSize
+	"pValue"-> (1)
+s_GetFirewireConnectionSpeed
+	"pValue"-> (1)
+s_GetResolution
+	"pValue"-> (1)
+s_GetProfileContainerSize
+	"pWidth"-> (1)
+	"pHeight"-> (1)
+s_GetMaxProfileContainerSize
+	"pMaxWidth"-> (1)
+	"pMaxHeight"-> (1)
+s_GetEthernetHeartbeatTimeout
+	"pValue"-> (1)
+	"pValue"-> (1)
+s_SetFeatureGroup
+	"FeatureAddresses"->"unint32" ("FeatureCount")
+	"FeatureValues"->"unint32" ("FeatureCount")
+s_TransferVideoStream
+	"pWidth"-> (1)
+	"pHeight"-> (1)
+s_GetActualProfile
+	"pBuffer"-> ("nBuffersize")
+	"pLostProfiles"-> (1)				?!
+s_ConvertProfile2Values
+	"pProfile"->"clib.array.LLT.UnsignedChar" (1) 				%Le pasan PROFILE=1
+	"pWidth"-> ("nResolution")
+	"pMaximum"-> ("nResolution")			%Lo hacen de tamaño 64*"nResolution" para asignar la memoria
+	"pThreshold"-> ("nResolution")
+	"pX"-> ("nResolution")
+	"pZ"-> ("nResolution")
+	"pM0"-> ("nResolution")
+	"pM1"-> ("nResolution")
+s_ConvertPartProfile2Values
+	"pProfile"->"clib.array.LLT.UnsignedChar" (1)
+	"pPartialProfile"-> (1)
+	"pWidth"-> (1028)
+	"pMaximum"-> (1028)
+	"pThreshold"-> (1028)
+	"pX"-> (1028)
+	"pZ"-> (1028)
+	"pM0"-> (1028)
+	"pM1"-> (1028)
+s_GetHoldBuffersForPolling
+	"puiHoldBuffersForPolling"-> (1)
+s_GetPartialProfileUnitSize
+	"pUnitSizePoint"-> (1)
+	"pUnitSizePointData"-> (1)
+s_GetPartialProfile
+	"pPartialProfile"-> (1)
+s_SetPartialProfile
+	"pPartialProfile"-> (1)
+s_Timestamp2CmmTriggerAndInCounter
+	"pTimestamp"->"clib.array.LLT.UnsignedChar" (2)  		?! (Le asignan 16 bits, como uchar es 8, le he dado una longitud de 2)
+	"pInCounter"-> (1)
+	"pCmmTrigger"-> (1)
+	"pCmmActive"-> (1)
+	"pCmmCount"-> (1)
+s_Timestamp2TimeAndCount
+	"pTimestamp"->"clib.array.LLT.UnsignedChar" (2)
+	"pTimeShutterOpen"-> (1)
+	"pTimeShutterClose"-> (1)
+	"pProfileCount"-> (1)
+s_ReadPostProcessingParameter
+	"pParameter"-> ("nSize")
+s_WritePostProcessingParameter
+	"pParameter"-> ("nSize")
+s_ConvertProfile2ModuleResult
+	"pProfileBuffer"->"clib.array.LLT.UnsignedChar ("nProfileBufferSize")
+	"pModuleResultBuffer"-> ("nResultBufferSize")
+	"pPartialProfile"-> (1) %optional
+s_SaveProfiles
+	"pFilename"->"string" ("nullTerminated")
+s_LoadProfilesGetPos
+	"pActualPosition"-> (1)
+	"pMaxPosition"-> (1)
+s_StartTransmissionAndCmmTrigger
+	"pFilename"->"string" ("nullTerminated")
+s_TranslateErrorValue
+	"pString"->"int8" ("nStringSize")
+s_GetActualUserMode
+	"pActualUserMode"-> (1)
+	"pUserModeCount"-> (1)
+	
+
+
+
+
+	
+
+
+	
+
+	
+
+
+
+
+

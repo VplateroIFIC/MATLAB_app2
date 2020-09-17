@@ -1,0 +1,188 @@
+<HTML>
+<HEAD>
+<TITLE>MEDAQLib.lvlib:CreateSensorInstance.vi</TITLE>
+<META NAME="Author" CONTENT="">
+<META NAME="GENERATOR" CONTENT="G Development Environment">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<A NAME="MEDAQLib.lvlib:CreateSensorInstance.vi"></A><H2>MEDAQLib.lvlib:CreateSensorInstance.vi</H2>
+<P>DWORD CreateSensorInstance (ME_SENSOR sensor);</P>
+<P></P>
+<P>Creates  an  instance  for  the  sensor  which  will  be  used  in  further  function calls.</P>
+<P>Attention!  Please don't forget to release the instance at the end.  Otherwise</P>
+<P>there will be memory and handle leaks.</P>
+<P><IMG SRC="MEDAQLib CreateSensorInstancec.png" ALT="MEDAQLib.lvlib:CreateSensorInstance.vi"></P>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cu32.png" ALT="cu32"></P>
+</TD>
+<TD>
+<B>sensor</B> <P>Parameter:  ME_SENSOR sensor</P>
+<P>Direction:  [IN]</P>
+<P>Valid values:</P>
+<P>SENSOR_ILR110x_115x (19)</P>
+<P>SENSOR_ILR118x (20)</P>
+<P>SENSOR_ILR1191 (21)</P>
+<P>SENSOR_ILD1302 (24)</P>
+<P>SENSOR_ILD1401 (1)</P>
+<P>SENSOR_ILD1402 (23)</P>
+<P>SENSOR_ILD1700 (2)</P>
+<P>SENSOR_ILD1800 (3)</P>
+<P>SENSOR_ILD2000 (4)</P>
+<P>SENSOR_ILD2200 (5)</P>
+<P>SENSOR_ILD2300 (29)</P>
+<P>SENSOR_IFD2400 (6)</P>
+<P>SENSOR_IFD2401 (12)</P>
+<P>SENSOR_IFD2430 (7)</P>
+<P>SENSOR_IFD2431 (13)</P>
+<P>SENSOR_IFD2451 (30)</P>
+<P>SENSOR_IFD2471 (26)</P>
+<P>SENSOR_ODC1202 (25)</P>
+<P>SENSOR_ODC2500 (8)</P>
+<P>SENSOR_ODC2600 (9)</P>
+<P>CONTROLLER_DT3909 (27)</P>
+<P>CONTROLLER_ESC4912 (17)</P>
+<P>SENSOR_DT3100 (28)</P>
+<P>SENSOR_DT6100 (16)</P>
+<P>CONTROLLER_DT6500 (15)</P>
+<P>CONTROLLER_KSS6380 (18)</P>
+<P>PCI_CARD_IF2004 (10)</P>
+<P>PCI_CARD_IF2008 (22)</P>
+<P>Description:  Type of sensor used.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cerrcodeclst.png" ALT="cerrcodeclst"></P>
+</TD>
+<TD>
+<B>Fehler (Eingang, kein Fehler)</B> <P><B>Fehler (Eingang)</B> kann Fehlerangaben der vorherigen VIs aufnehmen. Auf Grundlage dieser Angaben kann entschieden werden, ob bei Entstehen eines Fehlers in einem anderen VI eine bestimmte Funktion übersprungen werden soll.</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Anzeigeelement <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+<UL>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cbool.png" ALT="cbool"></P>
+</TD>
+<TD>
+<B>status</B> <P><B>Status</B> ist TRUE (rotes Kreuz), wenn ein Fehler auftritt, andernfalls FALSE (grüner Haken).</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Element <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ci32.png" ALT="ci32"></P>
+</TD>
+<TD>
+<B>code</B> <P><B>Code</B> ist der Fehler- oder Warnungscode.</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Element <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü die Option <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cstr.png" ALT="cstr"></P>
+</TD>
+<TD>
+<B>source</B> <P><B>Quelle</B> beschreibt den Ursprung des Fehlers oder der Warnung.</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Element <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+</UL>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="cpath.png" ALT="cpath"></P>
+</TD>
+<TD>
+<B>DLL-Path</B> <P>INPUT: Path to library &quot;MEDAQLib.dll&quot;.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="iu32.png" ALT="iu32"></P>
+</TD>
+<TD>
+<B>instanceHandle</B> <P>Returns:</P>
+<P>Number of the created sensor instance or zero, if parameter sensor is not valid.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ierrcodeclst.png" ALT="ierrcodeclst"></P>
+</TD>
+<TD>
+<B>Fehler (Ausgang)</B> <P><B>Fehler (Eingang)</B> kann Fehlerangaben der vorherigen VIs aufnehmen. Auf Grundlage dieser Angaben kann entschieden werden, ob bei Entstehen eines Fehlers in einem anderen VI eine bestimmte Funktion übersprungen werden soll.</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Anzeigeelement <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+<UL>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ibool.png" ALT="ibool"></P>
+</TD>
+<TD>
+<B>status</B> <P><B>Status</B> ist TRUE (rotes Kreuz), wenn ein Fehler auftritt, andernfalls FALSE (grüner Haken).</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Element <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ii32.png" ALT="ii32"></P>
+</TD>
+<TD>
+<B>code</B> <P><B>Code</B> ist der Fehler- oder Warnungscode.</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Element <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü die Option <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="istr.png" ALT="istr"></P>
+</TD>
+<TD>
+<B>source</B> <P><B>Quelle</B> beschreibt den Ursprung des Fehlers oder der Warnung.</P>
+<P></P>
+<P>Für eine ausführlichere Erläuterung des Fehlers klicken Sie mit der rechten Maustaste auf das Element <B>Fehler (Eingang)</B> und wählen Sie aus dem Kontextmenü <B>Fehler beschreiben</B> oder <B>Warnung beschreiben</B> aus.</P>
+</TD>
+</TR>
+</Table>
+</UL>
+<Table>
+<TR valign=TOP>
+<TD>
+<P><IMG SRC="ipath.png" ALT="ipath"></P>
+</TD>
+<TD>
+<B>DLL-Path</B> <P>OUTPUT: Path to library &quot;MEDAQLib.dll&quot;.</P>
+</TD>
+</TR>
+</Table>
+</BODY>
+</HTML>

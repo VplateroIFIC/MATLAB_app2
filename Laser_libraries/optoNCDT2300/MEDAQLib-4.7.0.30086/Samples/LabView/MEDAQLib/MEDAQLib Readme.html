@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<!-- Find and Replace all instances of 'Driver Identifer' with the Driver Identifier of your instrument driver 
+
+     Remove this note once this is complete. --><!-- Replace all the instructions that appear within the <font color="red"> tags with information about your instrument driver.  Make sure to delete the <font color="red"> tags as you fill in each line. Remove this note once this is complete.-->
+  <title>Instrument Driver Readme</title>
+</head>
+<body>
+<h2>MEDAQlib Instrument Driver Readme</h2>
+<h4>1. Overview</h4>
+<para>
+Instrument Driver Technology: LabVIEW Plug and Play (project-style)
+<br>
+Manufacturer: Micro-Epsilon Messtechnik GmbH&Co.KG
+<br>
+Supported Language(s): English
+<br>
+Supported Model(s): 
+<ul>
+	<li>ILR sensors: optoNCDT110x, optoNCDT115x, optoNCDT118x, optoNCDT1191.
+	<li>ILD sensors: optoNCDT1302, optoNCDT1401, optoNCDT1401-Controller, opto-NCDT1402, optoNCDT1700, optoNCDT1800, optoNCDT2000, optoNCDT2200 (including optoNCDT2220), optoNCDT2300.
+	<li>IFD sensors: optoNCDT2400, optoNCDT2401, optoNCDT2430, optoNCDT2431, confocalDT2451, confocalDT2471.
+	<li>ODC sensors: optoCONTROL1202, optoCONTROL2500, optoCONTROL2520, optoCONTROL2600.
+	<li>Eddy sensors: eddyNCDT3100, eddyNCDT3909, eddyNCDT4912.
+	<li>Capa sensors: capaNCDT6100, capaNCDT6200, capaNCDT6500.
+	<li>Interface cards: IF2004, IF2008, IF2004_USB, C-Box, CSP2008.
+</ul>
+<br>
+Model(s) Tested: optoNCDT1700 (LabVIEW instrument driver), all supported models (Medaqlib.dll)
+<br>
+Interface(s):  RS232, USB (Converter from RS422), USB (via DriverX or USBIO), IF2004 and IF2008 PCI card (RS422) and TCP/IP
+<br>
+Firmware Revision(s) Tested:
+<br>
+<br>
+Certified: No
+<br>
+NI Supported: No
+<br>
+Source Code Available: No
+<br>
+<br>
+Driver Revision: 1.0.0.0
+<br>
+Original Release Date: 17/22/2012
+<br>
+Current Revision Date: 17/22/2012
+</para>
+<h4>2. Required Software</h4>
+<para>Some software components need to be installed before using this
+instrument driver. The minimum versions of these components are listed
+below, and can be downloaded from the Download Site.
+<br>
+<br>
+No additional software required.
+<br>
+<br>
+<h4>2. Installation</h4>
+<ul>
+	<li>Copy the folder &lt;MEDAQLib install path&gt;\Samples\LabView\MEDAQLib into &lt;LabVIEW install path&gt;\instr.lib (e.g. C:\Program Files\National Instruments\LabVIEW 8.6\instr.lib).
+	<li>Ensure that MEDAQLib.dll exists in the subfolder &lt;LabVIEW install path&gt;\instr.lib\MEDAQLib\Release.
+	<li>Perform a mass compile in LabVIEW to re-link the VIs an avoid inconsistencies (Tools --> Advanced -> Mass Compile.. and select the extracted folder MEDAQLib in the instr.lib folder).
+	<li>The driver package appears in your Functions palette.
+</ul>
+<h4>3. Known Issues</h4>
+<para>
+To report issues or provide feedback about this instrument driver,
+please send an email to <a href="mailto:info@micro-epsilon.com">info@micro-epsilon.com</a>.</para></font>
+<br>
+Include instrument functionality not supported by the driver or known issues as necessary.</font>
+</font><br>
+<para></para>
+<h4>4. Revision History</h4>
+<para>The MEDAQLib LabVIEW instrument driver is part of the Micro-Epsilon MEDAQLib software package. The latest version of the
+MEDAQLib software package can be downloaded from the <a href="http://www.micro-epsilon.com">Micro-Epsilon website</a>.<br>
+ </para>
+<br>
+<para>
+REV 1.0, 17/02/2012<br>
+Modified by: Micro-Epsilon GmbH & Co. KG, R&D Software<br>
+Original release.
+</para>
+</body>
+</html>

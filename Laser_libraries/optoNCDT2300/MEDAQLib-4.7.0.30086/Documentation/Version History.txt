@@ -1,0 +1,521 @@
+*******************************************************************************
+Version: V1.0.0
+- New library for accessing all digital sensors from Micro-Epsilon over several 
+  interfaces.
+- Replaces LibOpto (IF2004 PCI card) and OptoRS232.
+
+*******************************************************************************
+Version: V1.1.0
+- Feature (User interface): Added function SetParameterStringL.
+- Feature (Sensors): Added sensor CONTROLLER_DT6500 and SENSOR_DT6100.
+- Feature (Documentation): Improved and extended documentation.
+- Bugfix (Sample): Fixed wrong call to SetParameter... in DLLExample
+- Changes (Controller-ILD1401): Renamed command Zero to Set_Zero and OutputChannel
+  to Set_OutputChannel.
+- Bugfix (Controller-ILD1401): Avoid sending data after command Dat_Out_Off.
+- Bugfix (error codes): Rename error code ERR_FUNTION_NOT_SUPPORTED to 
+  ERR_FUNCTION_NOT_SUPPORTED
+- Bugfix (DriverX_USB): Avoid 100% CPU load at high priority is device is unplugged.
+- Changes (IFD24x1): Divided IFD24x1 into IFD2401 and IFD2431. Changed parameters
+  and ranges for IFD2431. Updated sample rates for IFD2431.
+- Feature (IFD2401 and IFD2431): Add new command Set_Reverse and Set_Binning
+- Changes (ILD1401): Renamed command Median to Set_Median and OutputChannel
+  to Set_OutputChannel.
+- Bugfix (ILD1700): Correct calculation of parameter SA_Samplerate.
+- Bugfix (ODC2500 and ODC2600): Do not set bit 16 and 17 in raw value.
+- Feature (ILD1700): Added new command WriteFlashZero, update commands Get_Info
+  and Get_Settings.
+- Feature (ILD1800): Added new command Get_Version.
+- Feature (ILD2200): Added new command Get_Version.
+- Bugfix (ILD2200): Increase timeout from 100ms to 300ms.
+- Feature (ILD1700): Added video mode.
+- Feature (DT6x00): Add new command "Factory_Defaults" for DT6100 and DT6500
+- Bugfix (IFD2400): Fix sensor command Upload_CalibTable.
+- Changes (IFD24x1): Move Spectrum line 8 bytes to be compatible with new firmware 
+  version 1.2.36 and higher.
+
+*******************************************************************************
+Version: V1.2.0
+- Feature (Sensors): Added sensor CONTROLLER_DT3029.
+- Bugfix (Sample): Change Function reference for GetParameterString for VB/VBA
+- Feature (IFD2401 and IFD2431): Add new command Upload_RefIdxFile 
+- Changes (IFD2401 and IFD2431): Increase timeout for command Set_RefIdxFile to 1500ms.
+- Changes (IFD2401 and IFD2431): Add (answer) parameters for command Set_RefIdxFile.
+- Feature (Sample): Add VB2008Example
+- Feature (Sensors): Added sensor CONTROLLER_KSS6380.
+- Feature (User interface): Add description to several error messages from MEDAQLib.
+- Feature (DT6500): Add new command Set_MathFunction, Get_MathFunction and Clr_MathFunction.
+- Bugfix (IFC24xx): When command SEN is called the internal range is resetted now.
+- Bugfix (Unicode Example): Ensure that X1 is set to USB, a little sleep before Process().
+- Changes (DT3029): Rename sensor CONTROLLER_DT3029 to CONTROLLER_ESC4912.
+- Changes (User interface): Before/After executing SensorCommand, all internal parameters 
+  SA_..., SP_..., CP_... will be cleared.
+- Changes (Sensors): Set useful interface parameters when opening a sensor .
+- Changes (IFD2401 and IFD2401): Set useful default parameters for command Start_Spectrum .
+- Changes (TCP/IP): Change default address from 192.168.80.150 to 0.0.0.0.
+- Changes (global): Changed compiler from VS98 to VS2008.
+
+*******************************************************************************
+Version: V1.3.0
+- Feature (IF2004): Support new version 1.3 with new baudrate 1.25 MBaud.
+- Feature (ILD2200): Add new command Transmit_Intensity (only for option 204).
+
+*******************************************************************************
+Version: V1.3.1
+- Bugfix (IFC24x1): Fix problem at sending commands over USB (since V1.3.0.1).
+
+*******************************************************************************
+Version: V1.3.2
+- Changes (IFC24x1): At command GetSpectrum add/change some parameters.
+- Changes (Driver): Change some files of driver FTDI_USB-RS422_Converter_V2.0.
+
+*******************************************************************************
+Version: V1.3.3
+- Changes (FTDI_USB-RS422_Converter_V2.0): New version of installation program.
+- Feature (IFD2401 and IFD2431): Improve recognition of spectras in spectrum mode, add
+  a timestamp to each spectrum.
+- Bugfix (IF2004): Fix error at sending commands to sensor (since V1.3.1.1).
+
+*******************************************************************************
+Version: V1.4.0
+- Bugfix (User interface): At function Poll, parameter maxValues was not interpreted correctly.
+- Feature (User interface): All function are now thread-safe.
+- Changes (internal): Change linking to delayed load windows dll's.
+- Bugfix (IFC2431): Spectrum mode works with binning==2 (high samplerates) again.
+- Changes (Documentation): Move some function descriptions from any sensor into global section.
+- Feature (Examples): New LabView example (LabView Version 8.6).
+- Bugfix (ILD1700): Error in data conversion when sensor sends in ASCII format.
+- Feature (Sensors): Added sensors SENSOR_ILR110x_115x, SENSOR_ILR118x and SENSOR_ILR1191.
+- Feature (KSS6380): Add command CHS, update parameters for commands STS and FDE.
+- Bugfix (User interface): Improve sensor command Clear_Buffers to ensure, all buffers are cleared at once.
+
+*******************************************************************************
+Version: V1.4.1
+- Bugfix (User interface): Function GetParameterDouble and GetParameterString does always
+  return ERR_WRONG_PARAMETER since V1.4.0.x.
+- Feature (Examples): New VBA example.
+
+*******************************************************************************
+Version: V1.5.0 (never officialy released)
+- Feature (Sensors): Added sensor SENSOR_ILD1402.
+
+*******************************************************************************
+Version: V2.0.0 (never officialy released)
+- Bugfix (ILR118x and ILR1191): Data was not read correct.
+- Feature (Interfaces): Add RS422 interface card IF2008 for sensors with RS422 interface.
+- Feature (Sensors): Add new sensor PCICard_IF2008 (Encoder, ADC, Digital IO).
+
+*******************************************************************************
+Version: V2.0.1 (never officialy released)
+- Bugfix (Examples LabView): After using TransferData the resulting data vector could have surplus values.
+- Changes (Examples LabView): Add versions for V8.5 and V8.2.
+
+*******************************************************************************
+Version: V2.0.2 (never officialy released)
+- Feature (IFD2401): Add new commands for double frequency mode.
+- Changes (Documentation): Move some function descriptions from global section into special sensor.
+- Changes (User interface): Many parameters are now obligatory due to bugs because of wrong spelling.
+- Feature (Sensors): New parameter IP_Datarate for Use_Defaults and IA_Datarate for Get_DriverSetting.
+- Bugfix (Documentation): Fix minor errors in Documentation.
+- Feature (DT6500): New parameters for commands SLP, GLP, LIN and LIN?.
+- Feature (ILD1402): Add command Get_Video.
+- Feature (Documentation): Add information about which sensor supports which interface.
+- Feature (User interface): Add logging possibilities.
+
+*******************************************************************************
+Version: V2.0.3
+- Feature (ILR1191): Support binary mode.
+
+*******************************************************************************
+Version: V2.0.4
+- Bugfix (ILD1800): No longer supported over interface IF2008.
+- Bugfix (ILD sensors): No error when Get_Info does not transmit samplerate or range.
+
+*******************************************************************************
+Version: V2.0.5
+- Feature (KSS6380): Add new commands SRA and SRA?
+- Feature (Sensors): Added sensor SENSOR_ILD1302.
+- Bugfix (ILR118x and ILR1191): Remove some minor errors.
+- Feature (User interface): Add further logging possibilities.
+- Bugfix (IFD2431): Command Set_FreeSR and Get_FreeSR does no longer return an error.
+- Changes (PCICard_IF2008): Parameter names Sx_SensorChannel... renamed at command Set/Get_TxDSource and Set/Get_TrgSource.
+- Feature (User interface): Add new function GetDLLVersion.
+- Bugfix (TCP/IP): Fix error on connecting to ILD1402 over ICP/IP.
+
+*******************************************************************************
+Version: V2.1.0 (never officialy released)
+- Bugfix (Sensors): SENSOR_ILD1302, SENSOR_IFD2431 and SENSOR_ILR110x_115x now can be created.
+- Feature (User interface): Waiting for data using events implemented.
+
+*******************************************************************************
+Version: V2.1.1
+- Bugfix (Sensors): SENSOR_DT6x00, SENSOR_KSS6380 and SENSOR_ESC4912 does no longer timeouts in trigger mode.
+- Bugfix (Sensors): Clear_Buffers was not working for other instances which are not open.
+
+*******************************************************************************
+Version: V2.1.2
+- Bugfix (ILD1700): Change parameter ranges of command Set_Limits.
+- Bugfix (ILR118x): Avoid synchronisation errors at tracking modes.
+- Feature (Encoder_IF2004): Add sensor command Get_FPGAVersion.
+- Bugfix (TCP/IP): Parameter IP_RemotePort is no longer obligatory.
+- Bugfix (Documentation): Parameter IP_RemoteAddr is obligatory.
+- Bugfix (User interface): Function GetParameterString truncated result by two bytes.
+- Bugfix (DT6500): Command ClearMathFunction on a normal (non mathematic) channel set an incorrect state.
+
+*******************************************************************************
+Version: V2.1.3
+- Bugfix (Documentation): Fix Copy/Paste errors, more details in documentation.
+- Feature (DT6100): Add some commands and parameters, remove useless command.
+- Feature (User interface): Add further logging possibilities.
+- Bugfix (ILR118x): Error values were not output.
+- Bugfix (Documentation): Mark some sensor commands as internal.
+- Bugfix (IFC24x1): Sensor command Upload_CalibTable crashed on Windows7.
+- Feature (IFC24x1): New parameter IP_TimerResolution for sensor command Start_Spectrum.
+- Feature (IFC24x1): Add new command STR.
+- Bugfix (User interface): GetParameterString(U) returns needed length if paramValue is NULL.
+- Bugfix (PCICard_IF2008): Rename command Get_EncoderRefenence by Get_EncoderReference.
+- Feature (ILD1402): Support sensor with option 15.
+- Bugfix (Controller-ILD1401): Data aquisition was not working.
+- Bugfix (DriverX_USB and USBIO): Parameter UsbReadBufSize must be limited because of driver restrictions.
+- Changes (IF2004 and IF2008 driver): Allow only one instance to open driver for one device.
+- Bugfix (ILD1302 and ILD1402): Correct calculation of Datarate (from firmware version 1.005).
+- Bugfix (ILD1302 and ILD1402): Fix timing problems at reboot and changing baudrate.
+
+*******************************************************************************
+Version: V2.1.4
+- Changes (User interface): Change upper limit of IP_RingBufferSize from 10MB to 1GB.
+- Feature (Documentation): Add quick reference guide.
+- Bugfix (ILR110x_115x): Fix sensor command Get_Parameters to return SA_PilotLaser.
+- Bugfix (ILR110x_115x): Fix sensor command Get_Parameters to return SA_OutputFormat when inch, too.
+- Bugfix (ILR110x_115x): Return correct answer for sensor commands Get_Energie and Get_Temperature.
+- Bugfix (ILR1191): Correct calculation of Datarate at low baudrates.
+- Bugfix (User interface): DataAvail_Event was not working in combination with SensorCommand
+- Feature (ILD1700): Add new command Zero
+- Bugfix (IF2008): Do not crash on unknown sensor command.
+- Bugfix (User interface): Poll may return ERR_NO_SENSORDATA_AVAILABLE even if data is available.
+- Feature (Examples): Add an example for IF2008 card.
+- Changes (Installation): Admin rights are no longer needed for setup.
+- Bugfix (User interface): Version info is written correct.
+- Bugfix (IF2008): Driver was hanging when writing sensor commands to ILD2220 (20 kHz).
+
+*******************************************************************************
+Version: V2.1.5
+- Bugfix (IF2008 Timer): Frequency of 0 Hz is now possible.
+- Bugfix (User interface): Parameter IP_LogLevel is no longer obligatory.
+- Bugfix (User interface): Log entry "MESensor::SensorCommand, Leave" is output at trace level.
+- Bugfix (Documentation): Fix minor errors.
+- Bugfix (ODC2500, ODC2600): Several parameters had wrong data type.
+- Feature (Documentation): Add information about which sensor commands should be executed after OpenSensor.
+- Bugfix (Documentation): For ODC's, command Read_MeasProgData change SA_UserMeasProgNumber to SA_MeasProgNumber.
+- Bugfix (Documentation): For ODC's, command Read_MeasProgData change SA_Reserve8 to SA_RearEdge_Seg3 and SA_RearEdge_Seg4.
+- Feature (Examples): New VB2008 example.
+- Bugfix (DriverX-USB): Driver crashed at end of program if it was not closed before.
+- Feature (KSS6380): Add commands for mathematic function.
+- Feature (IF2008 driver): Support for Windows 64 Bit operation systems.
+
+*******************************************************************************
+Version: V3.0.0
+- Feature (Sensors): Add new sensor SENSOR_ODC1202
+- Feature (ODC sensors, ILD2200): Highest bits of high byte should be included in raw value.
+- Bugfix (Sensors): Fix error at timeout checking.
+- Feature (User interface): At command Use_Defaults, replace IP_DataOn by more detailed parameter IP_DataArrivingMode.
+- Feature (Documentation): Add documentation for some contol parameters.
+- Bugfix (Documentation): Fix minor errors in Documentation.
+- Feature (User interface): Add new general sensor command Get_TransmittedDataInfo.
+- Bugfix (ILD1302/1402): At command Get_Info fix wrong spelled parameter SA_ArticleNumber.
+- Feature (Sensors): Add new sensor CONTROLLER_DT3909.
+- Feature (Sensors): Add new sensor SENSOR_DT3100.
+- Feature (ILD1402): Support sensor with option 51.
+- Bugfix (RS422 to USB converter): Fix latency timer problem by toggling modem status line (DTR --> DSR)
+- Bugfix (IF2004, IF2008): Fix potential data mismatch when reading from FIFO.
+- Bugfix (User interface): Wrong value may be print at error string if a parameter is out of range.
+- Bugfix (ILR118x): Data conversion may fail on some cases.
+- Feature (global): Add a SensorFinder and SetIPConfig feature to MEDAQLib.
+- Feature (Sensors): Add new sensor SENSOR_ILD2300.
+- Feature (User interface): Errors can be ignored and need no longer to be read by GetError.
+- Bugfix (IF2008 sys driver): Workaround for a rare SyncLost error at IF2008 FPGA version 1.
+- Feature (User interface): Add interface parameter IP_FixedErrorValue.
+- Feature (global): Add 64 Bit version of MEDAQLib
+
+*******************************************************************************
+Version: V3.0.1
+- Bugfix (ILD2300): On RS422, scaled value is sometimes wrong 
+- Bugfix (User interface): Do not report ERR_OVERFLOW at function Poll (bug from V3.0.0)
+- Bugfix (ILD2300): Parameter "Query automatic" for data interface did not work sometimes.
+- Feature (Sensors): Add new sensor SENSOR_IFD2451 and SENSOR_IFD2471.
+- Bugfix (ILD2300): If IP_ScaleErrorValues was 1 (last valid value), wrong value was output in case of error value.
+
+*******************************************************************************
+Version: V3.1.0
+- Feature (IFD2451/71): Add multipeak functionality.
+- Feature (IFD2451/71): New parameter SA_Described_by at sensor command Get_MaterialInfo.
+- Feature (IFD2451/71): New internal sensor command Get_RegHyst and Set/Get_RegPos.
+- Feature (IFD2451/71): New additional parameters to sensor command Get_AllParameters.
+- Feature (DT6500): Support version with two separate TCP/IP ports.
+- Bugfix (DT3909, DT6500, KSS6380, ESC4912): Scaled data was always 0.
+- Feature (User Interface): Error message with hint if data from sensor cannot be converted to values.
+- Feature (User Interface): Add wrapper functions to MEDAQLib: EnableLogging, OpenSensorXXX, ExecSCmd, SetXXXExecSCmd, ExecSCmdGetXXX.
+- Feature (Sensors): Add automatic mode to MEDAQLib.
+- Feature (IF2008): Add synchronization mode.
+- Feature (IF2008): Automatic retrieve datarate from latch source for internal channels.
+- Feature (User Interface): Add function TransferDataTS.
+- Bugfix (SensorFinder): Get_FoundSensor was not returning interface parameters.
+- Feature (User Interface): Add parameter IP_EnableLogging and new sensor command Enable_Logging.
+- Bugfix (ILD2300, IFD2451, IFD2471): Trigger mode Edge and Pulse was mixed up.
+- Feature (SensorFinder): Allow specifying interfaces to scan.
+- Feature (LabView): VI's for MEDAQLib support now can be embedded to LabView function palette.
+- Bugfix (IF2008): Encoder command Enc_SetLoadReg did not set correct value (since V2.1.5).
+- Feature (Driver): Add new WinUSB driver for IFC2401/2431, remove DriverX_USB.
+
+*******************************************************************************
+Version: V3.1.1
+- Bugfix (DT3100): Avoid deadlock at Read/Write_AnalogEEPROM and Read/ Write_AnalogParam.
+- Bugfix (DT3100): Set default timeout for Read_Sensor to 500 ms.
+- Bugfix (SensorFinder): Do not wait at Start_FindSensor if opening some interfaces (e.g. Bluetooth ports) takes very long.
+- Feature (IFD2451/71): New commands Set/Get_TriggerMoment, Set/Get_SpikeCorrection, Save_DarkCorrReference and Set/Get_DarkCorrThreshold.
+- Feature (IFD2451/71): New parameters OutputAdditionalTrgTimeDiff_RS422 and OutputAdditionalTrgTimeDiff_ETH
+- Bugfix (SetIPConfig): At V3.1.0 source MAC adress was not interpreted correct (LLT2700, DTxxxx sensors)
+
+*******************************************************************************
+Version: V3.1.2
+- Feature (Sensors): Add controller CSP2008.
+- Feature (ILD2300): Add sensor command Set-/Get_MeasureValueCnt.
+- Feature (SensorFinder): Improve SensorFinder and SetIPConfig success rate.
+- Feature (DT6500): Add many new commands for new version of DT6500 (DT6530).
+- Bugfix (Documentation): Fix minor errors.
+- Bugfix (IFD2400): Upload CalibTable did not work (since V2.1.3).
+- Feature (ILD2200): Support ILD2210(243) intensity mode.
+- Feature (Samples): Update examples to new sensors.
+- Feature (Sensors): Add controller DT6200.
+- Bugfix (IFD2400): Fix at UpdateCalibTable.
+- Feature (CSP2008): Ignore faulty flags of ethernet data packets (CSP2008 firmware 4.20 and higher).
+- Bugfix (ILD2300): Avoid DataOutputChanged error if measure mode is not distance diffuse.
+
+*******************************************************************************
+Version: V3.2.0
+- Bugfix (ILD2300): Correct parsing of sensor material info (variable wave length).
+- Feature (User Interface): GetError now returns an error text for any error at any function.
+- Feature (User Interface): Add functions CreateSensorInstByName and CreateSensorInstByNameU.
+- Feature (SensorFinder): If IP_SensorType is not set it is taken from CreateSensorInstance.
+- Feature (User Interface): If parameter IP_LogFile is not set it is automatically generated (by date/time).
+- Feature (SensorFinder): Add result parameters IP_SensorTypeName, IP_InterfaceName and IP_RemoteAddr (replace SA_IPAddress).
+- Feature (Samples): Add new sample SensorTest.
+- Bugfix (Documentation): Fix at DT3100 sensor command Update_Firmware.
+- Feature (DT6500, DT6200): Add new sensor command Update_Firmware.
+- Feature (DT6500, DT6200): New parameter for Get_RawDataRanges and Get_ChannelInfos.
+- Feature (global): Reopening a sensor resets all internal states.
+- Feature (Sensors): Add adapter Eth_IF1032.
+- Feature (Encoder_IF2004): Rename it to PCICard_IF2004
+- Feature (Headers): Merge MEDAQLib.h and ErrCodes.h together.
+- Bugfix (SensorFinder): Parameter IP_CardInstance had wrong Datatype (since V3.1.1).
+- Feature (64 Bit): Add Get/SetParameter functions for 64 Bit parameters, IA_DataAvailEvent is now DWORD_PTR.
+- Bugfix (DT3100): Increase timeout for Read_AnalogEEPROM.
+- Bugfix (DT6500): Improve automatic port detection for old XPort type.
+- Bugfix (CSP2008): Set correct default values for IP_RemoteDataProtocol and IP_DataPort.
+- Bugfix (Sensors): Ring buffer overflow is now a warning which is only shown at DataAvail and TransferData.
+- Feature (IFD24n1): Add additional moving average values.
+- Feature (Driver): Replace old FTDI driver v2.04.06 by new v2.08.28.
+- Feature (IF2004): Add synchronization mode (like for IF2008).
+- Bugfix (IF2008): Setting parity for one channel affected other channels.
+- Feature (IF2004_USB): Add new USB adapter IF2004_USB.
+- Bugfix (User Interface): Avoid rare internal recursion when unsing DataAvailEvent.
+- Feature (ILD2300): Add new commands Set/Get_TriggerMoment, Set/Get_SpikeCorrection, Set/Get_TriggerOutput and Reset_Counter.
+                     Add new sensor value trigger count and temperature.
+- Feature (IFD24n1): Add new commands Set/Get_Measurepeak and Get_VideoSignal.
+                     Add new parameter SA_VideoTimestamp when reading video signals.
+                     Add new parameter value to Set/Get_MeasureMode.
+- Feature (User Interface): Change defaults for IP_ScaleErrorValue to 2 (fixed) and IP_FixedErrorValue to -DBL_MAX.
+- Feature (User Interface): Add functions LogToFile and LogToFileU
+- Feature (IF2008 driver): Speed up reading IF2008-FIFO at driver.
+- Feature (ILR1191): Support new meas frequency up to 10 kHz, implement new firmware V1.4.1
+- Feature (ILR118x): Support new value signal strength, implement new firmware V7.02
+- Bugfix (SensorFinder): Sensors with XPort interface now returns full DHCP name parameter.
+- Feature (Sensors): Support ODC1220 (as part of ODC1202).
+- Bugfix (ODC1202): Bugfix at AutomaticMode
+- Feature (Documentation): Group sensor commands.
+- Feature (DT3100): Add new sensor command Save_Poti.
+
+*******************************************************************************
+Version: V3.2.1
+- Bugfix (User Interface): Clear DataAvail event at end of TransferData and when clearing ring buffer.
+- Feature (User Interface): Make MEDAQLib more tolerant against new firmware versions, new parameters ranges, ...
+- Changes (Sensors): Remove no longer supported sensor ASP5500.
+- Feature (User Interface): New function SetParameters.
+- Feature (Samples): Allow sending sensor commands from SensorTest sample program.
+- Feature (IF2008): Support new hardware revision IF2008A2 (power switch).
+- Feature (Set_IPConfig): Add new parameter IP_AllowReserved.
+- Bugfix (IF2004/IF2008/WinUSB): Only sensors at first instance could be opened (since V3.1.0)
+- Bugfix (SensorFinder): Only outputs first result if several are found at same time (since 3.2.0)
+- Bugfix (SensorFinder): ILD2300 with 115200Baud was found with 3,5MBaud over RS232 interface.
+- Feature (IFD24n1): Add new command Get_Temperature.
+- Bugfix (ODC1202): Add missing parameters for ODC1220.
+- Bugfix (Sensors): If open fails, close interface automatically.
+- Bugfix (ILD2300): Fix wrong scaling formula for thickness values on RS422.
+
+*******************************************************************************
+Version: V3.2.2
+- Feature (IF2008 driver): Update for new hardware revision IF2008A2
+- Feature (Sensors): Add new sensor ODC2520.
+- Feature (IFD24n1): Add new commands Set/Get_BoreControlParam.
+- Bugfix (ILD2200): Workaround for bug in ILD2200, Firmware 301, Get_Settings (SA_Range).
+- Feature (Sensors): Add sensor ACS7000.
+- Bugfix (ILD2300/IFD24n1): Sporadic timeout at reading sensor answer.
+- Bugfix (ILD2300): Replace wrong parameter name at Get_MeasureValueCnt.
+- Feature (Logging): Enable file name with placeholders for date/time.
+- Feature (Logging): Enable automatic splitting log files.
+
+*******************************************************************************
+Version: V3.2.3
+- Bugfix (IF2004_USB): Driver cannot be loaded at 64 Bit.
+- Bugfix (ILD2300/IFD24n1/ODC2520/ACS7000): If data port at sensor (over Ethernet) is disabled, open sensor anyway.
+- Feature (User Interface): Extended automatic mode.
+- Bugfix (Data conversion of Eth_IF1032/ILD2300/IFD24n1/ODC2520/ACS7000 ): At full ringbuffer, additional frames may be lost.
+- Feature (ILD2300/IFD24n1/ODC2520/ACS7000): After sensor warning retrieve sensor parameters again (in automatic mode).
+- Bugfix (ODC2520): Set/Get_OutputSegment_RS422/ETH assigned internal MEDAQLib parameters in wrong way.
+- Bugfix (IF2004_USB): Second instance cannot be opened if specified by COM-Port.
+- Feature (Sensors): Add new global control parameter CP_BaseLevelTimeout.
+- Bugfix (IF2004_USB): Digital/RxD inputs (last channel) are output with half speed.
+- Feature (ILD1402): Add new special commands for option 207.
+- Bugfix (Logging): Close logfile at ReleaseSensorInstance if not done before.
+
+*******************************************************************************
+Version: V3.3.0
+- Feature (User Interface): Add functions Set/GetParameterBinary(U), mark SetParameterStringL as deprecated.
+- Bugfix (Documentation): Wrong parameter name at IFD24n1 and ILD2300, command Get_MaterialTable.
+- Bugfix (ILD2300/IFD24n1): Misspelling at all parameters containing "refractive".
+- Feature (IFD24n1): Add new parameter ETHERCAT to command OUTPUT.
+- Bugfix (ODC1202/1220): Get_HWInfo used wrong order byte.
+- Bugfix (ODC1202/1220): No longer use fixed information, but use Get_HWInfo/SA_SubPixel and Get_ParamSet2/SA_Slopevalue.
+- Feature (DT6200/DT6500/EthIF1032): Add new filter type Dynamic noise rejection.
+- Feature (Eth_IF1032): Add several new commands.
+- Feature (Sensors): Add new sensor IFD2445 and C-Box.
+- Feature (ILD2300, ODC2520): Add new command Set/Get_Unit.
+
+*******************************************************************************
+Version: V4.0.0
+- Bugfix (IFD2445): Remove non existing parameters from documentation.
+- Feature (C-Box): Add new command Get_ScanStatus.
+- Feature (User Interface): Add new function GetParameters.
+- Feature (User Interface): Add an assembly for easy access MEDAQLib from each .NET language.
+- Feature (User Interface): Add module MEDAQLib.bas for easy access MEDAQLib from VB6 or VBA.
+- Feature (User Interface): Implement new commands Set-/Get_Setup.
+- Feature (ILD2300): Add new command Get_ActiveParameterSet and Set_/Get_ShutterFactor.
+- Bugfix (ACS7000): Get_ColorThresholds may has failed.
+- Bugfix (ILD2300/IFD24n1/ODC2520/ACS7000/C-Box): Set_IPDataTransferMode (parameter NONE) may fail.
+- Bugfix (ILR1191): Rename misspelling command Get_HWDignosis to Get_HWDiagnosis.
+- Bugfix (DT3100): Rename misspelling command Set_MeasaureCnt to Set_MeasureCnt.
+- Bugfix (FTDI): Do not through an exception if driver is to old.
+- Bugfix (WinUSB): Do not through an exception if driver is missing.
+- Feature (Driver): Update FTDI driver to new version 2.12.0.
+- Bugfix (Documentation): Invert logic at IF2004_USB command Use_Gate parameter SP_ActivateGate.
+- Bugfix (Eth_IF1032, DT2600): After Clear_Buffers synchronisation may be lost .
+- Bugfix (Eth_IF1032, DT2600, DT6500): Mathematic channels was not handled correct.
+- Feature (DT6530, DT6200): Add new command Set_LinPointOffline.
+- Feature (ODC2500, ODC2600): Add new command Update_OptionData.
+- Feature (Any sensor): Add new meta command Update_... for Get_/Set_... command pairs.
+- Bugfix (SensorFinder): Sensors at RS422/USB-Converter (FTDI) may not be found if IF2004_USB is plugged.
+- Feature (ILR118x): Add commands Laser_Off and Laser_On.
+- Feature (SensorFinder): Add more information to log file about found sensors.
+- Feature (RS232): Support RS485 interfaces (with RS232 software emulation).
+- Feature (Sensors): Add new sensors DT6210 (including generic sensor on MEbus), IFD2461, ILD1320 and ILD1420.
+- Feature (Hardware interface): Support new interface IF2001_USB.
+- Feature (IF2008): Support new FPGA version 8 (Digigal In as sensor trigger).
+- Bugfix (IF2008): When parity for a sensor channel was set, parity for all other channels was set to 0.
+- Changes (Sensors): Remove no longer available sensors ILD1401 demo case, ILD1800, ILD2000, IFD2400, IFD2430, DT3909 and ESC4912.
+- Changes (Hardware interface): Remove no longer supported interfaces DriverX and USBIO.
+- Changes (User Interface): Remove deprecated MEDAQLib functions Set/GetParameterDWORD(U) and SetParameterStringL.
+- Changes (IFD24n1): Remove deprecated sensor commands Set/Get_RegPos.
+- Changes (SensorFinder): Remove deprecated answer parameter SA_IPAddress.
+- Bugfix (IF2004_USB): RxD/DIn data at Ringbuffer not processed correct.
+- Bugfix (User Interface): Clear_Buffers must not interrupt sensor commands, return an error instead.
+- Bugfix (IF2004_USB): If IN1 is high, sometimes sensor data bytes are lost.
+- Changes (Sensors): Make default value of IP_RingBufferSize equal for any sensor (1 MB).
+- Feature (C-Box): New commands for triggering.
+- Bugfix (IF2008): Increase writing speed while sending data to sensor.
+- Feature (IF2004/IF2004_USB/IF2008): New command Set_SyncMaster.
+- Bugfix (SensorFinder): SensorFinder just find first USB device.
+- Bugfix (IF2004_USB): Set/Get_TrgSource: Continuously high/low was inverted.
+- Feature (IFC24n1): Implement free measure rate mode.
+- Feature (IF2004_USB): Implement features of new hardware revision 1 and option 1 (RS422 output, comparator mode, ...).
+- Bugfix (SensorFinder): Do no longer detect ILD1302 if searched for ILD1402.
+- Bugfix (SensorFinder): When searching for XPort sensors, sometimes a wrong XPort sensor is detected.
+
+*******************************************************************************
+Version: V4.0.1
+- Bugfix (SensorFinder): Improve/Speed up detection of ODC2500/2600.
+- Bugfix (Eth_IF1032): Increase range of averaging number from 0 to INT_MAX.
+- Bugfix (LabView): Lost ReleaseSensorInstance.vi added to setup.exe.
+- Feature (SensorFinder): Find ILD2200 (Option 245) at 115200 Baud, too.
+*******************************************************************************
+Version: V4.0.2
+- Bugfix (IFC24n1): Rename parameter AdditionalFrequecy to AdditionalMeasrate (at data output commands).
+
+*******************************************************************************
+Version: V4.1.0
+- Feature (Sensors): Add new controller C-Box/2A.
+- Bugfix (RS232 interface): Try original baudrate, if setting real sensor baudrate fails.
+- Feature (Sensors): Add new controller KSS64xx.
+- Feature (Sensors): Add new sensors IFC242x.
+- Feature (Sensors): New internal sensor command Get_OpenState.
+- Feature (Sensors): Add new sensor thicknessSENSOR.
+- Feature (Any sensor): Add new meta command Reset_... for Set_... commands with multiple parameters.
+- Bugfix (Sensors): "eddyNCDT 3100" or "eddyNCDT 3909" at CreateSensorInstByName created sensor instance CONTROLLER_ESC4912. 
+- Feature (some serial Sensors): At command Set_Baudrate add parameter CP_InterruptDataTransfer.
+
+*******************************************************************************
+Version: V4.2.0
+- Bugfix (DT6500): Data was output unscaled.
+- Feature (FTDI driver): Update to lastest version v2.12.24
+
+*******************************************************************************
+Version: V4.3.0
+- Feature (Sensors): Add new sensor SENSOR_ILD1750.
+- Changes (ILD2300): The measuring rate is changed from 49,02 kHz to 49,140 kHz. Change of counter bits from 24 bit to 32 bit at Ethernet
+- Feature (Eth_IF1032): Add averaging modes FIR-Filter and Kalman-Filter, add trigger modes Falling edge, Low level and Gate at falling edge.
+
+*******************************************************************************
+Version: V4.4.0
+- Feature (Interface): Add new interface IF2008/Eth.
+- Feature (Sensors): Add new color sensors CFO100 and CFO200.
+- Feature (Sensors): Add new eddy sensor DT3060.
+- Bugfix (ILR sensors): Command StopTracking did not work since V4.2.0
+
+*******************************************************************************
+Version: V4.5.0
+- Feature (RS232 Interface): Extend parameter IP_ReadTimeout and add new parameter IP_EnableToggleDTR.
+- Feature (Interface): Add IF2008B (PCIe) interface support.
+- Feature (Sensors): Add new eddy sensor DT6536 and opto sensor ILD1760 (create as ILD1750).
+- Bugfix (SensorFinder): Avoid crash at abort when logfile is active. Speed up searching at RS232 ports.
+- Feature (IFC242x): New command MEASCNT_ETH, at Set/Get_ErrorLevelOut1/2, parameter SP/A_ErrorLevelOut1/2 remove parameter value TriState.
+- Feature (CFO): Add sensor commands Set_DetectionProfile, Set_SensorMatcher and Add_SensorMatcher. Add Representation RGB 0/1/2 to TransferData.
+- Bugfix (ILD1750): Wrong parameter name at sensor command Get_OutputInfo_RS422. Adapt raw shutter range.
+- Bugfix (IFD2421): Avoid error message at sensor command Get_Setup.
+- Feature (FTDI driver): Update to lastest version v2.12.28
+- Bugfix (C-Box/2A): Fix several minor errors.
+- Feature (SensorFinder): Add parameters IP_RS232Ports, IP_Baudrates, IP_ByteSizes, IP_Parities and IP_Stopbits as "hints for searching".
+- Feature (IF2001/USB and IF2004/USB): At closing reset RS422 settings to previous values.
+- Feature (Logging): Introduce %[NBR] at parameter IP_LogFile
+- Feature (Sensors): Official support for SENSOR_ON_MEBUS.
+- Bugfix (ILR118x): At command Set/Get_OutputFormat, parameter SP/A_OutputFormat remove value "binary distance".
+
+*******************************************************************************
+Version: V4.6.0
+- Feature (User Interface): Extend MEDAQLib command Get_TransmittedDataInfo by video stream signal information.
+- Feature (SensorFinder): If IP_FindSimilarSensors is specified, detect other sensor types, too
+- Feature (CFO): Many new commands and parameters, standardize existing commands and parameters, new output values.
+- Feature (Interface): Update IF2008 drivers to V3.0 supporting new IF2008B (PCIe) card.
+
+*******************************************************************************
+Version: V4.7.0
+- Feature (Sensors): Add new optoNCDT ILD1220.
+- Feature (User Interface): Add static sensor command Get_HighResolutionTime and Exec_SleepTime.
+- Feature (User Interface): Change from windows data types to standard data types.
+- Feature (TCP/IP): Support IPv6.
+- Feature (Sensors): Support whole sensor family DT306x/DT307x.
+- Changes (MEBus): Extend sensor command Get_ChannelInfos.
+- Feature (User Interface): Add commands Get/Set/Update/Reset_TransferredData.
+- Changes (Interfaces): At C-Box and IF2008/Eth the commands Get-/Set_ApplLanguage was changed incompatible (index to string).
+- Bugfix (User Interface): When video stream mode is active, TransferDataTS wasn't incrementing timestamp (when signals arrives immediatly).
+- Feature (Eth_IF1032): Add new commands Get/Set_Parameter.
+- Feature (ODC2520): Support new measurement range 95 mm
+- Bugfix (User Interface): Poll function was inefficent (converts data several times) in some cases.

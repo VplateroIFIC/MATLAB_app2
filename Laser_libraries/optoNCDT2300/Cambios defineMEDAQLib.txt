@@ -1,0 +1,91 @@
+CreateSensorInstByName
+	sensorName -> "string" ("nullTerminated")
+
+SetParameterInt
+	paramName -> "string" ("nullTerminated")
+SetParameterDouble
+	paramName -> "string" ("nullTerminated")
+SetParameterString
+	paramName -> "string" ("nullTerminated")
+	paramValue-> "string" ("nullTerminated")
+SetParameterBinary
+	paramName -> "string" ("nullTerminated")
+	paramValue -> "uint8" ("len")
+SetParameters
+	parameterList-> "string" ("nullTerminated")
+
+GetParameterInt
+	paramName -> "string" ("nullTerminated")
+	paramValue -> "clib.array.MEDAQLib.Int" (1)
+GetParameterDouble
+	paramName -> "string" ("nullTerminated")
+	paramValue -> "clib.array.MEDAQLib.Double" (1)
+GetParameterString
+	paramName -> "string" ("nullTerminated")
+	paramValue -> "clib.array.MEDAQLib.Char" (1000)  		\\para poder obtener valores
+	maxLen -> "clib.array.MEDAQLib.Int" (1)				
+GetParameterBinary
+	paramName -> "string" ("nullTerminated")
+	paramValue -> "clib.array.MEDAQLib.UnsignedChar" (1000)  	\\para poder obtener valores
+	maxLen -> "clib.array.MEDAQLib.Int" (1)				
+GetParameters
+	parameterList -> "clib.array.MEDAQLib.Char" (10000) 
+	maxLen -> "clib.array.MEDAQLib.UnsignedInt" (1)
+	
+DataAvail
+	avail -> "clib.array.MEDAQLib.Int" (1)
+TransferData
+	rawData -> ("maxValues")
+	scaledData -> ("maxValues")
+	read -> (1)
+TransferDataTS
+	rawData -> ("maxValues")
+	scaledData -> ("maxValues")
+	read -> (1)
+	timestamp -> (1)
+Poll
+	rawData -> ("maxValues")
+	scaledData -> ("maxValues")
+
+GetError
+	errText -> "clib.array.MEDAQLib.Char" ("maxLen")
+GetDLLVersion
+	versionStr -> "clib.array.MEDAQLib.Char" ("maxLen")
+
+EnableLogging
+	logFile -> "string" ("nullTerminated")
+OpenSensorTCPIP
+	remoteAddr -> "string" ("nullTerminated")
+
+ExecSCmd
+	sensorCommand -> "string" ("nullTerminated")
+SetIntExecSCmd
+	sensorCommand -> "string" ("nullTerminated")
+	paramName -> "string" ("nullTerminated")
+SetDoubleExecSCmd
+	sensorCommand -> "string" ("nullTerminated")
+	paramName -> "string" ("nullTerminated")
+SetStringExecSCmd
+	sensorCommand -> "string" ("nullTerminated")
+	paramName -> "string" ("nullTerminated")
+	paramValue -> "string" ("nullTerminated")
+ExecSCmdGetInt
+	sensorCommand -> "string" ("nullTerminated")
+	paramName -> "string" ("nullTerminated")
+	paramValue -> (1)
+ExecSCmdGetDouble
+	sensorCommand -> "string" ("nullTerminated")
+	paramName -> "string" ("nullTerminated")
+	paramValue -> (1)
+ExecSCmdGetString
+	sensorCommand -> "string" ("nullTerminated")
+	paramName -> "string" ("nullTerminated")
+	paramValue -> "clib.array.MEDAQLib.Char" (1000)  		\\para poder obtener valores
+	maxLen -> "clib.array.MEDAQLib.Int" (1)
+	
+
+
+
+
+
+	

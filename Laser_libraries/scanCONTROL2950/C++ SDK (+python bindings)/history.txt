@@ -1,0 +1,235 @@
+25.05.19 Release LLT.dll version 3.9.0.2077 and SDK version 4.0.1
+25.05.20 	Added: AVIWriter example (undocumented)
+25.05.20	Integration of scanCONTROL 30xx-200
+
+21.10.19 Release LLT.dll version 3.9.0.2012 and SDK version 4.0
+21.10.19 	Integration of scanCONTROL 25xx for C++/Python
+21.10.19 	Updated Documentation
+
+14.06.19 Release LLT.dll version 3.9.0.1969 and SDK version 3.9
+14.06.19   Added: Calibration
+14.06.19   Added: ReadPPPResults
+14.06.19   Added: sC30xx_HighSpeed
+14.06.19   Added: SetROIs
+14.06.19   Added: TriggerContainer
+14.06.19   Updated Documentation
+
+08.04.19 Integration of scanCONTROL 30xx for C++ / Python
+08.04.19 Integration of new parameter macros
+
+22.01.17 Release LLT.dll version 3.7.0.x
+06.12.17   Added: register addresses for peak filter and free measuring field
+21.11.17   Added: ExportLLTConfigString
+21.11.17   Added: ImportLLTConfig
+21.11.17   Added: ImportLLTConfigString
+02.06.17   Remove: Firewire support
+
+21.09.15 Release LLT.dll version 3.6.0.x
+30.09.15   Added: TriggerProfile
+17.08.15   Added: SaveGlobalParameter
+
+20.03.14 Release LLT.dll version 3.5.0.5
+20.03.14   Fixed: internal maintenance release 
+
+30.01.14 Release LLT.dll version 3.5.0.1
+30.01.14   Fixed: StartTransmissionAndCmmTrigger works as expected with ethernet sensors even if no callback was registerd
+
+03.12.13 Release LLT.dll version 3.5.0.0
+03.12.13   Added: GetDeviceInterfacesFast
+
+28.02.13 Release LLT.dll Version 3.3.0.0
+28.02.13   Added: Support for scanCONTROL26xx and scanCONTROL29xx
+28.02.13   Added: Hold buffers for polling proiles
+
+13.04.12 Release LLT.dll Version 3.2.0.0
+13.04.12   Fixed: Wrong error message if ethernet sensor already connected
+
+08.09.11 Release LLT.dll Version 3.1.0.3 
+08.09.11   Fixed: Profile transfer over Ethernet on computer with high CPU usage
+
+06.09.11 Release LLT.dll Version 3.1.0.2 
+06.09.11   Fixed: Saving AVI-Files with no profile lost from Ethernet connected scanCONTROLS
+
+07.07.11 Release LLT.dll Version 3.1.0.0
+07.07.11   Added: GetEthernetHeartbeatTimeout and SetEthernetHeartbeatTimeout
+07.07.11   Added: Ethernet: opens the firewall berfor transfere profiles
+07.07.11   Added: Support for new firewire driver v646
+07.07.11   Added: Support for x64 for firewire connections
+
+11.01.11 Release LLT.dll Version 3.0.0.6 
+11.01.11   Fixed: MemoyLeak in GigEvision implementation
+11.01.11   Added: Automaticly stop SaveProfiles if Disconnect is called 
+
+21.12.10 Release LLT.dll Version 3.0.0.5 
+21.12.10   Fixed: Saving AVI-Files from more than one instances
+21.12.10   Added: Increasing buffer for save-data
+
+15.01.10 Release LLT.dll Version 3.0.0.4 
+15.01.10   Fixed: Interface Compatibility for pure C
+
+15.01.10 Release LLT.dll Version 2.9.9.919 
+15.01.10   Added: Reduce thread cout for GigEVison -> better stability
+
+26.11.09 Release LLT.dll Version 2.9.9.915 
+26.11.09   Added: Support for GigEVison -> Ethernet scanCONTROL
+
+26.11.09 Release LLT.dll Version 2.9.9.915 
+26.11.09   Added: Support for GigEVison -> Ethernet scanCONTROL
+
+25.11.09 Release LLT.dll Version 2.1.0.15 
+25.11.09   Added: Trace in ConvertProfile2Values function
+
+20.10.09 Release LLT.dll Version 2.1.0.14 
+20.10.09   Added: Better error handling for Firewire device enumeration (TLS log)
+
+07.09.09 Release LLT.dll Version 2.1.0.13 
+07.09.09   Added: Better error handling for Firewire device enumeration
+
+24.07.09 Release LLT.dll Version 2.1.0.12 
+24.07.09   Added: Better error handling for serial connection
+
+24.04.09 Release LLT.dll Version 2.1.0.11 
+23.04.09   Fixed: Support for scanCONTROL 27xx-50
+
+27.03.09 Release LLT.dll Version 2.1.0.9 
+18.03.09   Fixed: Rotate of the video image for scanCONTROL 28xx
+
+27.10.08 Release LLT.dll Version 2.1.0.4 
+11.09.08   Fixed: Shutdown when scanCONTROL unplugged at running transfer
+14.07.08   Added: Cancel a running MultiShot transfer by calling 'Connect' or 'TransferProfiles(..., false)'
+
+23.06.08 Release LLT.dll Version 2.1.0 
+23.05.08   Added: Support for scanCONTROLL 27xx
+13.05.08   Added: Support for call GetActualProfile in a callback function
+26.02.08   Added: Saving CSV-File when transfering partial profiles
+14.02.08   Fixed: If X == 0 then no convet from X in mm for save CSV
+24.10.07   Fixed: Read Trigger-Feature from scanCONTROLL
+25.09.07   Fixed: Blocking after return of a error code by calling MultiShot
+20.09.07   Added: MultiShot(0) stops a working multi shot request
+20.09.07   Added: Automatic buffer count to prevent problems at 10 sek holes with externel trigger
+26.07.07   Fixed: No switch to 256 points per profile on connect
+26.07.07   Added: Function for write the LLT config in a serial text format
+12.06.07   Fixed: Increase the priority of the recive-data thread
+06.03.07   Added: Every instance has a different save-buffer size
+20.12.06   Fixed: No error if stoping the transfere in shot-mode with external trigger and no trigger impulses
+20.12.06   Added: Bypass the 10sec timeout of the driver in shot-mode
+18.12.06   Added: Container-mode with no rearangement profile
+10.11.06   Fixed: Stop of saving on size limit
+09.11.06   Fixed: Decode of Threshold and maximum in ConvertProfile2Values 
+
+24.08.06 Release LLT.dll Version 2.0.1 
+26.07.06   Fixed: Problems with Container-Mode transfer
+06.06.06   Added: Sleep(0) in the GetActualProfile function to force a thread change
+15.05.06   Fixed: return a error value if container-mode not supported
+24.04.06   Fixed: Disable of the transfer, if longer than 10 seconds no profile recived and more than 2 buffers are used
+
+04.04.06 Release LLT.dll Version 2.0.0 
+22.02.06   Added: Transfer the video images from the sensor 
+08.02.06   Added: Support for saving and loading AVI-Files
+28.11.05   Added: Support for profile filter
+28.11.05   Added: Container-Mode for profile transfer
+14.10.05          Redesign Interface
+14.10.05   Fixed: New internal sequence of profile processing
+
+09.08.05 Release LLT.dll Version 1.2.18 
+14.07.05   Fixed: Improved stability of callback TNewProfile_2 
+14.07.05   Fixed: Problems with read parameter while transfering a profile cver the serial connection
+20.06.05   Fixed: Saving from profiles with a LLT-Firmware bevore 13-A1
+14.06.05   Added: ProfileConfig in no longer changed by LoadProfile
+14.06.05   Fixed: Different handling from ProfileConfig in firewire and serial mode
+13.06.05   Fixed: Can't connect after interrupted load profiles
+03.06.05   Added: OneShot and MultiShot
+30.05.05   Added: Simultaneous save and load from profiles in the same file
+25.05.05   Fixed: Crash in StopTransmissionAndCmmTrigger
+25.05.05   Added: Timestamp2CmmTriggerAndInCounter
+22.04.05   Fixed: Set the standard Profileconfig to PROFILE 
+22.04.05   Fixed: Set the standard Maxfilesize to 50 MB
+16.03.05   Added: StartTransmissionAndCmmTrigger_2 witch will save the triggert profiles
+16.03.05   Added: Support for automatic shutter
+09.03.05   Fixed: Some timing-problems by calling SaveProfile(NULL) 
+07.03.05   Fixed: Some problems with errorhandling in StartTransmissionAndCmmTrigger
+01.03.05   Fixed: Return false by calling LoadProfiles if profiles are already loading 
+24.02.05   Fixed: Some problems by using only 1 buffer 
+
+21.02.05 Release LLT.dll Version 1.2.16 
+11.02.05   Fixed: Some problems disconnecting with a serial connection
+27.01.05   Fixed: Some problems with the compare between little endian and big endian
+
+13.01.05 Release LLT.dll Version 1.2.14  
+12.01.05   Added: Some defines for return-codes for several functions
+10.01.05   Added: Start/StopTransmissionAndCmmTrigger for easier start a session with CmmTrigger
+10.01.05   Fixed: The function Timestamp2TimeAndCount ignores NULL-pointer  
+
+22.12.04 Release LLT.dll Version 1.2.12  
+21.12.04   Added: Get- / SetTrigger_2 for the complete trigger-register
+21.12.04   Added: Header-file for easyer use of postprocessing
+
+09.12.04 Release LLT.dll Version 1.2.10  
+09.12.04   Fixed: Freeze by deleting a connected DLL
+06.12.04   Added: SetProfileConfig function checks the input-value
+02.12.04   Fixed: Somtimes differnt devicenames between serial and firewire connections
+01.12.04   Fixed: Problems under NT4 and Win98
+
+17.09.04 Release LLT.dll Version 1.2.6   
+17.09.04   Fixed: Delete some wrong writeinstructions to the LLT
+
+10.08.04 Release LLT.dll Version 1.2.4
+10.08.04   Fixed: Change the mainpeak if a profile-file are loaded
+10.08.04   Fixed: Bug with a wrong Timestamp in QUADER_PROFILE mode
+30.07.04   Fixed: Overwrite the last peak with '0' if PURE and QUADER_PROFILE Mode and transmitt the 4th peaks is selected because of the timestamp
+29.07.04   Added: LoadProfiles_3 with a new parameter for the LLT measurement range
+
+21.07.04 Release LLT.dll Version 1.2.2
+20.07.04   Added: Numbers for the Profile-Config enum 
+14.07.04   Added: SetCMMTrigger and GetCMMTrigger for extended trigger configuration
+12.07.04   Added: Support the postprocessing-results
+08.07.04   Fixed: Error-handling in the connect-function
+07.07.04   Added: Some error-states to internal functions
+07.07.04   Fixed: Disable the LLT-feature functions when loading profiles
+07.07.04        : Reorganize LLT-feature functions in the dll
+07.07.04   Fixed: Problems with saving 64 or 128 points per profile and partialprofiles
+01.06.04   Added: Read- and WritePostProcessingParameter implementet
+
+
+27.05.04 Release LLT.dll Version 1.2.0
+Please recompile your C++-projects with the actual interface class or update all calls to the LLT.dll if you use the C-interface from the DLL
+27.05.04   Added: Translation of the interface documentation to english
+25.05.04   Added: Error-parameter in the "CInterfaceLLT" and "CDllLoader"
+19.05.04   Fixed: Problems with extern trigger and firewire-connection (please use 1 buffer for external trigger)
+19.05.04   Fixed: The buffercount can now be 1 to 200 
+19.05.04     Del: Support for large profiles
+18.05.04   Added: Support up to 6 profile-resolutions
+18.05.04   Added: Support for new timestamps with profilecounter
+18.05.04   Added: Function to get the softwareversions
+17.05.04   Added: New Interface definition, Create* now only for old dll's and Create*_2 only for new dll's
+17.05.04   Fixed: Multi LLT in one application (please use RegisterCallback_2 !!!) 
+11.05.04   Added: Partial profile-format
+14.04.04   Added: Switching the main-peak
+14.04.04   FIXED: Saving CSV always as LLT-25
+
+
+23.01.04 Release LLT.dll Version 1.1.10
+23.01.04   Fixed: mehrfaches Abholen eines Profiles bei serieller Verbindung möglich
+23.01.04   Added: Abfrage der verlorengegangenen Profile über GetActualProfile_2
+21.01.04   Fixed: speichern des CSV-Formates bei serieller Verbindung nicht möglich
+
+
+19.12.03 Release LLT.dll Version 1.1.8
+19.12.03   Fixed: Fehler beim finden der Scanner im Firewire-Modus
+19.12.03   Fixed: Fehler bei aktualisierung wenn im Firewire-Modus neue Scanner angeschlossen werden
+18.12.03   Added: Umschalten der Analogausgangs-Modes
+
+
+04.12.03 Release LLT.dll Version 1.1.6
+04.12.03   Fixed: Geöffnetes File schließen, wenn beim Laden "Disconnect" aufgerufen wird
+04.12.03   Fixed: Memoryleak beim Verlassen des Firewire-Modus
+04.12.03   Fixed: Probleme beim speichern von sehr wenigen Profilen
+
+
+28.11.03 Release LLT.dll Version 1.1.4
+27.11.03   Added: Neue Error-Message "ERROR_CONNECTIONLOST" welche bei einem Verbindungsverlust zum Scanner gesendet wird (gilt nur für die Verbindung über Firewire)
+27.11.03   Fixed: Absturz beim Aufruf von "disconntct" bei laufender Profilübertragung
+27.11.03   Fixed: Absturz wenn bei laufender Profilübertragung der Scanner ausgeschaltet wird oder das Firewire-Kabel gezogen wird (gilt nur für die Verbindung über Firewire)
+
+
+05.11.03 Release LLT.dll Version 1.1.3
