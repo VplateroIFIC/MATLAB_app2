@@ -1,7 +1,11 @@
 classdef SCANCONTROL2950 < handle
     %SCANCONTROL2950 is a handle class for working with microepsilon laser triangulation
-    %line scaners. Suported models are:
+    %line scanners. Suported models are:
     %   SCANCONTROL29xx-xx
+    
+    %Just start with this.Connect, stablish the parameters (set fuctions) or obtain the
+    %current configuration (get functions), start the transmission (this.StartTransmission) 
+    %or stop it (this.StopTransmission) and retrieve the profiles by this.GetProfileData
     
     %General error codes:
         %ERROR_OK=0
@@ -27,32 +31,32 @@ classdef SCANCONTROL2950 < handle
         %ERROR_GENERAL_SECOND_CONNECTION_TO_LLT=-1008
         
     properties (Constant = true, Access = private)
-        temperatureAsk = 0x86000000; 
+        temperatureAsk = 0x86000000;    %Value to ask for the temperature 
     end
     properties (Access=protected)
-        interfacesCount = 5;
-        interfaces;
-        pLLT int32;
-        resolutionsCount = 4
+        interfacesCount = 5;            %Number of interfaces to scan for
+        interfaces;                     %Array of available interfaces, updated by this.Connect
+        pLLT int32;                     %Scaner handle number, asigned by constructor and used by all LLT functions
+        resolutionsCount = 4            %Number of available x-axis resolutions
     end
     properties (SetAccess=protected, GetAccess=public)
-        scannerType;
-        isConnected = 0;
-        bytesPerProfile = 0;
-        isTransfering = 0;
-        resolutions;
-        currentResolution = 0;
-        exposureTime = 0;
-        idleTime = 0;
-        frecuency = 0;
-        lostProfiles = 0;
-        laser = 0;
-        lastTemperature = 0;
+        scannerType;                    %Type of scanner, set by constructor
+        isConnected = 0;                %0=Unconnected, 1=Connected
+        bytesPerProfile = 0;            %Number of bytes transferred in each profile
+        isTransfering = 0;              %0=No tranferring, 1=Transferring 
+        resolutions;                    %Array of resolutions asigned by GetResolutions
+        currentResolution = 0;          %Current selected resolution
+        exposureTime = 0;               %Current exposure time
+        idleTime = 0;                   %Current idle time
+        frequency = 0;                  %Current measuring frequency
+        lostProfiles = 0;               %Lost profiles when retrieving data
+        laser = 0;                      %Laser power. It can be 0=OFF, 1=REDUCED, 2=FULL
+        lastTemperature = 0;            %Last requested temperature
     end
     properties (Access = public)
-        interfaceType;
-        transferMode;
-        profileType;
+        interfaceType;                  %Comunication interface (clib.LLT.TInterfaceType), asigned by default by constructor 
+        transferMode;                   %Trasferring mode (clib.LLT.TTransferProfileType), asigned by default by constructor 
+        profileType;                    %Profile info requested (clib.LLT.TProfileConfig), asigned by default by constructor 
     end
     
     methods
@@ -199,13 +203,14 @@ classdef SCANCONTROL2950 < handle
         end
         
         function GetConfiguration(this)
+            %Get the current configuration and store them in the class properties
             this.GetResolutions;
             this.GetCurrentResolution;
             this.GetLaser;
             this.GetIsTransfering;
             this.GetIdleTime;
             this.GetExposureTime;
-            this.GetProfileFrecuency;
+            this.GetProfileFrequency;
         end
         
         function resolutions = GetResolutions(this)
@@ -373,11 +378,13 @@ classdef SCANCONTROL2950 < handle
             
         end
         
-        function frecuency = GetProfileFrecuency(this)
+        function frequency = GetProfileFrequency(this)
+            %Calculate the Mesasuring frequency from exposure time and iddle
+            %time and stores it in this.frequency
             this.GetExposureTime();
             this.GetIdleTime();
-            this.frecuency = 10^6/(this.exposureTime + this.idleTime);
-            frecuency = this.frecuency;
+            this.frequency = 10^6/(this.exposureTime + this.idleTime);
+            frequency = this.frequency;
         end
         
         function errorCode = SetProfileType(this,profile)
@@ -416,9 +423,9 @@ classdef SCANCONTROL2950 < handle
             
             %   this (SCANCONTROL2950) is the current object,
             %   laser (laser) is the laser power to set, it can be:
-            %       OFF
-            %       REDUCED
-            %       FULL
+            %       0 OFF
+            %       1 REDUCED
+            %       2 FULL
             
             if exist('laser','var')
                 this.laser = laser;
@@ -490,8 +497,8 @@ classdef SCANCONTROL2950 < handle
             
         end
         
-        function retValue = StartTransmision(this, transferMode)
-            %StartTransmision enables profile data transmision
+        function retValue = StartTransmission(this, transferMode)
+            %StartTransmission enables profile data transmision
             %(s_TransferProfiles) with the profileType configuration
             
             %   this (SCANCONTROL2950) is the current object
@@ -518,8 +525,8 @@ classdef SCANCONTROL2950 < handle
             end
         end
         
-        function retValue = EndTransmision(this)
-            %EndTransmision stops profile data transmision
+        function retValue = EndTransmission(this)
+            %EndTransmission stops profile data transmision
             %(s_TransferProfiles).
             
             %this (SCANCONTROL2950) is the current object
