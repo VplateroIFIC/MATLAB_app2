@@ -1,0 +1,6 @@
+These are all the measuring functions we used during laser tests.
+
+I would recommend to start the measuring function for measuring one sensor from scratch, 
+and store the points in a scattered format, this is in a Nx3 matrix (S) 
+which stores the X,Y and Z positions of all points, being S(i,j) the coordinate j 
+(1=x,2=y,3=z) of the ith point.
