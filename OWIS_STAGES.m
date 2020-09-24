@@ -14,7 +14,7 @@ classdef OWIS_STAGES
         Type = 'OWIS';
         OWIS = 1;
         Interface = 0;      % 0-> ComPort or USB; 1-> NET
-        nComPort=int32(5);  % 0(COM0), 1(COM1), ... 255(COM255), default: 1
+        nComPort=int32(3);  % 0(COM0), 1(COM1), ... 255(COM255), default: 1
         Baud = 9600;        % 9600,19200,38400,57600,115200, default: 9600
         Handshake = 0;      % 0(CR), 1(CR+LF), 2(LF), default: 0
         Parity = 0;         % 0-> No parity; 1-> OddParity; 2-> EvenParity
@@ -28,9 +28,15 @@ classdef OWIS_STAGES
     %% Fixed properties for our OWIS controller  %%
     properties (Constant, Access = public)
         Index = 1;    %// PS-90 INDEX    %search for reference switch and release switch
-        xAxis = 1.;
-        yAxis = 2.;
-        z1Axis = 3.;
+%         X=1;
+%         Y=2;
+%         Z1=3;
+
+        X = 1.;
+        Y = 2.;
+        Z1 = 3.;
+        Z2 = -1;
+        U = -1;
         Axis = [1,2,3];
         AxisName = [{'X_axis'},{'Y_axis'},{'Z_axis'}];
         units = 1;
@@ -327,6 +333,20 @@ classdef OWIS_STAGES
         
         %% Getposition %%
         
+        function  value = GetPositionAll(this)
+            % function  value = GetPosition(this,axis)
+            % Arguments: object STAGES (this),axis int ()%
+            % Returns: double array (x,y,rot,z1,z2)%
+            
+            value (1) = this.GetPosition(this.X);
+            value (2) = this.GetPosition(this.Y);
+            value (3) = this.GetPosition(this.Z1);
+            value (4) = 0;
+            value (5) = 0;
+%             value (4) = this.GetPosition(this.Z2);
+%             value (5) = this.GetPosition(this.U);
+        end
+        
         function Position = GetAllPositions(this)
             Position = [999.9, 999.9, 999.9];
             for i=1:3
@@ -620,7 +640,7 @@ classdef OWIS_STAGES
             % Returns: none %
             
             velocity = -velocity;
-            axis = this.xAxis;
+            axis = this.X;
             
             %Limiting Axis velocity
             if velocity > this.max_velocity(axis)
@@ -645,7 +665,7 @@ classdef OWIS_STAGES
             %function  FreeRunX(this,velocity)
             % Arguments: object OWIS (this),double velocity%
             % Returns: none %
-            axis = this.yAxis;
+            axis = this.Y;
             
             %Limiting Axis velocity
             if velocity > this.max_velocity(axis)
@@ -670,7 +690,7 @@ classdef OWIS_STAGES
             %function  FreeRunX(this,velocity)
             % Arguments: object OWIS (this),double velocity%
             % Returns: none %
-            axis = this.z1Axis;
+            axis = this.Z1;
             
             %Limiting Axis velocity
             if velocity > this.max_velocity(axis)

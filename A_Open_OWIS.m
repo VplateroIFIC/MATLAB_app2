@@ -3,11 +3,11 @@ eje = OWIS_STAGES;
 eje = eje.INIT;
  joy = JOYSTICK_OWIS(eje);
  joy = joy.Connect;
-%  cam=CAMERA(4);
-%  cam=cam.Connect;
-%  cam.DispCam
-%  focus=FOCUS(eje,cam,2);
-% fid=FICUCIALS(2);
+ cam=CAMERA(4);
+ cam=cam.Connect;
+ cam.DispCam
+ focus=FOCUS(eje,cam,2);
+fid=FIDUCIALS(2);
 
 % cmd = '?BAUDRATE';
 % pszAns = 'hola';

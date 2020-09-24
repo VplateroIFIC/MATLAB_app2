@@ -1,5 +1,6 @@
 
-function match = frameMatcher(fid,cam,gantry)
+% function match = frameMatcher(fid,cam,gantry)
+function match = frameMatcher(fid,cam,eje)
 % método que extrae una imagen de la cámara y aplica pattern matching de la F %
 % argumenos
 % inputs:
@@ -10,7 +11,7 @@ function match = frameMatcher(fid,cam,gantry)
     
     
 image=cam.OneFrame;
-currentPos=gantry.GetPositionAll;
+currentPos=eje.GetPositionAll;
 match=fid.FmatchSURF(image,currentPos(1:2));
 % match=fid.CalibrationFidFinder(image);
 

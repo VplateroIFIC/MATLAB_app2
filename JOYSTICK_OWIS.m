@@ -13,11 +13,11 @@ classdef JOYSTICK_OWIS
         maxVel2 = [10, 10, 10, 10, 10, 10]
         minVel=0.1;
         CurrentVel=5;
-        xAxis = -1;
-        yAxis = -1;
-        z1Axis = -1;
-        z2Axis = -1;
-        uAxis = -1;
+        X = -1;
+        Y = -1;
+        Z1 = -1;
+        Z2 = -1;
+        U = -1;
         %         OWIS = 0;
         %         Gantry = 0;
     end
@@ -33,23 +33,23 @@ classdef JOYSTICK_OWIS
                 disp('joystick can not be used: setup is not connected')
             end
             
-            if isprop (this.setup,'xAxis')
-                this.xAxis = this.setup.xAxis;
+            if isprop (this.setup,'X')
+                this.X = this.setup.X;
             end
-            if isprop (this.setup,'yAxis')
-                this.yAxis = this.setup.yAxis;
+            if isprop (this.setup,'Y')
+                this.Y = this.setup.Y;
             end
-            if isprop (this.setup,'z1Axis')
-                this.z1Axis = this.setup.z1Axis;
+            if isprop (this.setup,'Z1')
+                this.Z1 = this.setup.Z1;
             end
-            if isprop (this.setup,'z2Axis')
-                this.z2Axis = this.setup.z2Axis;
+            if isprop (this.setup,'Z2')
+                this.Z2 = this.setup.Z2;
             end
-%             if isprop (this.setup,'z2Axis')
-%                 this.z2Axis = this.setup.z2Axis;
+%             if isprop (this.setup,'Z2')
+%                 this.Z2 = this.setup.Z2;
 %             end
-            if isprop (this.setup,'uAxis')
-                this.uAxis = this.setup.uAxis;
+            if isprop (this.setup,'U')
+                this.U = this.setup.U;
             end
             if isprop (this.setup, 'joy_vel_slow_pos')
                 
@@ -137,23 +137,23 @@ classdef JOYSTICK_OWIS
             % Controling of the axes: stopping %
             
             if (abs(pos(1))<this.threshold) && (tobj.UserData.FlagAxes(1)==1)
-                this.setup.MotionStop(this.xAxis);
+                this.setup.MotionStop(this.X);
                 tobj.UserData.FlagAxes(1)=0;
             end
             
             if (abs(pos(2))<this.threshold) && (tobj.UserData.FlagAxes(2)==1)
-                this.setup.MotionStop(this.yAxis);
+                this.setup.MotionStop(this.Y);
                 tobj.UserData.FlagAxes(2)=0;
             end
             
             if (abs(pos(3))<this.threshold) && (tobj.UserData.FlagAxes(3)==1) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==0)
-                this.setup.MotionStop(this.z1Axis);
+                this.setup.MotionStop(this.Z1);
                 tobj.UserData.FlagAxes(3)=0;
             end
             
             if (abs(pos(3))<this.threshold) && (tobj.UserData.FlagAxes(3)==1) && (tobj.UserData.FlagAxes(5)==0) && (tobj.UserData.FlagAxes(4)==1)
                 if ismethod (this.setup, 'FreeRunZ2')
-                    this.setup.MotionStop(this.z2Axis);
+                    this.setup.MotionStop(this.Z2);
                     tobj.UserData.FlagAxes(3)=0;
                 else
                     disp ('No Z2 axis available');
@@ -162,7 +162,7 @@ classdef JOYSTICK_OWIS
             
             if (abs(pos(3))<this.threshold) && (tobj.UserData.FlagAxes(3)==1) && (tobj.UserData.FlagAxes(5)==1)
                 if ismethod (this.setup, 'FreeRunZ2')
-                    this.setup.MotionStop(this.uAxis);
+                    this.setup.MotionStop(this.U);
                     tobj.UserData.FlagAxes(3)=0;
                 else
                     disp ('No U axis available');
@@ -233,20 +233,20 @@ classdef JOYSTICK_OWIS
                 this.setup.MotionStopAll;
             end
             
-            if this.xAxis >= 0
-                this.setup.MotionStop(this.xAxis);
+            if this.X >= 0
+                this.setup.MotionStop(this.X);
             end
-            if this.yAxis >= 0
-                this.setup.MotionStop(this.yAxis);
+            if this.Y >= 0
+                this.setup.MotionStop(this.Y);
             end
-            if this.z1Axis >= 0
-                this.setup.MotionStop(this.z1Axis);
+            if this.Z1 >= 0
+                this.setup.MotionStop(this.Z1);
             end
-            if this.z2Axis >= 0
-                this.setup.MotionStop(this.z2Axis);
+            if this.Z2 >= 0
+                this.setup.MotionStop(this.Z2);
             end
-            if this.uAxis >= 0
-                this.setup.MotionStop(this.uAxis);
+            if this.U >= 0
+                this.setup.MotionStop(this.U);
             end
         end
         

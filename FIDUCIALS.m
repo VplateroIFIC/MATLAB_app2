@@ -78,7 +78,7 @@ switch setup
     case 1
         FIDUCIALS_properties_Gantry
     case 2
-        FIDUCIALS_properties_OWIS
+        FIDUCIALS_properties_OWIS_provisional
 end
 
 % initialization of the properties values
