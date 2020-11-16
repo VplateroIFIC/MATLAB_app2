@@ -505,7 +505,7 @@ classdef SCANCONTROL2950 < handle
             %   transferMode establishes the way profiles are transferred (default: NORMAL_TRANSFER):
             %       NORMAL_TRANSFER: continous transfer of profiles
             %       SHOT_TRANSFER: demand-based transfer of profiles (not supported)
-            %       NORMAL_CONTAINER_MODE: continuous transfer in the container mode (more than one profile is transferred at once) 
+            %       NORMAL_CONTAINER_MODE: continuous transfer in the container mode (more than one profile is transferred at once) ¡no se ha probado! 
             %       SHOT_CONTAINER_MODE: demand-based container mode (not supported)
             
             if exist('transferMode','var')

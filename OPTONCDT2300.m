@@ -128,7 +128,7 @@ classdef OPTONCDT2300 < handle
             %   IP_EnableLogging
             %   IP_LogFile
             %   IP_LogAppend
-            %   IP_ScaleErrorValues
+            %   IP_ScaleErrorValues 
             %   IP_AutomaticMode
             %   IP_RingBufferSize
             

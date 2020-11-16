@@ -18,5 +18,7 @@ joy = joy.Connect;
 
 scanner = SCANCONTROL2950;
 scanner.Connect;
+scanner.SetLaser(2);
 laser = OPTONCDT2300;
 laser.SetupConnect;
+laser.LoadParameters(1);
