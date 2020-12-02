@@ -31,7 +31,12 @@ classdef STAGES < handle
         vectorY = 2;
         vectorZ1 = 4;
         vectorZ2 = 5;
-        vectorU = 6;        
+        vectorU = 6;
+        
+        %Defining movement limits to the gantry table
+        % [X,Y,nan,Z1,Z2,U]
+        MoveLimitsH = [500, 500, nan, 100, 100, nan]
+        MoveLimitsL = [-500, -500, nan, -100, -100, nan]
     end
     
     properties (Access=protected)
@@ -194,7 +199,6 @@ classdef STAGES < handle
             LoadBuffersFromFile(this.GantryObj,'D:\Code\MATLAB_app\ALIO_buffers\Buffer_11_homing_routines.txt');
             
         end
-
 
         %% getting assembly info in display (just for ALIO gantry) %%
         
@@ -401,10 +405,6 @@ classdef STAGES < handle
             end
             
             if isnan(target)
-                fprintf ("\n\t ¡¡ Target position of %d is nan !!", axis);
-                return
-            elseif target > 500 || target < -500
-                fprintf ("\n\t ¡¡ Target position: %d out of gantry limmits !!\n", target);
                 return
             end
             
@@ -414,18 +414,38 @@ classdef STAGES < handle
                 case 1
                     switch axis
                         case this.X
+                            if target > this.MoveLimitsH(this.vectorX) || target < this.MoveLimitsL(this.vectorX)
+                                fprintf ("\n\t ¡¡ Target position: %d out of gantry limmits !!\n", target);
+                                return
+                            end
                             SetVelocity(this.GantryObj,this.xAxis,velocity);
                             ToPoint(this.GantryObj,this.Absolute,this.xAxis,target);
                         case this.Y
+                            if target > this.MoveLimitsH(this.vectorY) || target < this.MoveLimitsL(this.vectorY)
+                                fprintf ("\n\t ¡¡ Target position: %d out of gantry limmits !!\n", target);
+                                return
+                            end
                             SetVelocity(this.GantryObj,this.yAxis,velocity);
                             ToPoint(this.GantryObj,this.Absolute,this.yAxis,target);
                         case this.Z1
+                            if target > this.MoveLimitsH(this.vectorZ1) || target < this.MoveLimitsL(this.vectorZ1)
+                                fprintf ("\n\t ¡¡ Target position: %d out of gantry limmits !!\n", target);
+                                return
+                            end
                             SetVelocity(this.GantryObj,this.z1Axis,velocity);
                             ToPoint(this.GantryObj,this.Absolute,this.z1Axis,target);
                         case this.Z2
+                            if target > this.MoveLimitsH(this.vectorZ2) || target < this.MoveLimitsL(this.vectorZ2)
+                                fprintf ("\n\t ¡¡ Target position: %d out of gantry limmits !!\n", target);
+                                return
+                            end
                             SetVelocity(this.GantryObj,this.z2Axis,velocity);
                             ToPoint(this.GantryObj,this.Absolute,this.z2Axis,target);
                         case this.U
+                            if target > this.MoveLimitsH(this.vectorU) || target < this.MoveLimitsL(this.vectorU)
+                                fprintf ("\n\t ¡¡ Target position: %d out of gantry limmits !!\n", target);
+                                return
+                            end
                             SetVelocity(this.GantryObj,this.uAxis,velocity);
                             ToPoint(this.GantryObj,this.Absolute,this.uAxis,target);
                     end
@@ -972,6 +992,7 @@ classdef STAGES < handle
                 return
             end
             
+            %Parsing variable inputs
             p = inputParser();
             p.KeepUnmatched = true;
             p.CaseSensitive = false;
@@ -993,22 +1014,23 @@ classdef STAGES < handle
             parse( p, varargin{:} )
             ip = p.Results;
             
-            % Check if target position is a vector and has a properly
-            % length
+            % Check if target position is vector or scalar
+            % If target position is scalar it will be X axis
+
             if isscalar(Position)
                 ip.Position(this.vectorX) = Position;
             else 
                 check = size(Position);
                 ip.Position = Position;
-                if ~(check(1) == 1 && check(2) <= 6)   % If is a vector 1x6
-                    disp ("Invalid destination")
+                if ~(check(1) == 1 && check(2) <= 6) 
+                    % If position vector is larger than 1x6
                     fprintf("\n ¡¡Invalid destination!! --> %d %d %d %d %d %d\n", ip.Position)
-
                 else
-                    ip.Position(check(2)+1:6) = nan;   % Value is nan for the rest of the vector
+                    % Fill the position vector with nan values
+                    % until size 1x6
+                    ip.Position(check(2)+1:6) = nan; 
                 end
             end
-            
             
             if (~isnan(ip.X))
                 ip.Position(this.vectorZ1) = ip.X;
@@ -1024,13 +1046,8 @@ classdef STAGES < handle
             end
             if (~isnan(ip.U))
                 ip.Position(this.vectorU) = ip.U;
-            end
-%             if (~isnan(ip.Velocity))
-%                 ip.V(this.Velocity) = ip.Velocity;
-%             end
-                    
-            
-            
+            end      
+ 
             fprintf("\n Posicición de destino -->(%d %d %d %d %d %d)\n", ip.Position(1), ip.Position(2), ip.Position(3), ip.Position(4), ip.Position(5), ip.Position(6))
                 
             this.zSecurityPosition(ip.ZVelocity);
