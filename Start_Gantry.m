@@ -13,8 +13,10 @@ joy.Connect;
 
 fid=FIDUCIALS(1);
 petal = PETALCS(0, fiducial_1, fiducial_2);
+
+dispenser = DISPENSER;
 gluing = PetalDispensing(dispenser,gantry,petal);
-Feedback = dispenser.GetUltimus(cmd)
+Feedback = dispenser.GetUltimus('AU---')
 
 imaqreset;
 cam= CAMERA(5);
@@ -24,7 +26,7 @@ cam.PlotCenter(10);
 
 focus = FOCUS(gantry, cam,1);
 
-scanner = SCANCONTROL2950;
-scanner.Connect;
-laser = OPTONCDT2300;
-laser.SetupConnect;
+% scanner = SCANCONTROL2950;
+% scanner.Connect;
+% laser = OPTONCDT2300;
+% laser.SetupConnect;
