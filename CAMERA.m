@@ -1,4 +1,4 @@
-classdef CAMERA
+classdef CAMERA < handle
     %CAMERA Class that manage different cameras of out setup (input constructor required)
     %     old camera Gantry high resolution --> 1
     %     camera Gantry visual inspection --> 2
@@ -174,14 +174,64 @@ classdef CAMERA
         end
         
         %%  DispCam display camera video in a independent windows   %%
-        function DispCam(this)
-            figure('Name', 'Camera Display');
-            uicontrol('String', 'Close', 'Callback', 'close(gcf)');
+        function DispCam(this,n)% plotcenter)
+%             switch (nargin)
+%                 case 3
+%                     %center = true;
+%                 case 2
+%             
+%                 case 1
+%                     n=1;
+%                 otherwise
+%             end
+            if nargin == 2
+%                 figure(n)
+%                 pause
+            else
+%                 figure(1)
+                    n = 1;
+            end
+            fig2=figure(n);
+            fig2.Name='Camera Display';
+            fig2.Position = [1355 577 560 420];
+%             figure('Name', 'Camera Display');
+%             uicontrol('String', 'Close', 'Callback', 'close(gcf)');
+            uicontrol('Parent', fig2, 'String', 'Close', 'Callback', 'close(gcf)');
             vidRes = [this.ROIPos(3),this.ROIPos(4)];
             nBands = this.cam.NumberOfBands;
             hImage = image( zeros(vidRes(2), vidRes(1), nBands) );
             preview(this.cam, hImage);
+            
+%             if center
+%                 this.PlotCenter(n)
+%             end
         end
+        
+        function PlotCenter (this, n)
+            switch nargin
+                case '1'
+                    n = 1;
+% %                     break;
+                otherwise
+                    imagen = this.OneFrame;
+                    disp ("No hay imagen")
+            end
+                hold on
+                axis on
+                [x,y]=size(imagen);
+                center = [y/2, x/2];
+                center(1);
+                center(2);
+                
+                figure(n), plot(center(1), center(2), 'ro', 'MarkerSize', 200)%, 'LineWidth', 2);
+                figure(n), plot(center(1), center(2), 'r+', 'MarkerSize', 20)%, 'LineWidth', 2);
+                figure(n), plot(center(1), center(2), 'ro', 'MarkerSize', 20)%, 'LineWidth', 2);
+                figure(n), plot(center(1), center(2), 'ro', 'MarkerSize', 50)%, 'LineWidth', 2);
+                figure(n), plot(center(1), center(2), 'ro', 'MarkerSize', 150)%, 'LineWidth', 2);
+                figure(n), plot(center(1), center(2), 'ro', 'MarkerSize', 100)%, 'LineWidth', 2);
+        end
+        
+            
         
         %%  DispCamOff close the display of the camera   %%
         function DispCamOff(this)
