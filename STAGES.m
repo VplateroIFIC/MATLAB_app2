@@ -19,8 +19,8 @@ classdef STAGES < handle
     
     
     properties (Access=public,Constant)
-        X=1;
-        Y=0;
+        X=0;
+        Y=1;
         Z1=4;
         Z2=5;
         U=6;
@@ -258,15 +258,15 @@ classdef STAGES < handle
             % index position in positionVector array does not fit with the oficial number assigned to the stages. Take care!
             switch axis
                 case this.X
-                    value=positionVector(vectorX);
+                    value=positionVector(this.vectorX);
                 case this.Y
-                    value=positionVector(vectorY);
+                    value=positionVector(this.vectorY);
                 case this.Z1
-                    value=positionVector(vectorZ1);
+                    value=positionVector(this.vectorZ1);
                 case this.Z2
-                    value=positionVector(vectorZ2);
+                    value=positionVector(this.vectorZ2);
                 case this.U
-                    value=positionVector(vectorU);
+                    value=positionVector(this.vectorU);
             end
         end
         
@@ -275,12 +275,12 @@ classdef STAGES < handle
             % Arguments: object STAGES (this),axis int ()%
             % Returns: double array (x,y,rot,z1,z2,U)%
             
-            value (vectorX) = this.GetPosition(this.X);
-            value (vectorY) = this.GetPosition(this.Y);
+            value (this.vectorX) = this.GetPosition(this.X);
+            value (this.vectorY) = this.GetPosition(this.Y);
             value (3) = nan;
-            value (vectorZ1) = this.GetPosition(this.Z1);
-            value (vectorZ2) = this.GetPosition(this.Z2);
-            value (vectorU) = this.GetPosition(this.U);
+            value (this.vectorZ1) = this.GetPosition(this.Z1);
+            value (this.vectorZ2) = this.GetPosition(this.Z2);
+            value (this.vectorU) = this.GetPosition(this.U);
         end
         
         
@@ -319,19 +319,19 @@ classdef STAGES < handle
             RMS=ReadVariable(this.GantryObj,'RMS',this.bufferNoneLabel, this.apiNoneLabel, this.apiNoneLabel, this.apiNoneLabel,this.apiNoneLabel);
             switch axis
                 case this.X
-                    value=RMS(vectorX);
+                    value=RMS(this.vectorX);
 %                     value=ReadVariable(this.GantryObj,'RMS',this.xAxis,this.xAxis); % if error, tray send 0 (or ACSC_NONE) after GantryObj pointer
                 case this.Y
-                    value=RMS(vectorY);
+                    value=RMS(this.vectorY);
 %                     value=ReadVariable(this.GantryObj,'RMS',this.yAxis,this.yAxis);
                 case this.Z1
-                    value=RMS(vectorZ1);
+                    value=RMS(this.vectorZ1);
 %                     value=ReadVariable(this.GantryObj,'RMS',this.z1Axis,this.z1Axis);
                 case this.Z2
-                    value=RMS(vectorZ2);
+                    value=RMS(this.vectorZ2);
 %                     value=ReadVariable(this.GantryObj,'RMS',this.z1Axis,this.z2Axis);
                 case this.U
-                    value=RMS(vectorU);
+                    value=RMS(this.vectorU);
 %                     value=ReadVariable(this.GantryObj,'RMS',this.uAxis,this.uAxis);
             end
             
@@ -995,7 +995,9 @@ classdef STAGES < handle
             
             % Check if target position is a vector and has a properly
             % length
-            if ~isscalar(Position)
+            if isscalar(Position)
+                ip.Position(this.vectorX) = Position;
+            else 
                 check = size(Position);
                 ip.Position = Position;
                 if ~(check(1) == 1 && check(2) <= 6)   % If is a vector 1x6
@@ -1003,7 +1005,7 @@ classdef STAGES < handle
                     fprintf("\n ¡¡Invalid destination!! --> %d %d %d %d %d %d\n", ip.Position)
 
                 else
-                    ip.Position(check(2)+1:6) = nan
+                    ip.Position(check(2)+1:6) = nan;   % Value is nan for the rest of the vector
                 end
             end
             
