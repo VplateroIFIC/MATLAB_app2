@@ -62,6 +62,8 @@ classdef PetalDispensing < handle
             % present on the setup.
             % Returns: this object
             
+            addpath ('Dispensing_times');
+            
             % Preparing dispenser object
             this.dispenser = dispenser_obj;
             this.dispenser.Connect;
