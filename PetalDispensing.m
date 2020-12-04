@@ -23,10 +23,10 @@ classdef PetalDispensing < handle
         mLine34;
         qLine34;
         
-        xAxis;
-        yAxis;
-        z1Axis;
-        z2Axis;
+        X;
+        Y;
+        Z1;
+        Z2;
     end
     
     properties (Constant, Access = public)
@@ -77,10 +77,10 @@ classdef PetalDispensing < handle
             
             % Preparing gantry object
             this.gantry = gantry_obj;
-            this.xAxis = this.gantry.X;
-            this.yAxis = this.gantry.Y;
-            this.z1Axis = this.gantry.Z1;
-            this.z2Axis = this.gantry.Z2;
+            this.X = this.gantry.X;
+            this.Y = this.gantry.Y;
+            this.Z1 = this.gantry.Z1;
+            this.Z2 = this.gantry.Z2;
             if gantry_obj.IsConnected == 1
                 disp('Gantry connected succesfully')
             else
@@ -231,7 +231,7 @@ classdef PetalDispensing < handle
             % 1- Wait until all movements finished
             % 2- Move syringe to dispensing position and wait to arrive
             this.gantry.WaitForMotionAll();
-            this.gantry.MoveTo(this.z2Axis,this.zDispensingHeigh, this.zLowSpeed,1);
+            this.gantry.MoveTo(this.Z2,this.zDispensingHeigh, this.zLowSpeed,1);
         end
         
         function GPositionWaiting (this)
@@ -239,7 +239,7 @@ classdef PetalDispensing < handle
             % Arguments: none
             % Return NONE
             % Move syringe to the waiting position
-            this.gantry.MoveTo(this.z2Axis,this.zWaitingHeigh, this.zLowSpeed,1);
+            this.gantry.MoveTo(this.Z2,this.zWaitingHeigh, this.zLowSpeed,1);
         end
         
         function GoFiducial_Lower(this)

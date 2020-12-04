@@ -19,8 +19,8 @@ classdef STAGES < handle
     
     
     properties (Access=public,Constant)
-        X=0;
-        Y=1;
+        X=1;
+        Y=0;
         Z1=4;
         Z2=5;
         U=6;
