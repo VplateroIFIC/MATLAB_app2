@@ -1,4 +1,4 @@
-classdef JOYSTICK
+classdef JOYSTICK < handle
     %JOYSTICK Control over joystick device
     %   This class provide control over joystick device connected to Gantry
     
@@ -43,7 +43,7 @@ classdef JOYSTICK
         end
         end
         
-        function this = Connect(this)
+        function Connect(this)
             %Connect Connecting joystick
             % starting timer to manage the joystick input
         this.gantry.MotorEnableAll;     
@@ -59,10 +59,12 @@ classdef JOYSTICK
         this.JoystickIsReady=1;
         end
         
-        function this = Disconnect(this)
+        function Disconnect(this)
             %Disconnect Disconnect joystick
             % Stopping timer
         stop(this.t);
+        this.JoystickIsReady=0;
+        this.IsConnected = 0;
         end
         
         function joyControl(this,tobj,event)
