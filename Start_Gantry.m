@@ -11,7 +11,7 @@ gantry.MotorEnableAll;
 
 joy = JOYSTICK (gantry);
 joy.Connect;
-return
+% return
 fid=FIDUCIALS(1);
 petal = PETALCS(0, fiducial_1, fiducial_2);
 
