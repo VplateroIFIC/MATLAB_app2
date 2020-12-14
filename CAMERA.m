@@ -209,15 +209,17 @@ classdef CAMERA < handle
         
         function PlotCenter (this, n)
             switch nargin
-                case '1'
+                case 1
                     n = 1;
-% %                     break;
+                case 2
+                    
                 otherwise
-                    imagen = this.OneFrame;
-                    disp ("No hay imagen")
+                    disp ("Too many arguments")
+                    return
             end
-                hold on
-                axis on
+            hold on
+            axis on
+                imagen = this.OneFrame;
                 [x,y]=size(imagen);
                 center = [y/2, x/2];
                 center(1);

@@ -1,11 +1,11 @@
 
 %Script prepared to shutdown main gantry Setup functions
 
-joy = joy.Disconnect;
+joy.Disconnect;
 
-gantry.MotorDisableAll;
-gantry = gantry.Disconnect;
+% gantry.MotorDisableAll;
+gantry.Disconnect;
 
-cam = cam.Disconnect;
+cam.Disconnect;
 
 imaqreset

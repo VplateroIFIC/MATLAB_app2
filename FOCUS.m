@@ -2,10 +2,10 @@ classdef FOCUS
     %FOCUS focusing tools
     
     
-    properties (Access=private)
+    properties (Access=public)
         
         %AutoFocus
-        maxIter=10;
+        maxIter=20;
         FocusRange=0.2;
         velocity=2;
         threshold=0.02;
@@ -16,6 +16,7 @@ classdef FOCUS
         zAxis;
         gantry;
         cam;  
+        Iterations = 20;
     end
     
     methods
@@ -81,7 +82,7 @@ classdef FOCUS
             RoiWidth=this.RoiSize;
             RoiHeight=this.RoiSize;
             Z0=Zini;
-            image=cell(1,20);
+            image=cell(1,this.Iterations);
             
             % Setting counters and empty vector for the general loop%
             zCont=1;
@@ -90,13 +91,13 @@ classdef FOCUS
             ImCont=1;
             iteration=1;
             
-            while iteration<20
+            while iteration<this.Iterations
                 % Setting counters and empty vector for the sampling loop%
                 P0=Z0-R/2;
                 Pn=Z0+R/2;
                 z=P0;
-                FocusValue=zeros(1,20);
-                Z=zeros(1,20);
+                FocusValue=zeros(1,this.Iterations);
+                Z=zeros(1,this.Iterations);
                 delta=R/div;
                 samples=1;
                 while (samples<=div+1)
@@ -119,6 +120,7 @@ classdef FOCUS
                 end
                 %  Finding local optimal %
                 Z(Z==0)=[];
+                Zopt = NaN(1,this.Iterations);
                 FocusValue(FocusValue==0)=[];
                 focusAll{iteration}=FocusValue;
                 zAll{iteration}=Z;
@@ -136,7 +138,7 @@ classdef FOCUS
             
             this.cam.stopAdquisition;
             
-            if (iteration<10)
+            if (1<10)
                 % Fitting results to a quadratic polynomial (last 4 points) %
                 zAll=cell2mat(zAll);
                 FocusAll=cell2mat(focusAll);
@@ -153,6 +155,8 @@ classdef FOCUS
                 end
             else
                 disp('Maximum iterations number reached');
+                Zfinal = nan;
+                FocusAll=cell2mat(focusAll);
             end
             
             TotalTime=toc(total);

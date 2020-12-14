@@ -39,7 +39,7 @@ classdef STAGES < handle
         MoveLimitsL = [-500, -500, nan, -100, -100, nan]
     end
     
-    properties (Access=protected)
+    properties (Access=public)
         
         % General Properties %
         GantryType;
@@ -266,11 +266,11 @@ classdef STAGES < handle
                 case this.Y
                     value=positionVector(this.vectorY);
                 case this.Z1
-                    value=positionVector(this.vectorZ1);
+                    value=positionVector(5);
                 case this.Z2
-                    value=positionVector(this.vectorZ2);
+                    value=positionVector(6);
                 case this.U
-                    value=positionVector(this.vectorU);
+                    value=positionVector(7);
             end
         end
         
@@ -329,13 +329,13 @@ classdef STAGES < handle
                     value=RMS(this.vectorY);
 %                     value=ReadVariable(this.GantryObj,'RMS',this.yAxis,this.yAxis);
                 case this.Z1
-                    value=RMS(this.vectorZ1);
+                    value=RMS(5);
 %                     value=ReadVariable(this.GantryObj,'RMS',this.z1Axis,this.z1Axis);
                 case this.Z2
-                    value=RMS(this.vectorZ2);
+                    value=RMS(6);
 %                     value=ReadVariable(this.GantryObj,'RMS',this.z1Axis,this.z2Axis);
                 case this.U
-                    value=RMS(this.vectorU);
+                    value=RMS(7);
 %                     value=ReadVariable(this.GantryObj,'RMS',this.uAxis,this.uAxis);
             end
             
@@ -987,8 +987,9 @@ classdef STAGES < handle
             %              2- Then move to the desired Position
             
             %Check if Position is a numeric
+            disp(Position);
             if ~isnumeric(Position)
-                fprintf("\n\t Invalid destination: %s\n", Position)
+                fprintf("\n\t Invalid destination: %d\n", Position)
                 return
             end
             
@@ -1033,7 +1034,7 @@ classdef STAGES < handle
             end
             
             if (~isnan(ip.X))
-                ip.Position(this.vectorZ1) = ip.X;
+                ip.Position(this.vectorX) = ip.X;
             end
             if (~isnan(ip.Y))
                 ip.Position(this.vectorY) = ip.Y;

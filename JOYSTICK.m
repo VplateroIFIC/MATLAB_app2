@@ -6,7 +6,7 @@ classdef JOYSTICK < handle
   
     end
     properties (Access=protected)
-        JoystickIsReady=0;
+        IsConnected=0;
         gantry;
         t;
         threshold=0.1;
@@ -56,14 +56,13 @@ classdef JOYSTICK < handle
         this.t.StopFcn = {@this.stopAll};
         start(this.t);
         disp('Joystick is ready to be used')
-        this.JoystickIsReady=1;
+        this.IsConnected=1;
         end
         
         function Disconnect(this)
             %Disconnect Disconnect joystick
             % Stopping timer
         stop(this.t);
-        this.JoystickIsReady=0;
         this.IsConnected = 0;
         end
         
