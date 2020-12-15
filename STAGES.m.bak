@@ -18,11 +18,6 @@ classdef STAGES < handle
     % This class in under development, in case of bug or other question, please contact to Pablo León (pablo.leon@cern.ch)
     
     
-    properties (SetAccess = protected, GetAccess = public)
-        IsConnected = false;
-        CriticalError = false;
-    end
-    
     properties (Access=public,Constant)
         X=1;
         Y=0;
@@ -38,13 +33,13 @@ classdef STAGES < handle
         vectorZ2 = 5;
         vectorU = 6;
         
-        %% Defining movement limits to the gantry table
+        %Defining movement limits to the gantry table
         % [X,Y,nan,Z1,Z2,U]
         MoveLimitsH = [500, 500, nan, 100, 100, nan]
         MoveLimitsL = [-500, -500, nan, -100, -100, nan]
     end
     
-    properties (SetAccess = protected, GetAccess = public)
+    properties (Access=public)
         
         % General Properties %
         GantryType;
@@ -84,6 +79,9 @@ classdef STAGES < handle
         xyHighSpeed = 30;
         xyNominalSpeed = 10;
         DefaultTimeOut = 30000;         %Default time out 60 sec      
+    end
+    properties (Access=public)
+        IsConnected = 0;
     end
     
     
@@ -137,8 +135,8 @@ classdef STAGES < handle
         
         %% Connect  %%
         
-        function Connect(this)
-            % function Connect(this)
+        function  Connect(this)
+            % function  this = Connect(this)
             % Arguments: object STAGES %
             % Returns: none %
             switch this.GantryType

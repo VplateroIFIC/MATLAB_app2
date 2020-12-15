@@ -1,16 +1,12 @@
 
-
-classdef OWIS_STAGES < handle
+classdef OWIS_STAGES
+    %OWIS_STAGES Summary of this class goes here
+    %   Detailed explanation goes here
     
-%   CLASS TO CONTROL STAGES
-% 
-% this class provides calls to the functions that control de stages of the OWIS.
-%
-    
-    % This class in under development, in case of bug or other question, please contact to Pablo León (pablo.leon@cern.ch)
-    
+    %     properties (Access = public)
     properties (SetAccess = protected, GetAccess = public)
         IsConnected = false;
+        CriticalError = false;
     end
     
         %% Connection Properties  %%
@@ -27,19 +23,14 @@ classdef OWIS_STAGES < handle
         nAxis=int32(1);
         dPosF=30000.0;
         dDistance=10.0;
-        
-        %% Defining movement limits to the gantry table
-        % [X,Y,nan,Z1,nan,nan]
-        MoveLimitsH = [500, 500, nan, 100, nan, nan]
-        MoveLimitsL = [-500, -500, nan, -100, nan, nan]
     end
     
             %% Fixed properties for our OWIS controller  %%
     properties (Constant, Access = public)
         Index = 1;    %// PS-90 INDEX    %search for reference switch and release switch
-        X = 1.;
-        Y = 2.;
-        Z1 = 3.;
+        xAxis = 1.;
+        yAxis = 2.;
+        z1Axis = 3.;
         Axis = [1,2,3];
         AxisName = [{'X_axis'},{'Y_axis'},{'Z_axis'}];
         units = 1;
@@ -86,10 +77,7 @@ classdef OWIS_STAGES < handle
     methods
         %% Connect  %%
         
-        function Connect(this)
-            % function Connect(this)
-            % Arguments: object OWIS_STAGES %
-            % Returns: none %
+        function this = Connect (this)
             if libisloaded('ps90')
                 disp ('PS90 library is already loaded')
             else
@@ -169,7 +157,7 @@ classdef OWIS_STAGES < handle
         
         %% Disconnect%%    
         
-        function Disconnect(this)
+        function this = Disconnect(this)
             if this.IsConnected  == 0
                 disp ('Already disconnected. Nothing to do.');
                 return
@@ -576,7 +564,7 @@ classdef OWIS_STAGES < handle
             % Returns: none %
             
             velocity = -velocity;
-            axis = this.X;
+            axis = this.xAxis;
             
             %Limiting Axis velocity
             if velocity > this.max_velocity(axis)
@@ -601,7 +589,7 @@ classdef OWIS_STAGES < handle
             %function  FreeRunX(this,velocity)
             % Arguments: object OWIS (this),double velocity%
             % Returns: none %
-            axis = this.Y;
+            axis = this.yAxis;
             
             %Limiting Axis velocity
             if velocity > this.max_velocity(axis)
@@ -626,7 +614,7 @@ classdef OWIS_STAGES < handle
             %function  FreeRunX(this,velocity)
             % Arguments: object OWIS (this),double velocity%
             % Returns: none %
-            axis = this.Z1;
+            axis = this.z1Axis;
             
             %Limiting Axis velocity
             if velocity > this.max_velocity(axis)
