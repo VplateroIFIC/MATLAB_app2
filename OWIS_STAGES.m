@@ -597,7 +597,7 @@ classdef OWIS_STAGES
                 case 3
                     
                 case 4
-                    time = -1;  %If no time is especified it will wait infinite
+                    time = this.DefaultTimeOut;
                 otherwise
                     fprintf ('Invalid number of arguments: (obj, axis, delta)\n');
             end
