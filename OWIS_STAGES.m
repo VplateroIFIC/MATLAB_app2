@@ -28,10 +28,19 @@ classdef OWIS_STAGES < handle
         dPosF=30000.0;
         dDistance=10.0;
         
+    end
+    properties (Constant, Access = public)
         %% Defining movement limits to the gantry table
         % [X,Y,nan,Z1,nan,nan]
         MoveLimitsH = [500, 500, nan, 100, nan, nan]
         MoveLimitsL = [-500, -500, nan, -100, nan, nan]
+        DefaultTimeOut = 60;    %60 seconds
+        
+        vectorX = 1;
+        vectorY = 2;
+        vectorZ1 = 4;
+        vectorZ2 = 5;
+        vectorU = 6;
     end
     
             %% Fixed properties for our OWIS controller  %%
@@ -292,7 +301,18 @@ classdef OWIS_STAGES < handle
         
         %% Getposition %%
         
-        function Position = GetAllPositions(this)
+        function value = GetPositionAll(this)
+            % function  value = GetPosition(this,axis)
+            % Arguments: object STAGES (this),axis int ()%
+            % Returns: double array (x,y,rot,z1,z2)%
+            
+            value (this.vectorX) = this.GetPosition(this.X);
+            value (this.vectorY) = this.GetPosition(this.Y);
+            value (3) = nan;
+            value (this.vectorZ1) = this.GetPosition(this.Z1);
+            value (this.vectorZ2) = nan;
+            value (this.vectorU) = nan;
+
             Position = [999.9, 999.9, 999.9];
             for i=1:3
                 Position(i) = GetPosition(this,i);
@@ -389,7 +409,7 @@ classdef OWIS_STAGES < handle
         
         %% MotorEnableAll %% Enable all motors
         % function  MotorEnableAll(this)
-        % Arguments: object OWIS (this), axis int array%
+        % Arguments: object OWIS (this)%
         % Returns: none %
         
         function MotorEnableAll(this)
@@ -429,11 +449,6 @@ classdef OWIS_STAGES < handle
             % function  MoveBy(this,axis,delta)  Default axis velocity
             % Arguments: object OWIS (this), axis int, delta double, velocity double%
             % Returns: none %
-            
-            if this.CriticalError == true
-                fprintf ('\n Critital Error in %s', this.AxisName{axis});
-                return;
-            end
             
             if calllib ('ps90', 'PS90_GetMoveState', this.Index, axis) ~= 0
                 this.MotionStop(axis);        % If axis is currently moving stop it first
@@ -499,6 +514,12 @@ classdef OWIS_STAGES < handle
             State = calllib ('ps90', 'PS90_GetAxisActive', this.Index, axis);
             error = calllib ('ps90', 'PS90_GetReadError', this.Index);
             this.showError(error);
+            switch State
+                case 0
+                    fprintf('Axis %s is not active ->', this.AxisName{axis});
+                case 1
+                    fprintf('Axis %s not active ->', this.AxisName{axis});
+            end
         end
         
         %% Home %%
@@ -522,6 +543,16 @@ classdef OWIS_STAGES < handle
             this.showError(error);
         end
         
+        function  HomeAll(this)
+            % function  HomeAll(this) This function makes home on all axis
+            % Arguments: object STAGES %
+            % Returns: none %
+      
+            this.Home(this.X);
+            this.Home(this.Y);
+            this.Home(this.Z1);
+        end
+        
         %% WaitForMotion %% wait until movement is complete%%
         
         function  WaitForMotion(this,axis,time)
@@ -533,18 +564,48 @@ classdef OWIS_STAGES < handle
                 case 3
                     
                 case 4
-                    time = -1;  %If no time is especified it will wait infinite
+                    time = this.DefaultTimeOut;  %If no time is especified it will wait infinite
                 otherwise
-                    fprintf ('Invalid number of arguments: (obj, axis, delta)\n');
+                    disp('Improper number of arguments ');
+                    return
             end
             
-            tic
-            while toc >= time
+            timeout = tic;
+            while toc(timeout) >= time
                 if (calllib ('ps90', 'PS90_GetMoveState', this.Index, axis) == 0)
                     return
                 end
             end
-            disp ('Movement finished');
+            if toc(timeout) >= time
+                disp ('Timeout reached');
+            end
+        end
+        
+                function  WaitForMotionAll(this,time)
+            %function  WaitForMotionAll(this,axis,time)
+            % Arguments: object ALIO (this),time inn (if -1, wait infinite)%
+            % Returns: none %
+            
+            switch nargin
+                case 2
+                    
+                case 1
+                    time = this.DefaultTimeOut;
+                otherwise
+                    disp('\n Improper number of arguments ');
+                    return
+            end
+            
+            switch this.GantryType
+                case 0
+                    %insert here WaitForMotion with AEROTECH gantry %
+                case 1
+                    this.WaitForMotion(this.xAxis,time);
+                    this.WaitForMotion(this.yAxis,time);
+                    this.WaitForMotion(this.z1Axis,time);
+                    this.WaitForMotion(this.z2Axis,time);
+                    this.WaitForMotion(this.uAxis,time);
+            end
         end
         
         %% FreeSwitch
@@ -585,10 +646,6 @@ classdef OWIS_STAGES < handle
                 velocity = this.max_velocity_neg(axis);    
             end
             
-            if this.CriticalError == true
-                fprintf ('\n Critital Error in %s', this.AxisName{axis});
-                return;
-            end
             fprintf ('Manual movement of %s at %f mm/s', this.AxisName{axis}, velocity);
             error = calllib ('ps90', 'PS90_SetFEx', this.Index, axis, velocity);
             if error == 0
@@ -610,10 +667,6 @@ classdef OWIS_STAGES < handle
                 velocity = this.max_velocity_neg(axis);    
             end
             
-            if this.CriticalError == true
-                fprintf ('\n Critital Error in %s', this.AxisName{axis});
-                return;
-            end
             fprintf ('Manual movement of %s at %f mm/s', this.AxisName{axis}, velocity);
             error = calllib ('ps90', 'PS90_SetFEx', this.Index, axis, velocity);
             if error == 0
@@ -636,10 +689,6 @@ classdef OWIS_STAGES < handle
             end
 %             velocity = velocity / 10;      %Reducing Z axis velocity
 
-            if this.CriticalError == true
-                fprintf ('\n Critital Error in %s', this.AxisName{axis});
-                return;
-            end
             fprintf ('Manual movement of %s at %f mm/s', this.AxisName{axis}, velocity);
             error = calllib ('ps90', 'PS90_SetFEx', this.Index, axis, velocity);
             if error == 0
