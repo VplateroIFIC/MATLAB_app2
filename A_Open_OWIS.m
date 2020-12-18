@@ -1,10 +1,10 @@
-addpath('C:\Users\leon0\Documents\Matlab_app\owis_lib\x64')
-eje = OWIS_STAGES;
-eje = eje.INIT;
-joy = JOYSTICK_OWIS(eje);
-joy = joy.Connect;
+% faddpath('owis_lib\x64')
+gantry = OWIS_STAGES;
+gantry.INIT;
+joy = JOYSTICK(gantry);
+joy.Connect;
 cam=CAMERA(4);
-cam=cam.Connect;
+cam.Connect;
 cam.DispCam
-focus=FOCUS(eje,cam,2);
-fid=FICUCIALS(2);
+focus=FOCUS(gantry,cam,2);
+fid=FIDUCIALS(2);

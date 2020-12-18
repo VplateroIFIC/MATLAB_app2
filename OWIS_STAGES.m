@@ -15,7 +15,6 @@ classdef OWIS_STAGES < handle
     
         %% Connection Properties  %%
     properties (Constant, Access = public)
-        Type = 'OWIS';
         OWIS = 1;
         Interface = 0;      % 0-> ComPort or USB; 1-> NET
         nComPort=int32(3);  % 0(COM0), 1(COM1), ... 255(COM255), default: 1
@@ -27,14 +26,13 @@ classdef OWIS_STAGES < handle
         nAxis=int32(1);
         dPosF=30000.0;
         dDistance=10.0;
-        
     end
     
     properties (Constant, Access = public)
         %% Defining movement limits to the gantry table
         % [X,Y,nan,Z1,nan,nan]
-        MoveLimitsH = [500, 500, nan, 100, nan, nan]
-        MoveLimitsL = [-500, -500, nan, -100, nan, nan]
+        MoveLimitsH = [400, 300, nan, 50, nan, nan]
+        MoveLimitsL = [0, 0, nan, 0, nan, nan]
         
         vectorX = 1;
         vectorY = 2;
@@ -50,7 +48,7 @@ classdef OWIS_STAGES < handle
         zNominalSpeed = 5;
         xyHighSpeed = 30;
         xyNominalSpeed = 10;          % 10mm/sec
-        DefaultTimeOut = 120;         %Default time out 120 sec     
+        DefaultTimeOut = 60;         %Default time out 60 sec     
         
     end
     
@@ -60,6 +58,8 @@ classdef OWIS_STAGES < handle
         X = 1.;
         Y = 2.;
         Z1 = 3.;
+        Z2 = nan;
+        U = nan;
         Axis = [1,2,3];
         AxisName = [{'X_axis'},{'Y_axis'},{'Z_axis'}];
         units = 1;
@@ -350,7 +350,7 @@ classdef OWIS_STAGES < handle
         
         %% Initialization %%
         
-        function this = INIT(this)
+        function INIT(this)
             if libisloaded('ps90')
                 disp ('PS90 library is already loaded')
             else
@@ -360,7 +360,7 @@ classdef OWIS_STAGES < handle
             if  this.IsConnected == true
                 disp('Already Connected');
             else
-                this = this.Connect;
+                this.Connect;
             end
             
             for i=1:3
@@ -549,7 +549,8 @@ classdef OWIS_STAGES < handle
                 this.showError(error);
             end
             
-            this.WaitForMotion(axis,-1);
+            this.WaitForMotion(axis);
+            pause(10)
             error = calllib ('ps90', 'PS90_SetPositionEx', this.Index, axis, 0);
             this.showError(error);
         end
@@ -574,7 +575,7 @@ classdef OWIS_STAGES < handle
             switch nargin
                 case 3
                     
-                case 4
+                case 2
                     time = this.DefaultTimeOut;  %If no time is especified it will wait infinite
                 otherwise
                     disp('Improper number of arguments ');
@@ -582,7 +583,7 @@ classdef OWIS_STAGES < handle
             end
             
             timeout = tic;
-            while toc(timeout) >= time
+            while toc(timeout) <= time
                 if (calllib ('ps90', 'PS90_GetMoveState', this.Index, axis) == 0)
                     return
                 end
