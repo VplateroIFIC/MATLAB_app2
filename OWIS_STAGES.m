@@ -29,18 +29,29 @@ classdef OWIS_STAGES < handle
         dDistance=10.0;
         
     end
+    
     properties (Constant, Access = public)
         %% Defining movement limits to the gantry table
         % [X,Y,nan,Z1,nan,nan]
         MoveLimitsH = [500, 500, nan, 100, nan, nan]
         MoveLimitsL = [-500, -500, nan, -100, nan, nan]
-        DefaultTimeOut = 60;    %60 seconds
         
         vectorX = 1;
         vectorY = 2;
         vectorZ1 = 4;
         vectorZ2 = 5;
         vectorU = 6;
+        
+        % Other movements
+        
+        zSecureHeigh = 20;              % Min Z height for fast movements
+        zNominalHeigh = 0;              % Nominal height
+        zHighSpeed = 10;
+        zNominalSpeed = 5;
+        xyHighSpeed = 30;
+        xyNominalSpeed = 10;          % 10mm/sec
+        DefaultTimeOut = 120;         %Default time out 120 sec     
+        
     end
     
             %% Fixed properties for our OWIS controller  %%
@@ -695,6 +706,143 @@ classdef OWIS_STAGES < handle
                 error = calllib ('ps90', 'PS90_GoVel', this.Index, axis);
             end
             this.showError(error);
+        end
+        
+                %% Moving improvements %%
+        
+        function zSecurityPosition(this, velocity)
+            % function zSecurityPosition (this)
+            % Arguments: none
+            % Return: none
+            % 1- Move all Z axis to the defined safe height
+            % 2- Wait until movement finishes
+            if nargin ==1
+                velocity = this.zHighSpeed;
+            end
+            
+            if (this.GetPosition(this.Z1) <= this.zSecureHeigh)
+                this.MoveTo(this.Z1, this.zSecureHeigh,velocity);
+            end
+            if (this.GetPosition(this.Z2) <= this.zSecureHeigh)
+                this.MoveTo(this.Z2, this.zSecureHeigh,velocity);
+            end
+            this.WaitForMotionAll(this.DefaultTimeOut);
+        end
+        
+        function MoveToFast(this, X, Y, wait)
+            % function MoveToFast (this, X, Y) % Old function. Use Move2Fast.
+            % Arguments: X double, Y double, wait int
+            % (0-> Wait until movement finishes, 1-> No wait
+            % Return: none
+            % Operation:   1- Move all Z axis to a safe height and wait finished
+            %              2- Then move X and Y axis to the desired zone
+            
+            switch nargin
+                case 4
+                    
+                case 3
+                    wait = 0;
+                otherwise
+                    disp('\n Improper number of arguments ');
+                    return
+            end
+            
+            this.zSecurityPosition();
+            this.MoveTo(this.X, X, this.xyHighSpeed);
+            this.MoveTo(this.Y, Y, this.xyHighSpeed);
+            if wait == 1
+                this.WaitForMotionAll();
+            end
+        end
+        
+        function ip = Move2Fast(this, Position, varargin)
+            % function Move2Fast (this, Position)
+            % Arguments: Position double (vector or scalar)
+            % Optional Arguments: Velocity, ZVelocity, Height, Wait, X, Y,
+            % Z1, Z2, U
+            % Optional Arguments override position and default settings
+            % Return: Selected arguments
+            % Operation:   1- Move all Z axis to a safe height and wait finished
+            %              2- Then move to the desired Position
+            
+            %Check if Position is a numeric
+            disp(Position);
+            if ~isnumeric(Position)
+                fprintf("\n\t Invalid destination: %d\n", Position)
+                return
+            end
+            
+            %Parsing variable inputs
+            p = inputParser();
+            p.KeepUnmatched = true;
+            p.CaseSensitive = false;
+            p.StructExpand  = false;
+            p.PartialMatching = true;
+            
+            addParameter (p, 'Position' , [nan, nan, nan, nan, nan, nan])
+            addParameter (p, 'Velocity' , this.xyHighSpeed)
+            addParameter (p, 'ZVelocity' , this.zHighSpeed)
+            addParameter (p, 'Height'   , this.zSecureHeigh)
+            addParameter (p, 'Wait'     , false)
+            addParameter (p, 'X'        , nan)
+            addParameter (p, 'Y'        , nan)
+            addParameter (p, 'Z1'       , nan)
+            addParameter (p, 'Z2'       , nan)
+            addParameter (p, 'U'        , nan)
+            
+            
+            parse( p, varargin{:} )
+            ip = p.Results;
+            
+            % Check if target position is vector or scalar
+            % If target position is scalar it will be X axis
+
+            if isscalar(Position)
+                ip.Position(this.vectorX) = Position;
+            else 
+                check = size(Position);
+                ip.Position = Position;
+                if ~(check(1) == 1 && check(2) <= 6) 
+                    % If position vector is larger than 1x6
+                    fprintf("\n ¡¡Invalid destination!! --> %d %d %d %d %d %d\n", ip.Position)
+                else
+                    % Fill the position vector with nan values
+                    % until size 1x6
+                    ip.Position(check(2)+1:6) = nan; 
+                end
+            end
+            
+            if (~isnan(ip.X))
+                ip.Position(this.vectorX) = ip.X;
+            end
+            if (~isnan(ip.Y))
+                ip.Position(this.vectorY) = ip.Y;
+            end
+            if (~isnan(ip.Z1))
+                ip.Position(this.vectorZ1) = ip.Z1;
+            end
+            if (~isnan(ip.Z2))
+                ip.Position(this.vectorZ2) = ip.Z2;
+            end
+            if (~isnan(ip.U))
+                ip.Position(this.vectorU) = ip.U;
+            end      
+ 
+            fprintf("\n Posicición de destino -->(%d %d %d %d %d %d)\n", ip.Position(1), ip.Position(2), ip.Position(3), ip.Position(4), ip.Position(5), ip.Position(6))
+                
+            this.zSecurityPosition(ip.ZVelocity);
+            this.MoveTo(this.U,ip.Position(this.vectorU),ip.ZVelocity)
+            this.MoveTo(this.X,ip.Position(this.vectorX),ip.Velocity)
+            this.MoveTo(this.Y,ip.Position(this.vectorY),ip.Velocity)
+            this.WaitForMotionAll();
+            
+            this.MoveTo(this.Z1,ip.Position(this.vectorZ1),this.zNominalSpeed)
+            this.MoveTo(this.Z2,ip.Position(this.vectorZ2),this.zNominalSpeed)
+            
+            if ip.Wait 
+                disp("Waiting for motion finish")
+                this.WaitForMotionAll();
+            end
         end
     end
 end
