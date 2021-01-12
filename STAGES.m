@@ -979,7 +979,7 @@ classdef STAGES < handle
         end
         
         function ip = Move2Fast(this, Position, varargin)
-            % function Move2Fast (this, Position)
+            % function Move2Fast (this, Position, varargin)
             % Arguments: Position double (vector or scalar)
             % Optional Arguments: Velocity, ZVelocity, Height, Wait, X, Y,
             % Z1, Z2, U

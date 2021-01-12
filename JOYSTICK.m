@@ -49,6 +49,11 @@ classdef JOYSTICK < handle
         end
         end
         
+        function delete(t)
+            fclose(obj.FileID);
+            stop(this.t);
+        end
+        
         function Connect(this)
             %Connect Connecting joystick
             % starting timer to manage the joystick input
