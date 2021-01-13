@@ -73,10 +73,6 @@ classdef LOADING < handle
             
             % Take one fiducial position
 %             [x,y] = getpts;
-%             x = 1.7120e+03;
-%             y = 674.6825;
-            x = 1.0e+03 * 1.5840 
-            y = 1.0e+03 * 0.6942
             this.cam.DispCamOff
             this.Fid_IC{n} = [x,y];
             this.Fid_img{n} = this.cam.OneFrame;
@@ -100,9 +96,7 @@ classdef LOADING < handle
 %             R = [cosd(angle),-sind(angle);sind(angle),cosd(angle)];
             
             R = [0.0168, -0.9999 ; 0.9999, 0.0168];
-            img = this.cam.OneFrame;
-            center = size(img)/2;
-%             center = size(this.Fid_img{1})/2;
+            center = size(this.Fid_img{1})/2;
             %%Invertimos X-Y
             centerx = center(2);
             centery = center(1);
