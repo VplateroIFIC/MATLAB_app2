@@ -22,6 +22,21 @@ classdef DISPENSER < handle
     end
     
     methods
+        
+        function this = DISPENSER (nComport)
+            switch nargin
+                case 0
+                    fprintf ('\n Using default port: %s', this.ComPort);
+                case 1
+                    this.ComPort = nComport;
+                otherwise
+                    fprintf ('Invalid number of arguments: (obj, axis, delta)\n');
+            end
+        end
+        
+        function delete (s1)
+            delete(s1)
+        end
         function this = Connect(this)
             %Connect Connection with the dispenser device
             %   this function open the serial port and inizializate the glue dispenser.
@@ -31,7 +46,7 @@ classdef DISPENSER < handle
             %   Dispensing Pressure: 50
             %   Dispensing time window: 1 s
             %   Dispensing vacuum: 0.5
-            delete(instrfindall);   %closing all ports
+%             delete(instrfindall);   %closing all ports
             
             this.s1 = serial(this.ComPort,'BaudRate',115200,'DataBits',8,'Terminator','CR','BytesAvailableFcnMode','byte'); %creating serial port object
 %             set(this.s1, 'BaudRate', 115200);          % set BaudRate to 115200
@@ -60,7 +75,6 @@ classdef DISPENSER < handle
         
         
         function error = SetUltimus(this,command)
-            
             
             % SetUltimus Download commands to Ultimus
             % input1: DISPENSER object

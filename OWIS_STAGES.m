@@ -104,24 +104,92 @@ classdef OWIS_STAGES < handle
     end
     
     methods
-        %% Connect  %%
+         %% CONSTRUCTOR %%
         
-        function Connect(this)
-            % function Connect(this)
-            % Arguments: object OWIS_STAGES %
-            % Returns: none %
+        function this = OWIS_STAGES()
             if libisloaded('ps90')
                 disp ('PS90 library is already loaded')
             else
                 disp ('Loading PS90 library')
                 loadlibrary('ps90','ps90.h')
             end
+        end
+        
+        function delete(this)
+            this.Disconnect;
+        end
+        
+        %% Connect  %%
+        
+        function Connect(this)
+            % function Connect(this)
+            % Arguments: object OWIS_STAGES %
+            % Returns: none %
+            
             error = calllib('ps90', 'PS90_Connect', this.Index, this.Interface, this.nComPort, this.Baud, this.Handshake, this.Parity, this.dataBits, this.stopBits);
             this.ConnectError(error);
             if error == 0
                 this.IsConnected = 1;
             end
         end
+        
+                %% Initialization %%
+        
+        function INIT(this)
+%             if libisloaded('ps90')
+%                 disp ('PS90 library is already loaded')
+%             else
+%                 disp ('Loading PS90 library')
+%                 loadlibrary('ps90','ps90.h')
+%             end
+            if  this.IsConnected == true
+                disp('Already Connected');
+            else
+                this.Connect;
+            end
+            
+            for i=1:3
+                fprintf('Setting %s -> ', this.AxisName{i});
+                error = calllib('ps90', 'PS90_SetMotorType', this.Index, this.Axis(i), this.motor_type(i));
+                error = error + calllib('ps90', 'PS90_SetLimitSwitch', this.Index, this.Axis(i),this.limit_switch(i));
+                error = error + calllib('ps90', 'PS90_SetLimitSwitchMode', this.Index, this.Axis(i),this.limit_switch_mode(i));
+                error = error + calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axis(i), this.ref_switch(i));
+                error = error + calllib('ps90', 'PS90_SetRefSwitchMode', this.Index, this.Axis(i), this.ref_switch_mode(i));
+                error = error + calllib('ps90', 'PS90_SetSampleTime', this.Index, this.Axis(i), this.sample_time(i));
+                error = error + calllib('ps90', 'PS90_SetKP', this.Index, this.Axis(i), this.KP(i));
+                error = error + calllib('ps90', 'PS90_SetKI', this.Index, this.Axis(i), this.KI(i));
+                error = error + calllib('ps90', 'PS90_SetKD', this.Index, this.Axis(i), this.KD(i));
+                error = error + calllib('ps90', 'PS90_SetDTime', this.Index, this.Axis(i), this.DTime(i));
+                error = error + calllib('ps90', 'PS90_SetILimit', this.Index, this.Axis(i), this.ILimit(i));
+                error = error + calllib('ps90', 'PS90_SetTargetWindow', this.Index, this.Axis(i), this.target_window(i));
+                error = error + calllib('ps90', 'PS90_SetInPosMode', this.Index, this.Axis(i), this.in_pos_mode(i));
+                error = error + calllib('ps90', 'PS90_SetCurrentLevel', this.Index, this.Axis(i), this.current_level(i));
+                error = error + calllib('ps90', 'PS90_SetStageAttributes', this.Index, this.Axis(i), this.pitch(1), this.increments_per_rev(1), this.gear_reduction_ratio(i));
+                error = error + calllib('ps90', 'PS90_SetCalcResol', this.Index, this.Axis(i), this.res_motor(i));
+                error = error + calllib('ps90', 'PS90_SetMsysResol', this.Index, this.Axis(i), this.lin_res(i));
+                error = error + calllib('ps90', 'PS90_SetTargetMode', this.Index, this.Axis(i), this.ini_target_mode(i));
+                error = error + calllib('ps90', 'PS90_SetAccelEx', this.Index, this.Axis(i), this.acc(i));
+                error = error + calllib('ps90', 'PS90_SetDecelEx', this.Index, this.Axis(i), this.dacc(i));
+                error = error + calllib('ps90', 'PS90_SetJerk', this.Index, this.Axis(i), this.jacc(i));
+                error = error + calllib('ps90', 'PS90_SetRefDecelEx', this.Index, this.Axis(i), this.ref_dacc(i));
+                error = error + calllib('ps90', 'PS90_SetVel', this.Index, this.Axis(i), this.vel(i));
+                error = error + calllib('ps90', 'PS90_SetPosFEx', this.Index, this.Axis(i), this.pos_vel(i));
+                error = error + calllib('ps90', 'PS90_SetSlowRefFEx', this.Index, this.Axis(i), this.ref_vel_slow(i));
+                error = error + calllib('ps90', 'PS90_SetFastRefFEx', this.Index, this.Axis(i), this.ref_vel_fast(i));
+%                 error = error + calllib('ps90', 'PS90_SetFreeVel', this.Index, this.Axis(i), this.free_vel(i));
+                error = error + calllib('ps90', 'PS90_SetFreeFEx', this.Index, this.Axis(i), this.free_vel_FEx(i));
+                error = error + calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axis(i), this.ref_switch(i));
+                if error == 0           %There are no error in all axis
+                    fprintf('OK\n');
+                    this.MotorEnable(i);
+                    this.GetPosition(i);
+                else
+                    this.showError (error);
+                end
+            end
+            this.MotorEnableAll;
+        end
+        
         
         %% Showing errors  %%
         
@@ -346,63 +414,6 @@ classdef OWIS_STAGES < handle
             end            
 
             return
-        end
-        
-        %% Initialization %%
-        
-        function INIT(this)
-            if libisloaded('ps90')
-                disp ('PS90 library is already loaded')
-            else
-                disp ('Loading PS90 library')
-                loadlibrary('ps90','ps90.h')
-            end
-            if  this.IsConnected == true
-                disp('Already Connected');
-            else
-                this.Connect;
-            end
-            
-            for i=1:3
-                fprintf('Setting %s -> ', this.AxisName{i});
-                error = calllib('ps90', 'PS90_SetMotorType', this.Index, this.Axis(i), this.motor_type(i));
-                error = error + calllib('ps90', 'PS90_SetLimitSwitch', this.Index, this.Axis(i),this.limit_switch(i));
-                error = error + calllib('ps90', 'PS90_SetLimitSwitchMode', this.Index, this.Axis(i),this.limit_switch_mode(i));
-                error = error + calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axis(i), this.ref_switch(i));
-                error = error + calllib('ps90', 'PS90_SetRefSwitchMode', this.Index, this.Axis(i), this.ref_switch_mode(i));
-                error = error + calllib('ps90', 'PS90_SetSampleTime', this.Index, this.Axis(i), this.sample_time(i));
-                error = error + calllib('ps90', 'PS90_SetKP', this.Index, this.Axis(i), this.KP(i));
-                error = error + calllib('ps90', 'PS90_SetKI', this.Index, this.Axis(i), this.KI(i));
-                error = error + calllib('ps90', 'PS90_SetKD', this.Index, this.Axis(i), this.KD(i));
-                error = error + calllib('ps90', 'PS90_SetDTime', this.Index, this.Axis(i), this.DTime(i));
-                error = error + calllib('ps90', 'PS90_SetILimit', this.Index, this.Axis(i), this.ILimit(i));
-                error = error + calllib('ps90', 'PS90_SetTargetWindow', this.Index, this.Axis(i), this.target_window(i));
-                error = error + calllib('ps90', 'PS90_SetInPosMode', this.Index, this.Axis(i), this.in_pos_mode(i));
-                error = error + calllib('ps90', 'PS90_SetCurrentLevel', this.Index, this.Axis(i), this.current_level(i));
-                error = error + calllib('ps90', 'PS90_SetStageAttributes', this.Index, this.Axis(i), this.pitch(1), this.increments_per_rev(1), this.gear_reduction_ratio(i));
-                error = error + calllib('ps90', 'PS90_SetCalcResol', this.Index, this.Axis(i), this.res_motor(i));
-                error = error + calllib('ps90', 'PS90_SetMsysResol', this.Index, this.Axis(i), this.lin_res(i));
-                error = error + calllib('ps90', 'PS90_SetTargetMode', this.Index, this.Axis(i), this.ini_target_mode(i));
-                error = error + calllib('ps90', 'PS90_SetAccelEx', this.Index, this.Axis(i), this.acc(i));
-                error = error + calllib('ps90', 'PS90_SetDecelEx', this.Index, this.Axis(i), this.dacc(i));
-                error = error + calllib('ps90', 'PS90_SetJerk', this.Index, this.Axis(i), this.jacc(i));
-                error = error + calllib('ps90', 'PS90_SetRefDecelEx', this.Index, this.Axis(i), this.ref_dacc(i));
-                error = error + calllib('ps90', 'PS90_SetVel', this.Index, this.Axis(i), this.vel(i));
-                error = error + calllib('ps90', 'PS90_SetPosFEx', this.Index, this.Axis(i), this.pos_vel(i));
-                error = error + calllib('ps90', 'PS90_SetSlowRefFEx', this.Index, this.Axis(i), this.ref_vel_slow(i));
-                error = error + calllib('ps90', 'PS90_SetFastRefFEx', this.Index, this.Axis(i), this.ref_vel_fast(i));
-%                 error = error + calllib('ps90', 'PS90_SetFreeVel', this.Index, this.Axis(i), this.free_vel(i));
-                error = error + calllib('ps90', 'PS90_SetFreeFEx', this.Index, this.Axis(i), this.free_vel_FEx(i));
-                error = error + calllib('ps90', 'PS90_SetRefSwitch', this.Index, this.Axis(i), this.ref_switch(i));
-                if error == 0           %There are no error in all axis
-                    fprintf('OK\n');
-                    this.MotorEnable(i);
-                    this.GetPosition(i);
-                else
-                    this.showError (error);
-                end
-            end
-            this.MotorEnableAll;
         end
         
         %% MotorEnable %% Enable 1 motor %%
