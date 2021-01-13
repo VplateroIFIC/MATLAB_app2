@@ -264,15 +264,15 @@ classdef STAGES < handle
             % index position in positionVector array does not fit with the oficial number assigned to the stages. Take care!
             switch axis
                 case this.X
-                    value=positionVector(this.vectorX);
+                    value=positionVector(this.X + 1);
                 case this.Y
-                    value=positionVector(this.vectorY);
+                    value=positionVector(this.Y + 1);
                 case this.Z1
-                    value=positionVector(5);
+                    value=positionVector(this.Z1 + 1);
                 case this.Z2
-                    value=positionVector(6);
+                    value=positionVector(this.Z2 + 1);
                 case this.U
-                    value=positionVector(7);
+                    value=positionVector(this.U + 1);
             end
         end
         
