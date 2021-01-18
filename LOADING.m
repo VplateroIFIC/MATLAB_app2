@@ -29,7 +29,7 @@ classdef LOADING < handle
         function this = LOADING(setup,camera)
             %UNTITLED Construct an instance of this class
             %   Detailed explanation goes here
-            addpath("./Loading_config/")
+%             addpath("./Loading_config/")
             this.fid=FIDUCIALS(1);
             this.gantry = setup;
             this.cam = camera;
@@ -72,11 +72,13 @@ classdef LOADING < handle
             pause
             
             % Take one fiducial position
-%             [x,y] = getpts;
+            [x,y] = getpts;
 %             x = 1.7120e+03;
 %             y = 674.6825;
-            x = 1.0e+03 * 1.5840 
-            y = 1.0e+03 * 0.6942
+%             x = 1.0e+03 * 1.5840 
+%             y = 1.0e+03 * 0.6942
+%             x = 470.5000;
+%             y = 875.5000;
             this.cam.DispCamOff
             this.Fid_IC{n} = [x,y];
             this.Fid_img{n} = this.cam.OneFrame;
@@ -276,6 +278,92 @@ classdef LOADING < handle
                 this.Fid_IC{n} = [x,y];
                 this.cam.DispCamOff;
             end
+            
+            if (ip.Center)
+                                
+                figure(n), imshow(this.Fid_img{n});
+                hold on
+                axis on
+                [x,y]=size(this.Fid_img{n});
+%                 center(1) = n/2;
+%                 center(2) = m/2;
+                center = [y/2, x/2];
+                center(1)
+                center(2)
+                
+                figure(n), plot(center(1), center(2), 'ro', 'MarkerSize', 200)%, 'LineWidth', 2);
+                figure(n), plot(center(1), center(2), 'r+', 'MarkerSize', 20)%, 'LineWidth', 2);
+                figure(n), plot(center(1), center(2), 'ro', 'MarkerSize', 20)%, 'LineWidth', 2);
+                figure(n), plot(center(1), center(2), 'ro', 'MarkerSize', 50)%, 'LineWidth', 2);
+                figure(n), plot(center(1), center(2), 'ro', 'MarkerSize', 150)%, 'LineWidth', 2);
+                figure(n), plot(center(1), center(2), 'ro', 'MarkerSize', 100)%, 'LineWidth', 2);
+                pause
+            else 
+                figure(n), imshow(this.Fid_img{n});
+                hold on
+                axis on
+            end
+
+            if (ip.Wait)
+                pause
+            end
+            
+            figure(n), plot(this.Fid_IC{n}(1), this.Fid_IC{n}(2), 'go', 'MarkerSize', 200)%, 'LineWidth', 2);
+            figure(n), plot(this.Fid_IC{n}(1), this.Fid_IC{n}(2), 'g+', 'MarkerSize', 20)%, 'LineWidth', 2);
+            figure(n), plot(this.Fid_IC{n}(1), this.Fid_IC{n}(2), 'go', 'MarkerSize', 20)%, 'LineWidth', 2);
+            figure(n), plot(this.Fid_IC{n}(1), this.Fid_IC{n}(2), 'go', 'MarkerSize', 50)%, 'LineWidth', 2);
+            figure(n), plot(this.Fid_IC{n}(1), this.Fid_IC{n}(2), 'go', 'MarkerSize', 150)%, 'LineWidth', 2);
+            figure(n), plot(this.Fid_IC{n}(1), this.Fid_IC{n}(2), 'go', 'MarkerSize', 100)%, 'LineWidth', 2);
+        end
+        
+        
+          function PlotCoord (this, n, coordinates, varargin)
+            
+            p = inputParser();
+            p.KeepUnmatched = false;
+            p.CaseSensitive = false;
+            p.StructExpand  = false;
+            p.PartialMatching = true;
+            
+            addParameter (p, 'Focus' , false)
+            addParameter (p, 'Center' , true)
+            addParameter (p, 'Wait' , false)
+            addParameter (p, 'TakePic' , false)
+            addParameter (p, 'TakeClick' , false)
+            
+            parse( p, varargin{:} )
+            ip = p.Results;
+            
+            if (ip.Focus)
+                focus = FOCUS(this.gantry, this.cam,1);
+                focus.AutoFocus
+            end
+            
+            if (ip.TakePic)
+                this.Fid_img{n} = this.cam.OneFrame;
+            end
+            
+                this.cam.DispCamOff;                
+                this.cam.DispCam(n)
+
+                hold on
+                axis on
+                img = this.cam.OneFrame;
+                [x,y]=size(img);
+                center = [y/2, x/2];
+                center(1)
+                center(2)
+                
+                figure(n), plot(coordinates(1), coordinates(2), 'ro', 'MarkerSize', 200)%, 'LineWidth', 2);
+                figure(n), plot(coordinates(1), coordinates(2), 'r+', 'MarkerSize', 20)%, 'LineWidth', 2);
+                figure(n), plot(coordinates(1), coordinates(2), 'ro', 'MarkerSize', 20)%, 'LineWidth', 2);
+                figure(n), plot(coordinates(1), coordinates(2), 'ro', 'MarkerSize', 50)%, 'LineWidth', 2);
+                figure(n), plot(coordinates(1), coordinates(2), 'ro', 'MarkerSize', 150)%, 'LineWidth', 2);
+                figure(n), plot(coordinates(1), coordinates(2), 'ro', 'MarkerSize', 100)%, 'LineWidth', 2);
+                pause
+                [x,y] = getpts;
+                this.Fid_IC{n} = [x,y];
+                this.cam.DispCamOff;
             
             if (ip.Center)
                                 
