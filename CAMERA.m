@@ -82,6 +82,13 @@ classdef CAMERA < handle
             
         end
         
+        function delete(cam)
+            close
+            stop(cam);
+            delete(cam);
+            imaqreset;
+        end
+        
         %% Connect Camera connection, setting all properties %%
         function this=Connect(this)
             imaqreset
@@ -150,10 +157,11 @@ classdef CAMERA < handle
         
         %%  Disconnect Camera  %%
         function this=Disconnect(this)
+            this.DispCamOff;
             stop(this.cam)
             delete(this.cam);
             this.IsConnected=0;
-            imaqreset
+%             imaqreset
         end
         
         %%  OneFrame return current frame of the camera (image)   %%

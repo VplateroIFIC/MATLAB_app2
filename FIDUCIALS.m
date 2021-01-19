@@ -66,9 +66,9 @@ angleCamera;
 %             
 %             addpath('F:\mexopencv');
 %             addpath('F:\mexopencv\opencv_contrib');
-           addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv');
-           addpath('D:\Code\MATLAB_app\opencvCompiler\mexopencv\opencv_contrib');
-           addpath('Fiducial_config');
+           addpath('./opencvCompiler\mexopencv');
+           addpath('./opencvCompiler\mexopencv\opencv_contrib');
+           addpath('./Fiducial_config');
 
 % Loading corresponding properties to the class
 
@@ -76,7 +76,7 @@ switch setup
     case 1
         FIDUCIALS_properties_Gantry
     case 2
-        FIDUCIALS_properties_OWIS
+        FIDUCIALS_properties_OWIS_provisional
 end
 
 % initialization of the properties values

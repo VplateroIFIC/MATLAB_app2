@@ -18,6 +18,11 @@ classdef STAGES < handle
     % This class in under development, in case of bug or other question, please contact to Pablo León (pablo.leon@cern.ch)
     
     
+    properties (SetAccess = protected, GetAccess = public)
+        IsConnected = false;
+        CriticalError = false;
+    end
+    
     properties (Access=public,Constant)
         X=1;
         Y=0;
@@ -33,13 +38,13 @@ classdef STAGES < handle
         vectorZ2 = 5;
         vectorU = 6;
         
-        %Defining movement limits to the gantry table
+        %% Defining movement limits to the gantry table
         % [X,Y,nan,Z1,Z2,U]
         MoveLimitsH = [500, 500, nan, 100, 100, nan]
         MoveLimitsL = [-500, -500, nan, -100, -100, nan]
     end
     
-    properties (Access=public)
+    properties (SetAccess = protected, GetAccess = public)
         
         % General Properties %
         GantryType;
@@ -79,9 +84,6 @@ classdef STAGES < handle
         xyHighSpeed = 30;
         xyNominalSpeed = 10;
         DefaultTimeOut = 30000;         %Default time out 60 sec      
-    end
-    properties (Access=public)
-        IsConnected = 0;
     end
     
     
@@ -135,8 +137,8 @@ classdef STAGES < handle
         
         %% Connect  %%
         
-        function  Connect(this)
-            % function  this = Connect(this)
+        function Connect(this)
+            % function Connect(this)
             % Arguments: object STAGES %
             % Returns: none %
             switch this.GantryType
@@ -262,15 +264,15 @@ classdef STAGES < handle
             % index position in positionVector array does not fit with the oficial number assigned to the stages. Take care!
             switch axis
                 case this.X
-                    value=positionVector(this.vectorX);
+                    value=positionVector(this.X + 1);
                 case this.Y
-                    value=positionVector(this.vectorY);
+                    value=positionVector(this.Y + 1);
                 case this.Z1
-                    value=positionVector(5);
+                    value=positionVector(this.Z1 + 1);
                 case this.Z2
-                    value=positionVector(6);
+                    value=positionVector(this.Z2 + 1);
                 case this.U
-                    value=positionVector(7);
+                    value=positionVector(this.U + 1);
             end
         end
         
@@ -977,7 +979,7 @@ classdef STAGES < handle
         end
         
         function ip = Move2Fast(this, Position, varargin)
-            % function Move2Fast (this, Position)
+            % function Move2Fast (this, Position, varargin)
             % Arguments: Position double (vector or scalar)
             % Optional Arguments: Velocity, ZVelocity, Height, Wait, X, Y,
             % Z1, Z2, U

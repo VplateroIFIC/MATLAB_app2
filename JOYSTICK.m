@@ -5,7 +5,7 @@ classdef JOYSTICK < handle
     properties (Access=public)
   
     end
-    properties (Access=protected)
+    properties (Access=public)
         IsConnected=0;
         gantry;
         t;
@@ -36,11 +36,22 @@ classdef JOYSTICK < handle
         this.z1Axis=this.gantry.Z1;
         this.z2Axis=this.gantry.Z2;
         this.uAxis=this.gantry.U;
+        
+        if isprop (this.gantry,'OWIS')
+            disp("Esto son los ejes OWIS");
+            this.xJoy = 1;
+            this.yJoy = 2;
+        end
          if (this.gantry.IsConnected==1)
    
         else
             disp('joystick can not be used: gantry is not connected')
         end
+        end
+        
+        function delete(t)
+            fclose(obj.FileID);
+            stop(this.t);
         end
         
         function Connect(this)
