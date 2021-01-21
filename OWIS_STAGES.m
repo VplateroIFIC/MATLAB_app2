@@ -842,11 +842,13 @@ classdef OWIS_STAGES < handle
  
             fprintf("\n Posicición de destino -->(%d %d %d %d %d %d)\n", ip.Position(1), ip.Position(2), ip.Position(3), ip.Position(4), ip.Position(5), ip.Position(6))
                 
-            this.zSecurityPosition(ip.ZVelocity);
-            this.MoveTo(this.U,ip.Position(this.vectorU),ip.ZVelocity)
-            this.MoveTo(this.X,ip.Position(this.vectorX),ip.Velocity)
-            this.MoveTo(this.Y,ip.Position(this.vectorY),ip.Velocity)
-            this.WaitForMotionAll();
+            if ~isprop(gantry.OWIS)
+                this.zSecurityPosition(ip.ZVelocity);
+                this.MoveTo(this.U,ip.Position(this.vectorU),ip.ZVelocity)
+                this.MoveTo(this.X,ip.Position(this.vectorX),ip.Velocity)
+                this.MoveTo(this.Y,ip.Position(this.vectorY),ip.Velocity)
+                this.WaitForMotionAll();
+            end
             
             this.MoveTo(this.Z1,ip.Position(this.vectorZ1),this.zNominalSpeed)
             this.MoveTo(this.Z2,ip.Position(this.vectorZ2),this.zNominalSpeed)

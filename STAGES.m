@@ -990,10 +990,10 @@ classdef STAGES < handle
             
             %Check if Position is a numeric
             disp(Position);
-            if ~isnumeric(Position)
-                fprintf("\n\t Invalid destination: %d\n", Position)
-                return
-            end
+%             if ~isnumeric(Position)
+%                 fprintf("\n\t Invalid destination: %d\n", Position)
+%                 return
+%             end
             
             %Parsing variable inputs
             p = inputParser();

@@ -1,4 +1,4 @@
-classdef FOCUS
+classdef FOCUS < handle
     %FOCUS focusing tools
     
     

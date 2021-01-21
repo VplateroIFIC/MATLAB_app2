@@ -22,7 +22,7 @@ classdef CAMERA < handle
         cameraType;
         ExposureAuto;
         GainAuto;
-        
+        n;
         
     end
     properties (Access=public)
@@ -83,7 +83,9 @@ classdef CAMERA < handle
         end
         
         function delete(cam)
-            close
+            if ishandle(this.n)
+                close n
+            end
             stop(cam);
             delete(cam);
             imaqreset;
@@ -193,13 +195,17 @@ classdef CAMERA < handle
 %                 otherwise
 %             end
             if nargin == 2
-%                 figure(n)
+                this.n = n;
+%                 figure(this.n)
 %                 pause
             else
 %                 figure(1)
-                    n = 1;
+                    this.n = 1;
             end
-            fig2=figure(n);
+            if ishandle(this.n)
+                close(this.n);
+            end
+            fig2=figure(this.n);
             fig2.Name='Camera Display';
             fig2.Position = [1355 577 560 420];
 %             figure('Name', 'Camera Display');
@@ -211,16 +217,16 @@ classdef CAMERA < handle
             preview(this.cam, hImage);
             
 %             if center
-%                 this.PlotCenter(n)
+%                 this.PlotCenter(this.n)
 %             end
         end
         
         function PlotCenter (this, n)
             switch nargin
                 case 1
-                    n = 1;
-                case 2
                     
+                case 2
+                    this.n = n;
                 otherwise
                     disp ("Too many arguments")
                     return
@@ -233,12 +239,12 @@ classdef CAMERA < handle
                 center(1);
                 center(2);
                 
-                figure(n), plot(center(1), center(2), 'ro', 'MarkerSize', 200)%, 'LineWidth', 2);
-                figure(n), plot(center(1), center(2), 'r+', 'MarkerSize', 20)%, 'LineWidth', 2);
-                figure(n), plot(center(1), center(2), 'ro', 'MarkerSize', 20)%, 'LineWidth', 2);
-                figure(n), plot(center(1), center(2), 'ro', 'MarkerSize', 50)%, 'LineWidth', 2);
-                figure(n), plot(center(1), center(2), 'ro', 'MarkerSize', 150)%, 'LineWidth', 2);
-                figure(n), plot(center(1), center(2), 'ro', 'MarkerSize', 100)%, 'LineWidth', 2);
+                figure(this.n), plot(center(1), center(2), 'ro', 'MarkerSize', 200)%, 'LineWidth', 2);
+                figure(this.n), plot(center(1), center(2), 'r+', 'MarkerSize', 200)%, 'LineWidth', 2);
+                figure(this.n), plot(center(1), center(2), 'ro', 'MarkerSize', 20)%, 'LineWidth', 2);
+                figure(this.n), plot(center(1), center(2), 'ro', 'MarkerSize', 50)%, 'LineWidth', 2);
+                figure(this.n), plot(center(1), center(2), 'ro', 'MarkerSize', 150)%, 'LineWidth', 2);
+                figure(this.n), plot(center(1), center(2), 'ro', 'MarkerSize', 100)%, 'LineWidth', 2);
         end
         
             
