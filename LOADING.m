@@ -12,8 +12,10 @@ classdef LOADING < handle
         Fid_img
         Fid_IC
         Fid_GC
+        deltaCamToPickup = [-236.7839, 139.6969, nan,nan,nan,nan]
         
         PickPos
+        SensorMiddle
         
         vectorX;
         vectorY;
@@ -73,9 +75,9 @@ classdef LOADING < handle
             pause
             
             % Take one fiducial position
-            x = 1024;
-            y = 768;
-            %             [x,y] = getpts;
+%             x = 1024;
+%             y = 768;
+                        [x,y] = getpts;
             %              x = 1034.902938057226492674089968204498291015625
             %              x = 1034.902938057226492674089968204498291015625
             %
@@ -147,8 +149,8 @@ classdef LOADING < handle
             % Return: crosspoint
             % Trace a line between F1-F3 and F2-F4 and get the crosspoint
             
-            x13 = [F1(1), F2(1)];
-            y13 = [F1(2), F2(2)];
+            x13 = [F1(1), F3(1)];
+            y13 = [F1(2), F3(2)];
             
             x24 = [F2(1), F4(1)];
             y24 = [F2(2), F4(2)];
@@ -158,25 +160,16 @@ classdef LOADING < handle
             x_intersect = fzero(@(x) polyval(p1-p2,x),3);
             y_intersect = polyval(p1,x_intersect);
             
-            intersection = [x_intersect, y_intersect];
+            Ft = [F1;F2;F3;F4];
+            z = mean(Ft(1:4,4));
+            intersection = [x_intersect, y_intersect, nan, z, nan, nan];
         end
         
-        function Pick (this,module)
+        function PickTool (this,PickUpTool)
             load ('TablePositions.mat','PickupPosition')
             touch = TOUCHDOWN(this.gantry);
-            this.PickPos = PickupPosition.(module)
-            %             switch module
-            %                 case 'R0'
-            %                     this.PickPos = PickupPosition.R0;
-            %                 case 'R1'
-            %                     this.PickPos = PickupPosition.R1;
-            %                 case 'R2'
-            %                     this.PickPos = PickupPosition.R2;
-            %                 case 'Jig1'
-            %                     this.PickPos = PickupPosition.Jig1;
-            %                 otherwise
-            %                     disp("La cagaste")
-            %             end
+            this.PickPos = PickupPosition.(PickUpTool);
+            
             this.gantry.Move2Fast(this.PickPos,'Z1',+10, 'Z2', 30,'wait',true)
             this.gantry.WaitForMotionAll;
             disp(" Please, check that gantry is in the correct position ");
@@ -194,6 +187,44 @@ classdef LOADING < handle
             pause
         end
         
+        function PickModule (this)
+            touch = TOUCHDOWN(this.gantry);
+
+            this.deltaCamToPickup = [-103.7998   25.4743       NaN  -23.2301       NaN       NaN]
+            this.SensorMiddle = this.CalculateCenter(this.Fid_GC{1}, this.Fid_GC{2}, this.Fid_GC{3}, this.Fid_GC{4})
+            this.SensorMiddle = this.SensorMiddle + this.deltaCamToPickup;
+            
+            this.gantry.Move2Fast(this.SensorMiddle,'Z1',this.SensorMiddle(this.vectorZ1)+10,'wait',true)
+            this.gantry.WaitForMotionAll;
+            disp(" Please, check that gantry is in the correct position ");
+            pause
+            contact = touch.runTouchdown(this.gantry.Z1,this.SensorMiddle(this.gantry.vectorZ1));
+            if ~contact.contact
+                disp ("Contact not reached")
+                return
+            end
+            
+            disp(" Wait until pickuptool drops ");
+            this.gantry.MoveTo(this.gantry.Z1,-10,1)
+            this.gantry.MoveTo(this.gantry.U, 0,1)
+            
+            this.gantry.Move2Fast(this.SensorMiddle,'Z1',this.SensorMiddle(this.vectorZ1)+10,'wait',true)
+            this.gantry.WaitForMotionAll;
+            disp(" Please, check that gantry is in the correct position ");
+            pause
+            contact = touch.runTouchdown(this.gantry.Z1,this.SensorMiddle(this.gantry.vectorZ1));
+            if ~contact.contact
+                disp ("Contact not reached")
+                return
+            end
+            
+            disp(" Close vaccum 2 ");
+            pause
+            this.gantry.MoveTo(this.gantry.Z1,-10,1)
+            this.gantry.WaitForMotionAll;
+            disp(" Please, check that Pickup R0 have been taken correctly  ");
+            pause
+        end
         
         function DropPickup (this,module)
             load ('TablePositions.mat','PickupPosition')
