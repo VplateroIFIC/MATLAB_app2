@@ -30,9 +30,9 @@ classdef LOADING < handle
         %         addpath('Fiducial_config');
         
         function this = LOADING(setup,camera)
-            %UNTITLED Construct an instance of this class
+            % Constructor for LOADING class.
             %   Detailed explanation goes here
-            %             addpath("./Loading_config/")
+
             this.fid=FIDUCIALS(1);
             this.gantry = setup;
             this.cam = camera;
@@ -48,15 +48,14 @@ classdef LOADING < handle
             this.vectorU = this.gantry.vectorU;
             
             addpath('Loading_config');
-            %             load ('TablePositions.mat','PickupPosition')
-            % %             load ('.\Loading_config\TablePositions.mat','PickupPosition');
-            %             this.PickupPosition = PickupPosition;
-            %             disp(this.PickupPosition.R0)
         end
         
         
         function milimeters = pixel2mm(this,pixels)
-            camcalibration=1.74
+            % Function pixel2mm 
+            % Arguments: pixels % Image coordinates in pixels
+            % Returns: coordinates in mm %
+            camcalibration=1.74             % Must be loaded from camera configuration
             %             camcalibration=1.7319
             milimeters = (pixels/camcalibration)/1000;
         end
@@ -77,19 +76,8 @@ classdef LOADING < handle
             % Take one fiducial position
 %             x = 1024;
 %             y = 768;
-                        [x,y] = getpts;
-            %              x = 1034.902938057226492674089968204498291015625
-            %              x = 1034.902938057226492674089968204498291015625
-            %
-            %              y = 1460.281849342492705545737408101558685302734375
-            %              x = 1.034902938057227e+03;
-            %              y = 1.460281849342493e+03;
-            %             x = 1.7120e+03;
-            %             y = 674.6825;
-            %             x = 1.0e+03 * 1.5840
-            %             y = 1.0e+03 * 0.6942
-            %             x = 470.5000;
-            %             y = 875.5000;
+
+            [x,y] = getpts;
             this.cam.DispCamOff
             this.Fid_IC{n} = [x,y];
             this.Fid_img{n} = this.cam.OneFrame;
@@ -109,33 +97,28 @@ classdef LOADING < handle
         
         function [x,y] = Img2Gantry(this, Img_Coord)
             %             angle=1.5540-90;
-            %             angle = 89.0393;
-            %             angle = 88.8580;  % Error más grande
-            %             algle = 88.9487; % Error un poco mas pequeño
-            %               angle = 89.0;  % Error algo más pequeño en X algo más grande en Y
-            %             angle = 89.1;  % Error  más pequeño en ambos ejes
-            %             angle = 89.2;  % Error  igual, apenas 0.1um más pequeño en Y
-            angle = 92;  % Error  igual, apenas 0.1um más pequeño en Y
+                         angle = 89.0393;
             
             R = rotx(angle);
-            %             R = [cosd(angle),-sind(angle);sind(angle),cosd(angle)];
+            R = [cosd(angle),-sind(angle);sind(angle),cosd(angle)];
             
-            R = [0.0168, -0.9999 ; 0.9999, 0.0168];
+            %R = [0.0168, -0.9999 ; 0.9999, 0.0168];
             img = this.cam.OneFrame;
             center = size(img)/2;
-            %             center = size(this.Fid_img{1})/2;
-            %%Invertimos X-Y
+
+            %% Inverting  X-Y
             centerx = center(2);
             centery = center(1);
-            center =[centerx, centery]
+            center = [centerx, centery]
             
             coordenadas = Img_Coord
-            CoordenadasClick(1) = Img_Coord(1) - center(1)
-            CoordenadasClick(2) = -(Img_Coord(2) - center(2))
-            CoordenadasPixRotados = CoordenadasClick*R
-            xImage = this.pixel2mm(CoordenadasPixRotados(1));
-            yImage = this.pixel2mm(CoordenadasPixRotados(2));
-            Coordenadasmm = [xImage,yImage]
+            CoordenadasClick(1) = Img_Coord(1) - center(1);
+            CoordenadasClick(2) = -(Img_Coord(2) - center(2));
+            CoordenadasPixRotados = CoordenadasClick*R;
+%            xImage = this.pixel2mm(CoordenadasPixRotados(1));
+%            yImage = this.pixel2mm(CoordenadasPixRotados(2));
+%            Coordenadasmm = [xImage,yImage];
+            Coordenadasmm = this.pixel2mm(CoordenadasPixRotados);
             
             %             xImage = xImage-xImage*cos(alfa)
             
