@@ -97,7 +97,7 @@ classdef CAMERA < handle
             switch this.cameraType
                 case 1
                     % creating camera object, opening preview %
-                    this.cam = videoinput(this.videoAdaptor,1);
+                    this.cam = videoinput(this.videoAdaptor,2);
                     % settting properties of camera object %
                     src = getselectedsource(this.cam);
                     this.cam.ReturnedColorSpace=this.ReturnedColor;

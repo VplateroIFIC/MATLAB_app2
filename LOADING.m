@@ -12,8 +12,9 @@ classdef LOADING < handle
         Fid_img
         Fid_IC
         Fid_GC
-        deltaCamToPickup = [-236.7839, 139.6969, nan,nan,nan,nan]
-        
+%         deltaCamToPickup = [-236.7839, 139.6969, nan,nan,nan,nan]
+        deltaCamToPickup = [-96.4353, 26.3812, NaN, -47.0531,nan,nan]
+
         PickPos
         SensorMiddle
         
@@ -30,9 +31,9 @@ classdef LOADING < handle
         %         addpath('Fiducial_config');
         
         function this = LOADING(setup,camera)
-            %UNTITLED Construct an instance of this class
-            %   Detailed explanation goes here
-            %             addpath("./Loading_config/")
+            % Constructor function this = STAGES(Nsite)
+            % Arguments: setup, camera % Setup, gantry or owis object
+            % Returns: object %
             this.fid=FIDUCIALS(1);
             this.gantry = setup;
             this.cam = camera;
@@ -192,27 +193,28 @@ classdef LOADING < handle
 
             this.deltaCamToPickup = [-103.7998   25.4743       NaN  -23.2301       NaN       NaN]
             this.SensorMiddle = this.CalculateCenter(this.Fid_GC{1}, this.Fid_GC{2}, this.Fid_GC{3}, this.Fid_GC{4})
-            this.SensorMiddle = this.SensorMiddle + this.deltaCamToPickup;
+            ModulePickPos = this.SensorMiddle + this.deltaCamToPickup;
             
-            this.gantry.Move2Fast(this.SensorMiddle,'Z1',this.SensorMiddle(this.vectorZ1)+10,'wait',true)
+            this.gantry.Move2Fast(ModulePickPos,'Z1',ModulePickPos(this.vectorZ1)+10,'wait',true)
             this.gantry.WaitForMotionAll;
             disp(" Please, check that gantry is in the correct position ");
             pause
-            contact = touch.runTouchdown(this.gantry.Z1,this.SensorMiddle(this.gantry.vectorZ1));
+            contact = touch.runTouchdown(this.gantry.Z1,ModulePickPos(this.gantry.vectorZ1));
             if ~contact.contact
                 disp ("Contact not reached")
                 return
             end
             
             disp(" Wait until pickuptool drops ");
+            pause
             this.gantry.MoveTo(this.gantry.Z1,-10,1)
             this.gantry.MoveTo(this.gantry.U, 0,1)
             
-            this.gantry.Move2Fast(this.SensorMiddle,'Z1',this.SensorMiddle(this.vectorZ1)+10,'wait',true)
+            this.gantry.Move2Fast(ModulePickPos,'Z1',ModulePickPos(this.vectorZ1)+10,'wait',true)
             this.gantry.WaitForMotionAll;
             disp(" Please, check that gantry is in the correct position ");
             pause
-            contact = touch.runTouchdown(this.gantry.Z1,this.SensorMiddle(this.gantry.vectorZ1));
+            contact = touch.runTouchdown(this.gantry.Z1,ModulePickPos(this.gantry.vectorZ1));
             if ~contact.contact
                 disp ("Contact not reached")
                 return

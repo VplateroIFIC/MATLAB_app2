@@ -68,10 +68,9 @@ classdef DISPENSER < handle
 %             this.SetUltimus('VS  0050');   %Setting vacuum: 0.5
 %             this.IsConnected=1;
             if strcmp(this.s1.Status,'open')
-                disp('Conection with Ultimus already done')
+                disp('Conection with Ultimus done')
                 this.IsConnected = 1;
             else
-                disp('Connecting with Ultimus')
                 fopen(this.s1);
             end
         end
@@ -174,7 +173,7 @@ classdef DISPENSER < handle
             OrderComplete=this.commandBuilder(command);
             
             % opening serial port %
-            if ~strcmp(this.s1.Status,'open')
+            if strcmp(this.s1.Status,'open')
                 this.Connect();
             end            
             % Sending ENQ %
