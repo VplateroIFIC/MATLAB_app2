@@ -41,7 +41,7 @@ classdef STAGES < handle
         %% Defining movement limits to the gantry table
         % [X,Y,nan,Z1,Z2,U]
         MoveLimitsH = [500, 500, nan, 100, 100, nan]
-        MoveLimitsL = [-500, -500, nan, -100, -100, nan]
+        MoveLimitsL = [-500, -500, nan, -30, -100, nan]
     end
     
     properties (SetAccess = protected, GetAccess = public)
@@ -77,13 +77,13 @@ classdef STAGES < handle
         
         % Other movements
         
-        zSecureHeigh = 20;              % Min Z height for fast movements
+        zSecureHeigh = 40;              % Min Z height for fast movements
         zNominalHeigh = 0;              % Nominal height
         zHighSpeed = 10;
         zNominalSpeed = 5;
         xyHighSpeed = 30;
         xyNominalSpeed = 10;
-        DefaultTimeOut = 30000;         %Default time out 60 sec      
+        DefaultTimeOut = 45000;         %Default time out 45 sec      
     end
     
     
@@ -688,7 +688,7 @@ classdef STAGES < handle
         
         function  WaitForMotionAll(this,time)
             %function  WaitForMotionAll(this,axis,time)
-            % Arguments: object ALIO (this),time inn (if -1, wait infinite)%
+            % Arguments: object Gantry (this),time inn (if -1, wait infinite)%
             % Returns: none %
             
             switch nargin

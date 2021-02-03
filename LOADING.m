@@ -2,6 +2,40 @@ classdef LOADING < handle
     %UNTITLED Summary of this class goes here
     %   Detailed explanation goes here
     
+    %% To be done:
+    % On STAGES class, "Move2Fast" Method add option to increment or
+    % decrement Z1, instead of just adding a final position. 
+    % Maybe add a property '+Z1', not just 'Z1'.
+
+    % On STAGES class, "Motion cannot start because the motor is disabled"
+    % error should not produce a return from program,
+    % instead should wait user instructions
+    
+    % Touchdown object created for Module or Tool (carefully, not carefully)
+    % That means, speed, deltaPrimary and deltaSecondary
+
+    % Touchdown object should know estimated hightness of the module/Tool???
+
+    % Introduce inputs (Yes/NO) when asking the user to open/close vacuum.
+
+    % Create a Method "DropModule"
+
+    % Calculate module rotation from the fiducial coordinates.
+    % That should be done for initial and final module position.
+    % ¿Incluide it on the "CalculateCenter" method.
+    
+    % Add petal object, load from "TablePositions.mat"???
+    % Add method "PetalLocate", take petalLocators and create petal object
+    % Save petalLocators coordinates and save it in a file as
+    % "lastPetalLocators" or similar, forcing user to locate the petal
+    % again
+    
+    % Change method "CalculateCenter" input arguments to an array of
+    % coordinates. More clear to use. Return (X,Y,NaN,Z1,NaN,U).
+    
+    
+    
+    %% Properties
     properties (Access = public)
         %         setup
         gantry
@@ -12,8 +46,9 @@ classdef LOADING < handle
         Fid_img
         Fid_IC
         Fid_GC
-%         deltaCamToPickup = [-236.7839, 139.6969, nan,nan,nan,nan]
-        deltaCamToPickup = [-96.4353, 26.3812, NaN, -47.0531,nan,nan]
+        
+        % Must move that to configuration file.
+        deltaCamToPickup = [-103.7998   25.4743       NaN  -23.2301       NaN       NaN]
 
         PickPos
         SensorMiddle
@@ -60,6 +95,22 @@ classdef LOADING < handle
             camcalibration=1.74             % Must be loaded from camera configuration
             %             camcalibration=1.7319
             milimeters = (pixels/camcalibration)/1000;
+        end
+
+        function PetalLocate (this, n)
+            % function PetalLocate (this, n)
+            % Arguments: n      % Petal number (1 default)
+            % Return: none
+            % Take the petal locators of the petal in order to update it's position
+            % and creates petal object
+
+            this.TakeFiducial(99)
+            fiducial_1 = this.Fid_GC{99};
+            this.TakeFiducial(99)
+            fiducial_2 = this.Fid_GC{99};
+            eval(['petal' num2str(n) '= PETALCS(0, fiducial_1, fiducial_2);'])
+            petal.plot
+
         end
         
         function TakeFiducial(this,n)
@@ -173,14 +224,15 @@ classdef LOADING < handle
         end
         
         function PickModule (this)
+            % Create Touchdown object for module
             touch = TOUCHDOWN(this.gantry);
-
-            this.deltaCamToPickup = [-103.7998   25.4743       NaN  -23.2301       NaN       NaN]
+            % Calculating center and creating ModulePickCoordinates
             this.SensorMiddle = this.CalculateCenter(this.Fid_GC{1}, this.Fid_GC{2}, this.Fid_GC{3}, this.Fid_GC{4})
             ModulePickPos = this.SensorMiddle + this.deltaCamToPickup;
             
+            % Move to ModulePickCoordinates and drop the PickupTool on the module
             this.gantry.Move2Fast(ModulePickPos,'Z1',ModulePickPos(this.vectorZ1)+10,'wait',true)
-            this.gantry.WaitForMotionAll;
+%             this.gantry.WaitForMotionAll;
             disp(" Please, check that gantry is in the correct position ");
             pause
             contact = touch.runTouchdown(this.gantry.Z1,ModulePickPos(this.gantry.vectorZ1));
@@ -189,8 +241,9 @@ classdef LOADING < handle
                 return
             end
             
-            disp(" Wait until pickuptool drops ");
+            disp(" Wait about 15s until vacuum tube is empty");
             pause
+            % Move up Z1 axis and rotate U to align tool holes
             this.gantry.MoveTo(this.gantry.Z1,-10,1)
             this.gantry.MoveTo(this.gantry.U, 0,1)
             
@@ -204,7 +257,51 @@ classdef LOADING < handle
                 return
             end
             
-            disp(" Close vaccum 2 ");
+            disp(" Open vaccum 2 and Close vaccum 1");
+            pause
+            this.gantry.MoveTo(this.gantry.Z1,-10,1)
+            this.gantry.WaitForMotionAll;
+            disp(" Please, check that Pickup R0 have been taken correctly  ");
+            pause
+        end
+        
+        function DropModule (this)
+            % Create Touchdown object for module
+            touch = TOUCHDOWN(this.gantry);
+            % Calculating center and creating ModulePickCoordinates
+            SensorOnPetal = this.petal.fiducials_petal.(this.module);
+            this.SensorMiddle = this.CalculateCenter(this.fid, this.Fid_GC{2}, this.Fid_GC{3}, this.Fid_GC{4})
+            SensorOnPetal.Middle = this.CalculateCenter(SensorOnPetal{1}, SensorOnPetal{2}, SensorOnPetal{3}, SensorOnPetal{4})
+            ModuleDropPos = this.SensorMiddle + this.deltaCamToPickup;
+            
+            % Move to ModulePickCoordinates and drop the PickupTool on the module
+            this.gantry.Move2Fast(ModulePickPos,'Z1',ModulePickPos(this.vectorZ1)+10,'wait',true)
+%             this.gantry.WaitForMotionAll;
+            disp(" Please, check that gantry is in the correct position ");
+            pause
+            contact = touch.runTouchdown(this.gantry.Z1,ModulePickPos(this.gantry.vectorZ1));
+            if ~contact.contact
+                disp ("Contact not reached")
+                return
+            end
+            
+            disp(" Wait about 15s until vacuum tube is empty");
+            pause
+            % Move up Z1 axis and rotate U to align tool holes
+            this.gantry.MoveTo(this.gantry.Z1,-10,1)
+            this.gantry.MoveTo(this.gantry.U, 0,1)
+            
+            this.gantry.Move2Fast(ModulePickPos,'Z1',ModulePickPos(this.vectorZ1)+10,'wait',true)
+            this.gantry.WaitForMotionAll;
+            disp(" Please, check that gantry is in the correct position ");
+            pause
+            contact = touch.runTouchdown(this.gantry.Z1,ModulePickPos(this.gantry.vectorZ1));
+            if ~contact.contact
+                disp ("Contact not reached")
+                return
+            end
+            
+            disp(" Open vaccum 2 and Close vaccum 1");
             pause
             this.gantry.MoveTo(this.gantry.Z1,-10,1)
             this.gantry.WaitForMotionAll;
@@ -215,15 +312,6 @@ classdef LOADING < handle
         function DropPickup (this,module)
             load ('TablePositions.mat','PickupPosition')
             this.PickPos = PickupPosition.(module);
-            %             switch module
-            %                 case 'R0'
-            %                     PicPos = this.PickupPosition.R0;
-            %                 case 'R1'
-            %                     PicPos = this.PickupPosition.R1;
-            %                 otherwise
-            %                     disp("La cagaste")
-            %             end
-            
             this.gantry.Move2Fast(this.PickPos,'Z1',this.PickPos(this.vectorZ1)+10, 'Z2', 20,'wait',true)
             this.gantry.WaitForMotionAll;
             this.gantry.MoveTo(this.gantry.Z1,this.PickPos(this.vectorZ1)+1,1)
@@ -297,7 +385,11 @@ classdef LOADING < handle
             info.GantryPosition = this.GantryPos;
         end
         
+
         
+        
+        %% Old functions to be deleted
+                
         %         function [X,Y] = pixel2micra([PX,PY])
         %             % Converting pixel to micra
         %             X = PX/camCalibration;
@@ -305,7 +397,6 @@ classdef LOADING < handle
         %         end
         
         
-        %% Old functions to be deleted
         function info = CalcFiducial(this,n)
             % function CalcFiducial(this)
             % Arg: n       % Fiducial number we are taking
