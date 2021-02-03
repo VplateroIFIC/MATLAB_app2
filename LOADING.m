@@ -48,10 +48,11 @@ classdef LOADING < handle
         Fid_GC
         
         % Must move that to configuration file.
-        deltaCamToPickup = [-103.7998   25.4743       NaN  -23.2301       NaN       NaN]
+        %deltaCamToPickup = [-103.7998   25.4743       NaN  -23.2301       NaN       NaN]
 
         PickPos
         SensorMiddle
+        petal
         
         vectorX;
         vectorY;
@@ -92,36 +93,75 @@ classdef LOADING < handle
             % Function pixel2mm 
             % Arguments: pixels % Image coordinates in pixels
             % Returns: coordinates in mm %
-            camcalibration=1.74             % Must be loaded from camera configuration
-            %             camcalibration=1.7319
-            milimeters = (pixels/camcalibration)/1000;
+            % camcalibration=1.74
+            milimeters = (pixels/camCalibration)/1000;
         end
 
-        function PetalLocate (this, n)
-            % function PetalLocate (this, n)
-            % Arguments: n      % Petal number (1 default)
+        function PetalLocate (this, petalSide)
+            % function PetalLocate (this, petalSide)
+            % Arguments: petalSide, % petalSide (0 for EoS right, 1 for EoS left)
             % Return: none
             % Take the petal locators of the petal in order to update it's position
             % and creates petal object
 
-            this.TakeFiducial(99)
-            fiducial_1 = this.Fid_GC{99};
-            this.TakeFiducial(99)
-            fiducial_2 = this.Fid_GC{99};
-            eval(['petal' num2str(n) '= PETALCS(0, fiducial_1, fiducial_2);'])
-            petal.plot
+            switch nargin
+            case 2
+            case 1
+                petalSide = 0;
+            otherwise
+                disp "Incorrect input arguments"
+            end
 
+            % Take both Petal-locators and create petal object
+            this.TakeFiducial(petal, 1)
+            locators = [this.Fid_GC.petal{1}]
+            this.TakeFiducial(petal, 2)
+            locators = [this.Fid_GC.petal{1};this.Fid_GC.petal{2}]
+
+            distance = pdist([locators(1,1:2), locators(2,1:2);
+            if (distance >= 601 + 0.01) || discante <= 601 - 0.01)
+                warning(" Petal-locators distance is %0.3f, it should be between (%0.3f - %0.3f", distance, 601 - 0.01, 601 + 0.01)
+                pause
+            end
+            this.petal = PETALCS(petalSide, locators(1,:), locators(2,:));
         end
         
-        function TakeFiducial(this,n)
+        function TakeFiducial(this, module, n)
             % function TakeFiducial(this)
-            % Arg: n       % Fiducial number we are taking
+            % Arg: module, n       % Module to be located, fiducial number we are taking
             % Return: none
             % Take the fiducial coordinates and get its position
             % on gantry coordinate system (GC)
+
+            if isnan(n) 
+                disp ("Input arguments error")
+                return
+            end
+
+        switch module
+        case 'R0'
+            tool = 'Tool0'
+        case 'R1'
+            tool = 'Tool0'
+        case 'R2'
+            tool = 'Tool0'
+        case 'R3S0'
+            tool = 'Tool1'
+        case 'R3S1'
+            tool = 'Tool2'
+        case 'R4S0'
+        case 'R4S1'
+        case 'R5S0'
+        case 'R5S1'
+        otherwise
+            fprintf ('\n\t Error, "%s" is not a valid module name: ', module);
+            disp('"R0", "R1", "R2", "R3S0", "R3S1", "R4S0", "R4S1", "R5S0", "R5S1"');
+            return
+        end
             
+            this.Fid_img.(module){n}
             this.cam.DispCamOff;
-            this.Fid_img{n} = this.cam.OneFrame;
+            this.Fid_img.(module){n} = this.cam.OneFrame;
             this.cam.DispCam(n);
             this.cam.PlotCenter(n);
             pause
@@ -132,20 +172,20 @@ classdef LOADING < handle
 
             [x,y] = getpts;
             this.cam.DispCamOff
-            this.Fid_IC{n} = [x,y];
-            this.Fid_img{n} = this.cam.OneFrame;
+            this.Fid_IC.(module){n} = [x,y];
+            this.Fid_img.(module){n} = this.cam.OneFrame;
             
             % Plot it in order to check
-            this.PlotCheck (n);
+            this.PlotCheck (module, n);
             
             % Change to Gantry Coordinates
-            [x,y] = this.Img2Gantry(this.Fid_IC{n});
+            [x,y] = this.Img2Gantry(this.Fid_IC.(module){n});
             
             % Create the position vector for gantry
-            this.Fid_GC{n} = this.gantry.GetPositionAll;
+            this.Fid_GC.(module){n} = this.gantry.GetPositionAll;
             this.GantryPos = this.gantry.GetPositionAll;
-            this.Fid_GC{n}(this.gantry.vectorX) = x;
-            this.Fid_GC{n}(this.gantry.vectorY) = y;
+            this.Fid_GC.(module){n}(this.gantry.vectorX) = x;
+            this.Fid_GC.(module){n}(this.gantry.vectorY) = y;
         end
         
         function [x,y] = Img2Gantry(this, Img_Coord)
@@ -202,6 +242,7 @@ classdef LOADING < handle
         end
         
         function PickTool (this,PickUpTool)
+
             load ('TablePositions.mat','PickupPosition')
             touch = TOUCHDOWN(this.gantry);
             this.PickPos = PickupPosition.(PickUpTool);
@@ -227,7 +268,7 @@ classdef LOADING < handle
             % Create Touchdown object for module
             touch = TOUCHDOWN(this.gantry);
             % Calculating center and creating ModulePickCoordinates
-            this.SensorMiddle = this.CalculateCenter(this.Fid_GC{1}, this.Fid_GC{2}, this.Fid_GC{3}, this.Fid_GC{4})
+            this.SensorMiddle = this.CalculateCenter(this.Fid_GC.(module){1}, this.Fid_GC(module){2}, this.Fid_GC(module){3}, this.Fid_GC(module){4})
             ModulePickPos = this.SensorMiddle + this.deltaCamToPickup;
             
             % Move to ModulePickCoordinates and drop the PickupTool on the module
@@ -270,7 +311,7 @@ classdef LOADING < handle
             touch = TOUCHDOWN(this.gantry);
             % Calculating center and creating ModulePickCoordinates
             SensorOnPetal = this.petal.fiducials_petal.(this.module);
-            this.SensorMiddle = this.CalculateCenter(this.fid, this.Fid_GC{2}, this.Fid_GC{3}, this.Fid_GC{4})
+            this.SensorMiddle = this.CalculateCenter(this.fid_GC.(module){1}, this.Fid_GC.(module){2}, this.Fid_GC.(module){3}, this.Fid_GC.(module){4})
             SensorOnPetal.Middle = this.CalculateCenter(SensorOnPetal{1}, SensorOnPetal{2}, SensorOnPetal{3}, SensorOnPetal{4})
             ModuleDropPos = this.SensorMiddle + this.deltaCamToPickup;
             
@@ -327,7 +368,7 @@ classdef LOADING < handle
         
         %%  Plotting usefull information %%
         
-        function PlotCheck (this, n, varargin)
+        function PlotCheck (this, module, n, varargin)
             
             p = inputParser();
             p.KeepUnmatched = false;
@@ -342,7 +383,7 @@ classdef LOADING < handle
             
             parse( p, varargin{:} )
             ip = p.Results;
-            img = this.Fid_img{n};
+            img = this.Fid_img.(module){n};
             
             figure(n), imshow(img);
             
@@ -352,7 +393,7 @@ classdef LOADING < handle
             end
             
             if (ip.TakePic)
-                this.Fid_img{n} = this.cam.OneFrame;
+                this.Fid_img.(module){n} = this.cam.OneFrame;
             end
             
             if (ip.Center)
@@ -362,7 +403,7 @@ classdef LOADING < handle
             if (ip.Wait)
                 pause
             end
-            this.PlotCoord(n, [this.Fid_IC{n}(1), this.Fid_IC{n}(2)])
+            this.PlotCoord(n, [this.Fid_IC.(module){n}(1), this.Fid_IC.(module){n}(2)])
         end
         
         function PlotCoord (this, n, coordinates)
@@ -408,7 +449,7 @@ classdef LOADING < handle
             fidudial1_First = [133.4717, -359.2647, 0, 13.3203, 0, 0];
             
             %             this.Fid_IC{n} = [387.1, 1218];
-            this.Fid_IC{n} = [387.1, 1283.6];
+            this.Fid_IC.(module){n} = [387.1, 1283.6];
             
             % Plot it in order to check
             %             this.PlotCheck (n);
@@ -417,11 +458,11 @@ classdef LOADING < handle
             [x,y] = this.Img2Gantry(this.Fid_IC{n});
             
             % Create the position vector for gantry
-            this.Fid_GC{n} = fidudial1_First;
-            this.Fid_GC{n}(this.gantry.vectorX) = x;
-            this.Fid_GC{n}(this.gantry.vectorY) = y;
+            this.Fid_GC.(module){n} = fidudial1_First;
+            this.Fid_GC.(module){n}(this.gantry.vectorX) = x;
+            this.Fid_GC.(module){n}(this.gantry.vectorY) = y;
             
-            info.DespCalc = fidudial1_First - this.Fid_GC{n};
+            info.DespCalc = fidudial1_First - this.Fid_GC.(module){n};
             info.DespReal = fidudial1_First - fiducial1_True;
             info.fiducial1_True = fiducial1_True;
             info.fiducial1 = fidudial1_First;
