@@ -97,35 +97,35 @@ classdef LOADING < handle
             milimeters = (pixels/camCalibration)/1000;
         end
 
-        function PetalLocate (this, petalSide)
-            % function PetalLocate (this, petalSide)
-            % Arguments: petalSide, % petalSide (0 for EoS right, 1 for EoS left)
-            % Return: none
-            % Take the petal locators of the petal in order to update it's position
-            % and creates petal object
-
-            switch nargin
-            case 2
-            case 1
-                petalSide = 0;
-            otherwise
-                disp "Incorrect input arguments"
-            end
-
-            % Take both Petal-locators and create petal object
-            this.TakeFiducial(petal, 1)
-            locators = [this.Fid_GC.petal{1}]
-            this.TakeFiducial(petal, 2)
-            locators = [this.Fid_GC.petal{1};this.Fid_GC.petal{2}]
-
-            distance = pdist([locators(1,1:2), locators(2,1:2);
-            if (distance >= 601 + 0.01) || discante <= 601 - 0.01)
-                warning(" Petal-locators distance is %0.3f, it should be between (%0.3f - %0.3f", distance, 601 - 0.01, 601 + 0.01)
-                pause
-            end
-            this.petal = PETALCS(petalSide, locators(1,:), locators(2,:));
-        end
-        
+%         function PetalLocate (this, petalSide)
+%             % function PetalLocate (this, petalSide)
+%             % Arguments: petalSide, % petalSide (0 for EoS right, 1 for EoS left)
+%             % Return: none
+%             % Take the petal locators of the petal in order to update it's position
+%             % and creates petal object
+% 
+%             switch nargin
+%             case 2
+%             case 1
+%                 petalSide = 0;
+%             otherwise
+%                 disp "Incorrect input arguments"
+%             end
+% 
+%             % Take both Petal-locators and create petal object
+%             this.TakeFiducial(petal, 1)
+%             locators = [this.Fid_GC.petal{1}]
+%             this.TakeFiducial(petal, 2)
+%             locators = [this.Fid_GC.petal{1};this.Fid_GC.petal{2}]
+% 
+%             distance = pdist([locators(1,1:2), locators(2,1:2);
+% %             if (distance >= 601 + 0.01) || (discante <= 601 - 0.01)
+% %                 warning(" Petal-locators distance is %0.3f, it should be between (%0.3f - %0.3f", distance, 601 - 0.01, 601 + 0.01)
+% %                 pause
+% %             end
+%             this.petal = PETALCS(petalSide, locators(1,:), locators(2,:);
+%         end
+%         
         function TakeFiducial(this, module, n)
             % function TakeFiducial(this)
             % Arg: module, n       % Module to be located, fiducial number we are taking
@@ -268,7 +268,7 @@ classdef LOADING < handle
             % Create Touchdown object for module
             touch = TOUCHDOWN(this.gantry);
             % Calculating center and creating ModulePickCoordinates
-            this.SensorMiddle = this.CalculateCenter(this.Fid_GC.(module){1}, this.Fid_GC(module){2}, this.Fid_GC(module){3}, this.Fid_GC(module){4})
+            this.SensorMiddle = this.CalculateCenter(this.Fid_GC.(module){1}, this.Fid_GC.(module){2}, this.Fid_GC.(module){3}, this.Fid_GC.(module){4})
             ModulePickPos = this.SensorMiddle + this.deltaCamToPickup;
             
             % Move to ModulePickCoordinates and drop the PickupTool on the module

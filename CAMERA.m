@@ -184,7 +184,7 @@ classdef CAMERA < handle
         end
         
         %%  DispCam display camera video in a independent windows   %%
-        function DispCam(this,n)% plotcenter)
+        function DispCam(this,number)% plotcenter)
 %             switch (nargin)
 %                 case 3
 %                     %center = true;
@@ -195,7 +195,7 @@ classdef CAMERA < handle
 %                 otherwise
 %             end
             if nargin == 2
-                this.n = n;
+                this.n = number;
 %                 figure(this.n)
 %                 pause
             else

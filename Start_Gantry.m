@@ -10,7 +10,7 @@ fiducial_2 = [277.2484  224.5027       NaN   13.8901         nan         nan];
 gantry = STAGES(2);
 gantry.Connect;
 gantry.MotorEnableAll;
-gantry.HomeAll;
+% gantry.HomeAll;
 
 joy = JOYSTICK (gantry);
 joy.Connect;
@@ -18,21 +18,21 @@ joy.Connect;
 fid=FIDUCIALS(1);
 petal = PETALCS(0, fiducial_1, fiducial_2);
 
-dispenser = DISPENSER;
-gluing = PetalDispensing(dispenser,gantry,petal);
-Feedback = dispenser.GetUltimus('AU---')
+% dispenser = DISPENSER;
+% gluing = PetalDispensing(dispenser,gantry,petal);
+% Feedback = dispenser.GetUltimus('AU---')
 
 imaqreset;
 cam = CAMERA(5);
 cam.Connect;
-cam.DispCam(10);
-cam.PlotCenter(10);
+% cam.DispCam(10);
+% cam.PlotCenter(10);
 
 focus = FOCUS(gantry, cam,1);
 
 loading = LOADING(gantry,cam);
 
-% scanner = SCANCONTROL2950;
-% scanner.Connect;
+scanner = SCANCONTROL2950;
+scanner.Connect;
 % laser = OPTONCDT2300;
 % laser.SetupConnect;
