@@ -5,7 +5,7 @@ classdef FOCUS < handle
     properties (Access=public)
         
         %AutoFocus
-        maxIter=20;
+        maxIter=10;
         FocusRange=0.2;
         velocity=2;
         threshold=0.02;
@@ -16,7 +16,6 @@ classdef FOCUS < handle
         zAxis;
         gantry;
         cam;  
-        Iterations = 20;
     end
     
     methods
@@ -82,7 +81,7 @@ classdef FOCUS < handle
             RoiWidth=this.RoiSize;
             RoiHeight=this.RoiSize;
             Z0=Zini;
-            image=cell(1,this.Iterations);
+            image=cell(1,20);
             
             % Setting counters and empty vector for the general loop%
             zCont=1;
@@ -91,13 +90,13 @@ classdef FOCUS < handle
             ImCont=1;
             iteration=1;
             
-            while iteration<this.Iterations
+            while iteration<20
                 % Setting counters and empty vector for the sampling loop%
                 P0=Z0-R/2;
                 Pn=Z0+R/2;
                 z=P0;
-                FocusValue=zeros(1,this.Iterations);
-                Z=zeros(1,this.Iterations);
+                FocusValue=zeros(1,20);
+                Z=zeros(1,20);
                 delta=R/div;
                 samples=1;
                 while (samples<=div+1)
@@ -120,7 +119,7 @@ classdef FOCUS < handle
                 end
                 %  Finding local optimal %
                 Z(Z==0)=[];
-                Zopt = NaN(1,this.Iterations);
+                Zopt = NaN(1,20);
                 FocusValue(FocusValue==0)=[];
                 focusAll{iteration}=FocusValue;
                 zAll{iteration}=Z;
@@ -138,7 +137,8 @@ classdef FOCUS < handle
             
             this.cam.stopAdquisition;
             
-            if (1<10)
+%            if (1<10)
+				if (iteration<10)
                 % Fitting results to a quadratic polynomial (last 4 points) %
                 zAll=cell2mat(zAll);
                 FocusAll=cell2mat(focusAll);
