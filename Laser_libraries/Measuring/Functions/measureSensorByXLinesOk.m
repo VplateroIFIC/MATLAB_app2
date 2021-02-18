@@ -1,6 +1,7 @@
 function [Z,X,Y] = measureSensorByXLinesOk(laser,gantry,x1,x2,y1,y2,nY,measuringVelocity,movingVelocity)
-%MEASURESENSORBYLINES Summary of this function goes here
-%   Detailed explanation goes here
+%Measures the square [x1,x2]x[y1,y2] by nY lines parallel to the x axis, at
+%speed (velocity).
+%At low speed it works well
     
     laser.LoadParameters(1);
 

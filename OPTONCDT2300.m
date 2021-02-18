@@ -61,7 +61,6 @@ classdef OPTONCDT2300 < handle
     properties (Access = public)
         IP_RemoteAddr = "169.254.168.150";
         IP_RingBufferSize = 104857600; % Byte capacity of the buffer from which data is retrieved. MAX = 1073741824 (1GB)
-        bufferValueSize; %Value capacity of the buffer (IP_RingBufferSize/4, updated when called this.SetupConnect) (This is not accurate)
         IP_ScaleErrorValues = 3; % 1=Last valid value, 2=Fixed Value, 3=Negative error value
         SP_MeasureMode = 1; %0=Diffuse reflection, 1=Direct reflexion
         SP_MeasurePeak = 0; %0=Greatest amplitude, 1=Greatest area, 2=First peak
@@ -129,7 +128,7 @@ classdef OPTONCDT2300 < handle
             %   IP_EnableLogging
             %   IP_LogFile
             %   IP_LogAppend
-            %   IP_ScaleErrorValues
+            %   IP_ScaleErrorValues 
             %   IP_AutomaticMode
             %   IP_RingBufferSize
             
@@ -172,8 +171,6 @@ classdef OPTONCDT2300 < handle
             if err ~= clib.MEDAQLib.ERR_CODE.ERR_NOERROR
                 warning('While setting IP_RingBufferSize, something occurred: %s',string(err));
             end
-            
-            this.bufferValueSize = this.IP_RingBufferSize/4;
             
             err = clib.MEDAQLib.OpenSensor(this.hSensor);
             if err == clib.MEDAQLib.ERR_CODE.ERR_NOERROR
@@ -510,6 +507,7 @@ classdef OPTONCDT2300 < handle
         end
         
         function err = SaveParameters(this,number)
+        %Saves the current parameter contiguration in the number (1-8) slot 
             err = clib.MEDAQLib.SetParameterString(this.hSensor, "S_Command", "Save_Parameters");
             if err ~= clib.MEDAQLib.ERR_CODE.ERR_NOERROR
                 warning('While setting S_Command, something occurred: %s',string(err));
@@ -521,7 +519,10 @@ classdef OPTONCDT2300 < handle
             err = clib.MEDAQLib.SensorCommand(this.hSensor);
         end
         
-        function err = LoadParameters(this,number) %1=Continous sending, 2=Trigger continous sending, 3=Trigger 1000 values
+        function err = LoadParameters(this,number) 
+        %Function for loading a concrete parameter configuration.
+        %Number is the slot for loading the configuration (1-8)
+        %1=Continous sending, 2=Trigger continous sending, 3=Trigger 1000 values
             err = clib.MEDAQLib.SetParameterString(this.hSensor, "S_Command", "Load_Parameters");
             if err ~= clib.MEDAQLib.ERR_CODE.ERR_NOERROR
                 warning('While setting S_Command, something occurred: %s',string(err));
@@ -587,14 +588,6 @@ classdef OPTONCDT2300 < handle
            end
         end
         
-        function set.IP_RingBufferSize(this,value)
-            if ~mod(value,4)
-                this.IP_RingBufferSize = value;
-            else
-                warning("This RingBufferSize value will cut off the last value, please use a value divisible by 4");
-            end
-        end
-            
     end
 end
 

@@ -1,6 +1,6 @@
 function [Z,X,Y] = measureSensorByXLines(laser,gantry,x1,x2,y1,y2,nY,velocity)
-%MEASURESENSORBYLINES Summary of this function goes here
-%   Detailed explanation goes here
+%Measures the square [x1,x2]x[y1,y2] by nY lines parallel to the x axis, at
+%speed (velocity).
 
     line = measureLine(laser,gantry,x1,y1,x2,y1,velocity);
     pointsPerLine = size(line,2);

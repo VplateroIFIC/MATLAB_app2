@@ -17,14 +17,15 @@ function [line,distancePoints] = measureLineOK(laser,gantry,fromX,fromY,toX,toY,
     from = [fromX,fromY];
     to = [toX,toY];
     offTime = 0.066;                                       %Time the function laser.PollData delays to get the data.
-    distance = pdist([from;to],'euclidean');                %Distance the gantry has to travel.
+    distance = pdist([from;to],'euclidean');                %Distance the gantry has to travel. %max(toX-froX,toY-fromY)
     
     %Get the number of points we are going to mmeasure
     points = ceil((distance/measuringVelocity+offTime)*laser.SP_Measrate*1000); %Points to measure = time spent * measuring frequency. Time spent = time while moving + offTime
     fprintf("You are going to measure %d points\n",points);
-    if points > laser.bufferValueSize
-        warning("You are going to need a bigger buffer size: %d",ceil(points/4));
-    end
+    %if points > laser.bufferValueSize 
+    %%Cálculo estimado del tamaño del buffer: ¡incorrecto!
+    %    warning("You are going to need a bigger buffer size: %d",ceil(points/4));
+    %end
     laser.dataSize = points;
     distancePoints=linspace(0,distance,points);
     

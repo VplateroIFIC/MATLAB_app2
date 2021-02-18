@@ -30,10 +30,12 @@ cam.Connect;
 
 focus = FOCUS(gantry, cam,1);
 
-loading = LOADING(gantry,cam);
+% loading = LOADING(gantry,cam);
 
 scanner = SCANCONTROL2950;
 scanner.Connect;
 scanner.SetLaser(2);
 
+%laser = OPTONCDT2300;
+%laser.SetupConnect;
 %laser.LoadParameters(1);

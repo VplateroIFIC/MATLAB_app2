@@ -1,4 +1,6 @@
 function data = measurePoint(laser,gantry,radius,n)
+    %Function that outputs n values obtained in
+    %a circle of radius (radius), in normally distributed points.
    
     velocity = 15;
     wait = 1;
