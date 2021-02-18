@@ -14,7 +14,7 @@ laser.Disconnect;
 laser.delete;
 
 scanner.SetLaser(0);
-scaner.Disconnect;
-scaner.delete;
+scanner.Disconnect;
+scanner.delete;
 
 imaqreset

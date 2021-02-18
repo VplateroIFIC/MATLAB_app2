@@ -33,7 +33,7 @@ function [line,distancePoints] = measureVerticalLine(laser,gantry,fromZ2,toZ2,ve
     
     %Save the data
     line = laser.scaledData;                            %Get the measured line reversed (so it outputs depth and not heaight)
-    save("C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app\Laser_libraries\Results\verticalLineMeasuringResults.mat",...             %Store it in a file
+    save(".\Laser_libraries\Results\verticalLineMeasuringResults.mat",...             %Store it in a file
         'line','velocity','distance','distancePoints');
 
 end

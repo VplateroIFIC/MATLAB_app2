@@ -44,7 +44,7 @@ function [line,distancePoints] = measureLine(laser,gantry,fromX,fromY,toX,toY,ve
     
     %Save the data
     line = 10.-laser.scaledData;                            %Get the measured line reversed (so it outputs depth and not heaight)
-    save("C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app\Laser_libraries\Results\lineMeasuringResults.mat",...             %Store it in a file
+    save(".\Laser_libraries\Results\lineMeasuringResults.mat",...             %Store it in a file
         'line','velocity','distance','distancePoints');      
     
 end

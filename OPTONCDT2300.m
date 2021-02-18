@@ -49,7 +49,8 @@ classdef OPTONCDT2300 < handle
     
     properties (SetAccess=protected, GetAccess=public)
         sensorType;  %sensor model in use
-        IP_LogFile = "C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app\Laser_libraries\LogFile\Laser-log.txt"; %Path of the debugging file
+%         IP_LogFile = "C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app\Laser_libraries\LogFile\Laser-log.txt"; %Path of the debugging file
+        IP_LogFile = ".\Laser_libraries\LogFile\Laser-log.txt"; %Path of the debugging file
         IP_interface = "TCP/IP"; %Connection interface (currently supported TCP/IP)
         IP_EnableLogging = 0; %Enables (1) or not (0) logging to the debugging log file
         IP_LogAppend = 0; %0=Clear the log file when connecting, 1=Append info to the log file
@@ -89,10 +90,15 @@ classdef OPTONCDT2300 < handle
             %   sensor (clib.MEDAQLib.ME_SENSOR) is the sensor model.
             %       This class currently supports sensor optoNCDT2300 (clib.MEDAQLib.ME_SENSOR.SENSOR_ILD2300).
             
-            addpath('C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app');    %add the class folder to the matlab path
-            addpath('C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app\Laser_libraries\optoNCDT2300');       %add the setPath forlder to the matlab path
-            addpath('C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app\Laser_libraries\optoNCDT2300\MEDAQLib') %Add the compiled .dll to the MATLAB search Path
-            err = setPath('C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app\Laser_libraries\optoNCDT2300\MEDAQLib-4.7.0.30086\Release-x64'); %Add the original library to the System PATH
+%             addpath('C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app');    %add the class folder to the matlab path
+%             addpath('C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app\Laser_libraries\optoNCDT2300');       %add the setPath forlder to the matlab path
+%             addpath('C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app\Laser_libraries\optoNCDT2300\MEDAQLib') %Add the compiled .dll to the MATLAB search Path
+%             err = setPath('C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app\Laser_libraries\optoNCDT2300\MEDAQLib-4.7.0.30086\Release-x64'); %Add the original library to the System PATH
+            addpath('.\Laser_libraries\optoNCDT2300');       %add the setPath forlder to the matlab path
+            addpath('.\Laser_libraries\optoNCDT2300\MEDAQLib') %Add the compiled .dll to the MATLAB search Path
+            err = setPath('.\Laser_libraries\optoNCDT2300\MEDAQLib-4.7.0.30086\Release-x64'); %Add the original library to the System PATH
+            
+            
             if err
                 try
                     clib.LLT.TInterfaceType;

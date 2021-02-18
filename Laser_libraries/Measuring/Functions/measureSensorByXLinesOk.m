@@ -17,7 +17,7 @@ function [Z,X,Y] = measureSensorByXLinesOk(laser,gantry,x1,x2,y1,y2,nY,measuring
         Z(i,:) = line(1:pointsPerLine);
     end 
     
-    save("C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app\Laser_libraries\Results\sensorMeasuringByXLineResults.mat",... %Store it in a file
+    save(".\Laser_libraries\Results\sensorMeasuringByXLineResults.mat",... %Store it in a file
         'X','Y','Z'); 
 
 end

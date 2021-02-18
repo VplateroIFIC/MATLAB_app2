@@ -59,6 +59,6 @@ function [Z,X,Y] = measureSensor(laser,gantry,x1,x2,y1,y2,nX,nY,velocity,minValu
         end
     end
     
-    save("C:\Users\GantryUser\Desktop\GantryGit\MATLAB_app\Laser_libraries\Results\sensorMeasuringResults.mat",...   %Store it in a file
+    save(".\Laser_libraries\Results\sensorMeasuringResults.mat",...   %Store it in a file
         'X','Y','Z'); 
 end

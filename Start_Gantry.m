@@ -12,8 +12,8 @@ gantry.Connect;
 % gantry.MotorEnableAll;
 % gantry.HomeAll;
 
-% joy = JOYSTICK (gantry);
-% joy.Connect;
+joy = JOYSTICK (gantry);
+joy.Connect;
 % return
 fid=FIDUCIALS(1);
 petal = PETALCS(0, fiducial_1, fiducial_2);
@@ -32,10 +32,10 @@ focus = FOCUS(gantry, cam,1);
 
 % loading = LOADING(gantry,cam);
 
-scanner = SCANCONTROL2950;
-scanner.Connect;
-scanner.SetLaser(2);
+% scanner = SCANCONTROL2950;
+% scanner.Connect;
+% scanner.SetLaser(2);
 
-%laser = OPTONCDT2300;
-%laser.SetupConnect;
-%laser.LoadParameters(1);
+laser = OPTONCDT2300;
+laser.SetupConnect;
+laser.LoadParameters(1);
