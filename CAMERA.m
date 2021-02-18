@@ -83,7 +83,7 @@ classdef CAMERA < handle
         end
         
         function delete(cam)
-            if ishandle(this.n)
+            if ishandle(n)
                 close n
             end
             stop(cam);
