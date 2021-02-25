@@ -2,20 +2,20 @@
 
 classdef STAGES < handle
     
-%   CLASS TO CONTROL STAGES
-% 
-% this class provides calls to the functions that control de stages of the gantry.
-%
-% It is adapted to be used for both, ALIO and AEROTECh Gantry.
-%
-% The kind of gantry will be done as input to the connect method:
-
-% 0 --> GANTRY FREIBURG
-% 1 --> GANTRY HAMBURG
-% 2 --> GANTRY VALENCIA
-% 3 --> GANTRY VANCOUVER   
+    %   CLASS TO CONTROL STAGES
+    %
+    % this class provides calls to the functions that control de stages of the gantry.
+    %
+    % It is adapted to be used for both, ALIO and AEROTECh Gantry.
+    %
+    % The kind of gantry will be done as input to the connect method:
     
-    % This class in under development, in case of bug or other question, please contact to Pablo León (pablo.leon@cern.ch)
+    % 0 --> GANTRY FREIBURG
+    % 1 --> GANTRY HAMBURG
+    % 2 --> GANTRY VALENCIA
+    % 3 --> GANTRY VANCOUVER
+    
+    % This class in under development, in case of bug or other question, please contact to Pablo Leï¿½n (pablo.leon@cern.ch)
     
     
     properties (SetAccess = protected, GetAccess = public)
@@ -40,8 +40,8 @@ classdef STAGES < handle
         
         %% Defining movement limits to the gantry table
         % [X,Y,nan,Z1,Z2,U]
-        MoveLimitsH = [500, 500, nan, 100, 100, nan]
-        MoveLimitsL = [-500, -500, nan, -30, -100, nan]
+        MoveLimitsH = [500, 500, nan, 101, 101, nan]
+        MoveLimitsL = [-500, -500, nan, -30, -103, nan]
     end
     
     properties (SetAccess = protected, GetAccess = public)
@@ -77,13 +77,14 @@ classdef STAGES < handle
         
         % Other movements
         
-        zSecureHeigh = 40;              % Min Z height for fast movements
+        z1SecureHeigh = 40;              % Min Z height for fast movements
+        z2SecureHeigh = 0;
         zNominalHeigh = 0;              % Nominal height
-        zHighSpeed = 10;
-        zNominalSpeed = 5;
+        zHighSpeed = 15;
+        zNominalSpeed = 10;
         xyHighSpeed = 30;
         xyNominalSpeed = 10;
-        DefaultTimeOut = 45000;         %Default time out 45 sec      
+        DefaultTimeOut = 45000;         %Default time out 45 sec
     end
     
     
@@ -118,17 +119,17 @@ classdef STAGES < handle
                     this.z1Axis = eval(stream1 + this.Z1);
                     this.z2Axis = eval(stream1 + this.Z2);
                     this.uAxis = eval(stream1 + this.U);
-%                     this.xAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_0;
-%                     this.yAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_1;
-%                     this.z1Axis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_4;
-%                     this.z2Axis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_5;
-%                     this.uAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_6;
+                    %                     this.xAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_0;
+                    %                     this.yAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_1;
+                    %                     this.z1Axis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_4;
+                    %                     this.z2Axis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_5;
+                    %                     this.uAxis=ACS.SPiiPlusNET.Axis.ACSC_AXIS_6;
                     this.nullAxis=ACS.SPiiPlusNET.Axis.ACSC_NONE;
                     this.HomeVelocity=15;
                     this.Acceleration=20;
                     this.Relative=ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_RELATIVE;
                     this.Absolute=ACS.SPiiPlusNET.MotionFlags.ACSC_NONE;
-                    this.JogVFlag=ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_VELOCITY; 
+                    this.JogVFlag=ACS.SPiiPlusNET.MotionFlags.ACSC_AMF_VELOCITY;
                     this.bufferNoneLabel=ACS.SPiiPlusNET.ProgramBuffer.ACSC_NONE;
                     this.apiNoneLabel=ACS.SPiiPlusNET.Api.ACSC_NONE;
                     
@@ -181,7 +182,7 @@ classdef STAGES < handle
             % Arguments: object STAGES %
             % Returns: none %
             RunBuffer(this.GantryObj,ACS.SPiiPlusNET.ProgramBuffer.ACSC_BUFFER_20,[]);
-            WaitProgramEnd(this.GantryObj,ACS.SPiiPlusNET.ProgramBuffer.ACSC_BUFFER_20,inf);
+%            WaitProgramEnd(this.GantryObj,ACS.SPiiPlusNET.ProgramBuffer.ACSC_BUFFER_20,inf);
             
             SetVelocity(this.GantryObj,this.xAxis,this.HomeVelocity);
             SetVelocity(this.GantryObj,this.yAxis,this.HomeVelocity);
@@ -201,7 +202,7 @@ classdef STAGES < handle
             LoadBuffersFromFile(this.GantryObj,'D:\Code\MATLAB_app\ALIO_buffers\Buffer_11_homing_routines.txt');
             
         end
-
+        
         %% getting assembly info in display (just for ALIO gantry) %%
         
         function  AssemblyMethodsInfo(this)
@@ -326,19 +327,19 @@ classdef STAGES < handle
             switch axis
                 case this.X
                     value=RMS(this.vectorX);
-%                     value=ReadVariable(this.GantryObj,'RMS',this.xAxis,this.xAxis); % if error, tray send 0 (or ACSC_NONE) after GantryObj pointer
+                    %                     value=ReadVariable(this.GantryObj,'RMS',this.xAxis,this.xAxis); % if error, tray send 0 (or ACSC_NONE) after GantryObj pointer
                 case this.Y
                     value=RMS(this.vectorY);
-%                     value=ReadVariable(this.GantryObj,'RMS',this.yAxis,this.yAxis);
+                    %                     value=ReadVariable(this.GantryObj,'RMS',this.yAxis,this.yAxis);
                 case this.Z1
                     value=RMS(5);
-%                     value=ReadVariable(this.GantryObj,'RMS',this.z1Axis,this.z1Axis);
+                    %                     value=ReadVariable(this.GantryObj,'RMS',this.z1Axis,this.z1Axis);
                 case this.Z2
                     value=RMS(6);
-%                     value=ReadVariable(this.GantryObj,'RMS',this.z1Axis,this.z2Axis);
+                    %                     value=ReadVariable(this.GantryObj,'RMS',this.z1Axis,this.z2Axis);
                 case this.U
                     value=RMS(7);
-%                     value=ReadVariable(this.GantryObj,'RMS',this.uAxis,this.uAxis);
+                    %                     value=ReadVariable(this.GantryObj,'RMS',this.uAxis,this.uAxis);
             end
             
         end
@@ -417,35 +418,35 @@ classdef STAGES < handle
                     switch axis
                         case this.X
                             if target > this.MoveLimitsH(this.vectorX) || target < this.MoveLimitsL(this.vectorX)
-                                fprintf ("\n\t ¡¡ Target position: %d out of gantry limmits !!\n", target);
+                                fprintf ("\n\t ï¿½ï¿½ Target position: %d out of gantry limmits !!\n", target);
                                 return
                             end
                             SetVelocity(this.GantryObj,this.xAxis,velocity);
                             ToPoint(this.GantryObj,this.Absolute,this.xAxis,target);
                         case this.Y
                             if target > this.MoveLimitsH(this.vectorY) || target < this.MoveLimitsL(this.vectorY)
-                                fprintf ("\n\t ¡¡ Target position: %d out of gantry limmits !!\n", target);
+                                fprintf ("\n\t ï¿½ï¿½ Target position: %d out of gantry limmits !!\n", target);
                                 return
                             end
                             SetVelocity(this.GantryObj,this.yAxis,velocity);
                             ToPoint(this.GantryObj,this.Absolute,this.yAxis,target);
                         case this.Z1
                             if target > this.MoveLimitsH(this.vectorZ1) || target < this.MoveLimitsL(this.vectorZ1)
-                                fprintf ("\n\t ¡¡ Target position: %d out of gantry limmits !!\n", target);
+                                fprintf ("\n\t ï¿½ï¿½ Target position: %d out of gantry limmits !!\n", target);
                                 return
                             end
                             SetVelocity(this.GantryObj,this.z1Axis,velocity);
                             ToPoint(this.GantryObj,this.Absolute,this.z1Axis,target);
                         case this.Z2
                             if target > this.MoveLimitsH(this.vectorZ2) || target < this.MoveLimitsL(this.vectorZ2)
-                                fprintf ("\n\t ¡¡ Target position: %d out of gantry limmits !!\n", target);
+                                fprintf ("\n\t ï¿½ï¿½ Target position: %d out of gantry limmits !!\n", target);
                                 return
                             end
                             SetVelocity(this.GantryObj,this.z2Axis,velocity);
                             ToPoint(this.GantryObj,this.Absolute,this.z2Axis,target);
                         case this.U
                             if target > this.MoveLimitsH(this.vectorU) || target < this.MoveLimitsL(this.vectorU)
-                                fprintf ("\n\t ¡¡ Target position: %d out of gantry limmits !!\n", target);
+                                fprintf ("\n\t ï¿½ï¿½ Target position: %d out of gantry limmits !!\n", target);
                                 return
                             end
                             SetVelocity(this.GantryObj,this.uAxis,velocity);
@@ -868,15 +869,15 @@ classdef STAGES < handle
             %ACSC_MST_MOVE 0x00000020 - a motor is moving
             %ACSC_MST_ACC 0x00000040 - a motor is accelerating
             
-% Trying to read and understand and compare MotorStates return
-% unsatisfactory for now.
-%             NET.Assembly('ACS.SPiiPlusNET.MotorStates')
-
- %           compare = NET.createArray('ACS.SPiiPlusNET.MotorState',3); axis.Set(0, this.xAxis); axis.Set(1, this.yAxis); axis.Set(2, this.nullAxis);  %d2 = NET.createArray('System.String',3); d2(1) = 'one'; d2(2) = 'two'; d2(3) = 'zero';
-%              State = ACS.SPiiPlusNET.MotorStates.ACSC_MST_INP;
-%             ACS.SPiiPlusNET.MotorState State;
-%             disp (state);
-%             State2 = ACS.SPiiPlusNET.MotorStates.ACSC_MST_ENABLE
+            % Trying to read and understand and compare MotorStates return
+            % unsatisfactory for now.
+            %             NET.Assembly('ACS.SPiiPlusNET.MotorStates')
+            
+            %           compare = NET.createArray('ACS.SPiiPlusNET.MotorState',3); axis.Set(0, this.xAxis); axis.Set(1, this.yAxis); axis.Set(2, this.nullAxis);  %d2 = NET.createArray('System.String',3); d2(1) = 'one'; d2(2) = 'two'; d2(3) = 'zero';
+            %              State = ACS.SPiiPlusNET.MotorStates.ACSC_MST_INP;
+            %             ACS.SPiiPlusNET.MotorState State;
+            %             disp (state);
+            %             State2 = ACS.SPiiPlusNET.MotorStates.ACSC_MST_ENABLE
             switch this.GantryType
                 case 0
                     %insert here MotionAbort with AEROTECH gantry %
@@ -943,11 +944,11 @@ classdef STAGES < handle
                 velocity = this.zHighSpeed;
             end
             
-            if (this.GetPosition(this.Z1) <= this.zSecureHeigh)
-                this.MoveTo(this.Z1, this.zSecureHeigh,velocity);
+            if (this.GetPosition(this.Z1) <= this.z1SecureHeigh)
+                this.MoveTo(this.Z1, this.z1SecureHeigh,velocity);
             end
-            if (this.GetPosition(this.Z2) <= this.zSecureHeigh)
-                this.MoveTo(this.Z2, this.zSecureHeigh,velocity);
+            if (this.GetPosition(this.Z2) <= this.z2SecureHeigh)
+                this.MoveTo(this.Z2, this.z2SecureHeigh,velocity);
             end
             this.WaitForMotionAll(this.DefaultTimeOut);
         end
@@ -990,10 +991,10 @@ classdef STAGES < handle
             
             %Check if Position is a numeric
             disp(Position);
-%             if ~isnumeric(Position)
-%                 fprintf("\n\t Invalid destination: %d\n", Position)
-%                 return
-%             end
+            %             if ~isnumeric(Position)
+            %                 fprintf("\n\t Invalid destination: %d\n", Position)
+            %                 return
+            %             end
             
             %Parsing variable inputs
             p = inputParser();
@@ -1005,7 +1006,7 @@ classdef STAGES < handle
             addParameter (p, 'Position' , [nan, nan, nan, nan, nan, nan])
             addParameter (p, 'Velocity' , this.xyHighSpeed)
             addParameter (p, 'ZVelocity' , this.zHighSpeed)
-            addParameter (p, 'Height'   , this.zSecureHeigh)
+            addParameter (p, 'Height'   , this.z1SecureHeigh)
             addParameter (p, 'Wait'     , false)
             addParameter (p, 'X'        , nan)
             addParameter (p, 'Y'        , nan)
@@ -1019,19 +1020,19 @@ classdef STAGES < handle
             
             % Check if target position is vector or scalar
             % If target position is scalar it will be X axis
-
+            
             if isscalar(Position)
                 ip.Position(this.vectorX) = Position;
-            else 
+            else
                 check = size(Position);
                 ip.Position = Position;
-                if ~(check(1) == 1 && check(2) <= 6) 
+                if ~(check(1) == 1 && check(2) <= 6)
                     % If position vector is larger than 1x6
-                    fprintf("\n ¡¡Invalid destination!! --> %d %d %d %d %d %d\n", ip.Position)
+                    fprintf("\n ï¿½ï¿½Invalid destination!! --> %d %d %d %d %d %d\n", ip.Position)
                 else
                     % Fill the position vector with nan values
                     % until size 1x6
-                    ip.Position(check(2)+1:6) = nan; 
+                    ip.Position(check(2)+1:6) = nan;
                 end
             end
             
@@ -1049,11 +1050,13 @@ classdef STAGES < handle
             end
             if (~isnan(ip.U))
                 ip.Position(this.vectorU) = ip.U;
-            end      
- 
-            fprintf("\n Posicición de destino -->(%d %d %d %d %d %d)\n", ip.Position(1), ip.Position(2), ip.Position(3), ip.Position(4), ip.Position(5), ip.Position(6))
-                
-            this.zSecurityPosition(ip.ZVelocity);
+            end
+            
+            CurrentPosition = this.GetPositionAll;
+            fprintf("\n Moving from \t--> %0.3f %0.3f %0.3f %0.3f %0.3f %0.3f\n, \t\t to \t--> %0.3f %0.3f %0.3f %0.3f %0.3f %0.3f\n", CurrentPosition, ip.Position);
+            if (ip.Position(this.vectorX) ~= CurrentPosition(this.vectorX)) || (ip.Position(this.vectorY) ~= CurrentPosition(this.vectorY)) || (ip.Position(this.vectorU) ~= CurrentPosition(this.vectorU))
+                this.zSecurityPosition(ip.ZVelocity);
+            end
             this.MoveTo(this.U,ip.Position(this.vectorU),ip.ZVelocity)
             this.MoveTo(this.X,ip.Position(this.vectorX),ip.Velocity)
             this.MoveTo(this.Y,ip.Position(this.vectorY),ip.Velocity)
@@ -1062,7 +1065,7 @@ classdef STAGES < handle
             this.MoveTo(this.Z1,ip.Position(this.vectorZ1),this.zNominalSpeed)
             this.MoveTo(this.Z2,ip.Position(this.vectorZ2),this.zNominalSpeed)
             
-            if ip.Wait 
+            if ip.Wait
                 disp("Waiting for motion finish")
                 this.WaitForMotionAll();
             end

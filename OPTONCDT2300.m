@@ -594,6 +594,14 @@ classdef OPTONCDT2300 < handle
            end
         end
         
+        function PowerOn(this)
+            this.SP_LaserPower = 0;
+            this.SetMeasurementConfig;
+        end
+        function PowerOff(this)
+            this.SP_LaserPower = 2;
+            this.SetMeasurementConfig;
+        end
     end
 end
 

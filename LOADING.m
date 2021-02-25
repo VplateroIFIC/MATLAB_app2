@@ -32,6 +32,8 @@ classdef LOADING < handle
     
     % Change method "CalculateCenter" input arguments to an array of
     % coordinates. More clear to use. Return (X,Y,NaN,Z1,NaN,U).
+
+    %Move2Fast method. Add Optional input (laser, Pickup, Camera).
     
     
     

@@ -13,11 +13,12 @@ function [Z,X,Y] = measureSensorByXLinesOk(laser,gantry,x1,x2,y1,y2,nY,measuring
     
     for i = 1:nY                                        %For each X position
         gantry.MoveTo(gantry.Y,Y(i),movingVelocity,1);
+        fprintf("Line %d: \t",i);
         line=measureLineOK(laser,gantry,x1,Y(i),x2,Y(i),measuringVelocity,movingVelocity);
         Z(i,:) = line(1:pointsPerLine);
     end 
     
-    save(".\Laser_libraries\Results\sensorMeasuringByXLineResults.mat",... %Store it in a file
+    save(".\Laser_libraries\Results\sensorMeasuringByXLineResults2.mat",... %Store it in a file
         'X','Y','Z'); 
 
 end

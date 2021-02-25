@@ -22,7 +22,7 @@ classdef CAMERA < handle
         cameraType;
         ExposureAuto;
         GainAuto;
-        n;
+        n = 1;
         
     end
     properties (Access=public)

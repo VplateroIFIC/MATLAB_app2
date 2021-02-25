@@ -9,8 +9,8 @@ fiducial_2 = [277.2484  224.5027       NaN   13.8901         nan         nan];
  
 gantry = STAGES(2);
 gantry.Connect;
-% gantry.MotorEnableAll;
-% gantry.HomeAll;
+gantry.MotorEnableAll;
+gantry.HomeAll;
 
 joy = JOYSTICK (gantry);
 joy.Connect;

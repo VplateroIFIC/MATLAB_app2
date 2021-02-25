@@ -14,6 +14,7 @@ ImageOutput='C:\Gantry\output_images_results';  % folder to save the images
 % calibration = 1.7319;  % Sento calculation
 calibration = 1.7400; %Last Pablo calculation
 deltaCamToPickup = [-103.7998, 25.4743, NaN, -23.2301, NaN, NaN];
+deltaCamToLaser1 = [224.6407  -28.5561       NaN         NaN  -85.8682         NaN];
 
 videoAdaptor='gentl';    % Matlab video adaptor used
 triggerConfig='hardware';
