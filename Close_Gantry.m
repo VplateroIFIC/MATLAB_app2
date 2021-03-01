@@ -2,19 +2,15 @@
 %Script prepared to shutdown main gantry Setup functions
 
 joy.Disconnect;
-
-% gantry.MotorDisableAll;
+gantry.Move2Fast(reposo)
+gantry.MotorDisableAll;
 gantry.Disconnect;
 
 cam.Disconnect;
 
-laser.SP_LaserPower=2;
-laser.SetMeasurementConfig;
+laser.PowerOff;
 laser.Disconnect;
-laser.delete;
 
-scanner.SetLaser(0);
-scanner.Disconnect;
-scanner.delete;
+% scanner.SetLaser(0);
+% scanner.Disconnect;
 
-imaqreset

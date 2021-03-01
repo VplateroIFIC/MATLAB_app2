@@ -11,6 +11,10 @@ laser.GetConfiguration
     
 addpath (".\Laser_libraries\Measuring\Functions\");
 
+
+
+
+
 fromX = -425.2216
 fromY = 87.4868
 toX = -273.5990
@@ -38,6 +42,14 @@ minValue = 5;
 %
 return
 gantry.Move2Fast(reposo)
+laser.PowerOff
+
+
+
+
+
+
+
 
 
 %% Probando
@@ -49,22 +61,23 @@ toX = corner2(1)
 
 %% Probando
 nY = 10;
-measuringVelocity = 2
+movingVelocity = 30
+measuringVelocity = 15
 gantry.Move2Fast(corner1)
 tic;
 [Z,X,Y] = measureSensorByXLinesOk(laser,gantry,fromX,toX,fromY,toY,nY,measuringVelocity,movingVelocity);
 measuringTime = toc
-save ('./Laser_libraries/Jig_10Lines_2mmseg.mat', 'X','Y','Z', 'measuringVelocity','nY','measuringTime')
+save ('./Laser_libraries/Tool1_10Lines_15mmseg.mat', 'X','Y','Z', 'measuringVelocity','nY','measuringTime')
 
 
 %% Probando
-nY = 10;
-measuringVelocity = 5
+nY = 50;
+measuringVelocity = 15
 gantry.Move2Fast(corner1)
 tic;
 [Z,X,Y] = measureSensorByXLinesOk(laser,gantry,fromX,toX,fromY,toY,nY,measuringVelocity,movingVelocity);
 measuringTime = toc
-save ('./Laser_libraries/Jig_10Lines_5mmseg.mat', 'X','Y','Z', 'measuringVelocity','nY','measuringTime')
+save ('./Laser_libraries/Tool1_50Lines_15mmseg.mat', 'X','Y','Z', 'measuringVelocity','nY','measuringTime')
 
 %% Probando
 nY = 30;
@@ -112,6 +125,29 @@ measuringTime = toc
 save ('./Laser_libraries/Jig_30Lines_5mmseg.mat', 'X','Y','Z', 'measuringVelocity','nY','measuringTime')
 
 %%
+
+%% Reduce by points density
+dX = 10;                % points/mm
+L = abs(X(1)-X(end));   %Lenght of the measured lines
+step = round(L/dX);
+Xr = X(1:step:end);
+Zr = Z(:,1:step:end);
+surf(Xr,Y,Zr)
+
+%% Reduce by number of points per line
+nX = 100;                % points/line
+L = abs(X(1)-X(end));    %Lenght of the measured lines
+step = round(size(X,2)/nX);
+Xr = X(1:step:end);
+Zr = Z(:,1:step:end);
+surf(Xr,Y,Zr)
+
+%% Filter 3-d
+Z_med3 = medfilt3(Z, [5,5,5]);
+%% Filter 2-d [5 points around]
+Z_med2 = medfilt2(Z, [5,5);   
+
+%save('pqfile.csv','Xr','-ascii')
 
 laser.PowerOff
 gantry.Move2Fast(reposo)

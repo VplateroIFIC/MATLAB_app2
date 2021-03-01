@@ -1,4 +1,7 @@
- 
+
+addpath ('.\Laser_libraries\Results')
+addpath ('.\Laser_libraries\Measuring\Functions\')
+
 % Script prepared to begin main gantry setup functions
 reposo = [-44.9425, 448.7509 , nan, -15.9923, -99.9, 0.0120];
 % % fiducial_1 = [133.4717, -359.2647];

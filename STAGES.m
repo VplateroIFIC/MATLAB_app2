@@ -182,7 +182,7 @@ classdef STAGES < handle
             % Arguments: object STAGES %
             % Returns: none %
             RunBuffer(this.GantryObj,ACS.SPiiPlusNET.ProgramBuffer.ACSC_BUFFER_20,[]);
-%            WaitProgramEnd(this.GantryObj,ACS.SPiiPlusNET.ProgramBuffer.ACSC_BUFFER_20,inf);
+           WaitProgramEnd(this.GantryObj,ACS.SPiiPlusNET.ProgramBuffer.ACSC_BUFFER_20,inf);
             
             SetVelocity(this.GantryObj,this.xAxis,this.HomeVelocity);
             SetVelocity(this.GantryObj,this.yAxis,this.HomeVelocity);

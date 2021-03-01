@@ -6,6 +6,7 @@ classdef LOADING < handle
     % On STAGES class, "Move2Fast" Method add option to increment or
     % decrement Z1, instead of just adding a final position. 
     % Maybe add a property '+Z1', not just 'Z1'.
+    % Add option to keep heigh.
 
     % On STAGES class, "Motion cannot start because the motor is disabled"
     % error should not produce a return from program,
