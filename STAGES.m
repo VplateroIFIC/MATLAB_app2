@@ -979,6 +979,14 @@ classdef STAGES < handle
             end
         end
         
+        function Move2(this,Position)
+            this.MoveTo(this.X,Position(this.vectorX),this.xyHighSpeed)
+            this.MoveTo(this.Y,Position(this.vectorY),this.xyHighSpeed)
+            this.MoveTo(this.Z1,Position(this.vectorZ1),this.zNominalSpeed)
+            this.MoveTo(this.Z2,Position(this.vectorZ2),this.zNominalSpeed)
+            this.MoveTo(this.U,Position(this.vectorU),this.zNominalSpeed)
+        end
+        
         function ip = Move2Fast(this, Position, varargin)
             % function Move2Fast (this, Position, varargin)
             % Arguments: Position double (vector or scalar)
