@@ -12,8 +12,8 @@ fiducial_2 = [277.2484  224.5027       NaN   13.8901         nan         nan];
  
 gantry = STAGES(2);
 gantry.Connect;
-gantry.MotorEnableAll;
-gantry.HomeAll;
+% gantry.MotorEnableAll;
+% gantry.HomeAll;
 
 joy = JOYSTICK (gantry);
 joy.Connect;
@@ -33,13 +33,13 @@ cam.Connect;
 
 focus = FOCUS(gantry, cam,1);
 
-% loading = LOADING(gantry,cam);
+loading = LOADING(gantry,cam);
 
 % scanner = SCANCONTROL2950;
 % scanner.Connect;
 % scanner.SetLaser(2);
 
-laser = OPTONCDT2300;
-laser.SetupConnect;
-laser.LoadParameters(1);
-laser.PowerOff;
+% laser = OPTONCDT2300;
+% laser.SetupConnect;
+% laser.LoadParameters(1);
+% laser.PowerOff;

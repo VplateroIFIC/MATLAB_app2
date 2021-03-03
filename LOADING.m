@@ -6,7 +6,7 @@ classdef LOADING < handle
     % On STAGES class, "Move2Fast" Method add option to increment or
     % decrement Z1, instead of just adding a final position. 
     % Maybe add a property '+Z1', not just 'Z1'.
-    % Add option to keep heigh.
+    % Add option to skip zsecurityHeigh
 
     % On STAGES class, "Motion cannot start because the motor is disabled"
     % error should not produce a return from program,
@@ -96,8 +96,7 @@ classdef LOADING < handle
             % Function pixel2mm 
             % Arguments: pixels % Image coordinates in pixels
             % Returns: coordinates in mm %
-            % camcalibration=1.74
-            milimeters = (pixels/camCalibration)/1000;
+            milimeters = (pixels/this.cam.camCalibration)/1000;
         end
 
 %         function PetalLocate (this, petalSide)
@@ -128,7 +127,12 @@ classdef LOADING < handle
 % %             end
 %             this.petal = PETALCS(petalSide, locators(1,:), locators(2,:);
 %         end
-%         
+%        
+        function loadFiducials(this,module)
+            modulePosition_old = this.loadFid(module);
+            save ('./Loading_config/ModulePosition.mat', 'modulePosition_old', '-append')
+            this.Fid_GC.(module) = modulePosition_old;
+        end
         function TakeFiducial(this, module, n)
             % function TakeFiducial(this)
             % Arg: module, n       % Module to be located, fiducial number we are taking
@@ -136,11 +140,18 @@ classdef LOADING < handle
             % Take the fiducial coordinates and get its position
             % on gantry coordinate system (GC)
 
+            switch nargin
+                case 2
+                case 1
+                    n = 4;
+                otherwise
+                    disp ("Incorrect input arguments")
+            end
             if isnan(n) 
                 disp ("Input arguments error")
                 return
             end
-
+            
         switch module
         case 'R0'
             tool = 'Tool0'
@@ -161,8 +172,9 @@ classdef LOADING < handle
             disp('"R0", "R1", "R2", "R3S0", "R3S1", "R4S0", "R4S1", "R5S0", "R5S1"');
             return
         end
-            
-            this.Fid_img.(module){n}
+ %       lastPosition = this.loadFid(module);
+ %       gantry.Move2Fast(lastPosition.(module){n});
+
             this.cam.DispCamOff;
             this.Fid_img.(module){n} = this.cam.OneFrame;
             this.cam.DispCam(n);
@@ -189,6 +201,7 @@ classdef LOADING < handle
             this.GantryPos = this.gantry.GetPositionAll;
             this.Fid_GC.(module){n}(this.gantry.vectorX) = x;
             this.Fid_GC.(module){n}(this.gantry.vectorY) = y;
+            %this.saveFid(module);
         end
         
         function [x,y] = Img2Gantry(this, Img_Coord)
@@ -247,7 +260,7 @@ classdef LOADING < handle
         function PickTool (this,PickUpTool)
 
             load ('TablePositions.mat','PickupPosition')
-            touch = TOUCHDOWN(this.gantry);
+            touch = TOUCHDOWN(this.gantry,'tool');
             this.PickPos = PickupPosition.(PickUpTool);
             
             this.gantry.Move2Fast(this.PickPos,'Z1',+10, 'Z2', 30,'wait',true)
@@ -267,12 +280,12 @@ classdef LOADING < handle
             pause
         end
         
-        function PickModule (this)
+        function PickModule (this,module)
             % Create Touchdown object for module
             touch = TOUCHDOWN(this.gantry);
             % Calculating center and creating ModulePickCoordinates
             this.SensorMiddle = this.CalculateCenter(this.Fid_GC.(module){1}, this.Fid_GC.(module){2}, this.Fid_GC.(module){3}, this.Fid_GC.(module){4})
-            ModulePickPos = this.SensorMiddle + this.deltaCamToPickup;
+            ModulePickPos = this.SensorMiddle + this.cam.deltaCamToPickup;
             
             % Move to ModulePickCoordinates and drop the PickupTool on the module
             this.gantry.Move2Fast(ModulePickPos,'Z1',ModulePickPos(this.vectorZ1)+10,'wait',true)
@@ -285,7 +298,7 @@ classdef LOADING < handle
                 return
             end
             
-            disp(" Wait about 15s until vacuum tube is empty");
+            disp("Close Vacuum 2 and wait about 15s until vacuum tube is empty");
             pause
             % Move up Z1 axis and rotate U to align tool holes
             this.gantry.MoveTo(this.gantry.Z1,-10,1)
@@ -309,14 +322,16 @@ classdef LOADING < handle
             pause
         end
         
-        function DropModule (this)
+        function DropModule (this,module)
             % Create Touchdown object for module
+%             module = this.module;
             touch = TOUCHDOWN(this.gantry);
+            fiducialsOnPetal(1) = this.petal.fiducials_petal.(module);
             % Calculating center and creating ModulePickCoordinates
-            SensorOnPetal = this.petal.fiducials_petal.(this.module);
+            SensorOnPetal = this.petal.fiducials_petal(module);
             this.SensorMiddle = this.CalculateCenter(this.fid_GC.(module){1}, this.Fid_GC.(module){2}, this.Fid_GC.(module){3}, this.Fid_GC.(module){4})
             SensorOnPetal.Middle = this.CalculateCenter(SensorOnPetal{1}, SensorOnPetal{2}, SensorOnPetal{3}, SensorOnPetal{4})
-            ModuleDropPos = this.SensorMiddle + this.deltaCamToPickup;
+            ModuleDropPos = this.SensorMiddle + this.cam.deltaCamToPickup;
             
             % Move to ModulePickCoordinates and drop the PickupTool on the module
             this.gantry.Move2Fast(ModulePickPos,'Z1',ModulePickPos(this.vectorZ1)+10,'wait',true)
@@ -470,7 +485,13 @@ classdef LOADING < handle
             info.fiducial1_True = fiducial1_True;
             info.fiducial1 = fidudial1_First;
         end
-        
+        function modulePosition=loadFid(this,module)
+            load ('./Loading_config/ModulePosition.mat', 'modulePosition')
+        end
+        function saveFid(this,module)
+            modulePosition.(module) = this.Fid_GC.(module);
+            save ('./Loading_config/ModulePosition.mat', 'modulePosition', '-append')
+        end
     end
 end
 

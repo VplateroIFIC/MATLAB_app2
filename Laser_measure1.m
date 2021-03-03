@@ -1,4 +1,4 @@
-function [X,Y,Z] = Laser_measure1(laser,gantry,Corner1,Corner2,nLines,velocity,name)
+function [X,Y,Z] = Laser_measure1(laser,gantry,Corner1,Corner2,nLines,velocity)
     %Measure a grid of pointsPerLine*nLines points in the rectangle [x1,x2]*[y1,y2],
     %moving the gantry at (velocity) speed, with minValue and maxValue as
     %the minimun and maximum accepted values.
@@ -36,7 +36,7 @@ function [X,Y,Z] = Laser_measure1(laser,gantry,Corner1,Corner2,nLines,velocity,n
     
     for i = 1:nLines                                    %For each X position
         fprintf("Line %d: \t",i);
-        gantry.MoveTo(gantry.Y,Y(i),velocity,0);
+        gantry.MoveTo(gantry.Y,Y(i),velocity,1);
 %             if mod(i,2)                             %Odd line
 %                 gantry.MoveTo(gantry.Y,Y(nLines-i+1),velocity,0);
 %             else                                    %Even line
@@ -45,8 +45,8 @@ function [X,Y,Z] = Laser_measure1(laser,gantry,Corner1,Corner2,nLines,velocity,n
                 %try
                     line=measureLineOK(laser,gantry,x(1),Y(i),x(2),Y(i),velocity,velocity+10);
                     Z(i,:) = line(1:pointsPerLine);
-                    Z(Z > maxValue) = -10;      % Remove values out of range
-                    Z(Z < minValue) = -10;
+                    Z(Z > maxValue) = NaN;      % Remove values out of range
+                    Z(Z < minValue) = NaN;
                 %catch ME
                 %    warning("There were error measures:")
                 %    fprintf(ME.message);
@@ -54,7 +54,7 @@ function [X,Y,Z] = Laser_measure1(laser,gantry,Corner1,Corner2,nLines,velocity,n
                 %end
                 gantry.WaitForMotionAll(-1);
     end
-            measuresFileName = sprintf("%s_%dlines_%dmmseg.mat",name, nLines, velocity);
+            measuresFileName = sprintf("Name_%dlines_%dmmseg.mat", nLines, velocity);
             pathFile = sprintf(".\\Laser_libraries\\Results\\%s", measuresFileName);
-            save(pathFile,'X','Y','Z'); 
+            save(pathFile,'X','Y','Z');
 end

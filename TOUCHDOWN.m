@@ -24,21 +24,51 @@ classdef TOUCHDOWN < handle
         % maximum searching time(s)
         maxSearchingTime;
         
-%         lowVelocity;
-%         highVelocity;
+         lowVelocity;
+         highVelocity;
 
     end
     
     methods
         
  %% TOUCHDOWN   
-        function this = TOUCHDOWN(gantry)
+        function this = TOUCHDOWN(gantry, careLevel)
             %TOUCHDOWN Construct an instance of this class
             %   receive and copy in local property the ganry object
             % input:
             % gantry: STAGES object
+            % careLevel: char array object.
+            % 'sensor' means touchdown carefully
+            % 'tool' means just touchdown
+            % carefully
             % output:
             % this: instance of this class
+            switch nargin
+                case 2
+            
+                case 1
+                    careLevel = 'sensor';
+                otherwise
+                    disp('\n Improper number of arguments ');
+                    return
+            end
+
+            switch careLevel
+            case 'sensor'
+                this.thresholdSlope=0.025;
+                this.thresholdCurrent=2.5;
+                this.lowVelocity = -0.05;
+            case 'tool'
+                this.thresholdSlope=0.12;
+                this.thresholdCurrent=2.5;
+                this.lowVelocity = -0.5;
+            otherwise 
+                this.thresholdSlope=0.025;
+                this.thresholdCurrent=2.5;
+                this.lowVelocity = -0.05;
+            end
+            
+            
             this.gantry=gantry;
             if (this.gantry.IsConnected==1)
                 disp('Touchdown is ready to be used')
@@ -70,12 +100,12 @@ classdef TOUCHDOWN < handle
             this.sampleSize=0.1;
             this.principalTrigger=0;
             this.secondaryTrigger=0;
-%             this.thresholdSlope=0.025;
-            this.thresholdSlope=0.12;
+%             this.thresholdSlope=0.025;    %(tools)
+%            this.thresholdSlope=0.12;       %(sensors)
             this.thresholdSlopeGradient=0.0;
-%             this.thresholdCurrent=1;
-%             this.thresholdCurrent=1.8;  % Sin muelle.
-            this.thresholdCurrent=2.5;
+%             this.thresholdCurrent=1;      %(sensors)
+%             this.thresholdCurrent=1.8;    % Sin muelle.
+%            this.thresholdCurrent=2.5;     %(Tools)
             
             % initialize vectors
             this.currentVector=0;
@@ -228,7 +258,8 @@ classdef TOUCHDOWN < handle
             this.maxSearchingTime=30;
             
             %setting velocity for the movement
-            lowVelocity=-0.05;
+            %lowVelocity=-0.05;
+            lowVelocity = this.lowVelocity;
             highVelocity=5;
             
             %moving fast velocity if expected contact position provided 

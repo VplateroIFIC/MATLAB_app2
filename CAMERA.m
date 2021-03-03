@@ -15,7 +15,6 @@ classdef CAMERA < handle
         ExposureM;
         ImageOutput;
         cam;
-        calibration;
         trigger;
         videoAdaptor;
         triggerConfig;
@@ -23,10 +22,12 @@ classdef CAMERA < handle
         ExposureAuto;
         GainAuto;
         n = 1;
-        
     end
-    properties (Access=public)
+    properties (GetAccess=public, SetAccess=private)
         IsConnected=0;
+        camCalibration;
+        deltaCamToPickup;
+        deltaCamToLaser1;
     end
     
     methods
@@ -42,7 +43,7 @@ classdef CAMERA < handle
                     this.ROIPos=ROIPos;
                     this.ExposureM =ExposureM;
                     this.ImageOutput=ImageOutput;
-                    this.calibration=calibration;
+                    this.camCalibration=calibration;
                     this.trigger=trigger;
                     this.videoAdaptor=videoAdaptor;
                 case 2
@@ -76,18 +77,20 @@ classdef CAMERA < handle
                     this.videoAdaptor=videoAdaptor;
                     this.ExposureAuto=ExposureAuto;
                     this.GainAuto=GainAuto;
-                    
+                    this.camCalibration = calibration;
+                    this.deltaCamToPickup = deltaCamToPickup;
+                    this.deltaCamToLaser1 = deltaCamToLaser1;
             end
             this.cameraType=cameraType;
             
         end
         
-        function delete(cam)
-            if ishandle(n)
-                close n
+        function delete(this)
+            if ishandle(this.n)
+                close this.n
             end
-            stop(cam);
-            delete(cam);
+            stop(this.cam);
+            delete(this.cam);
             imaqreset;
         end
         
