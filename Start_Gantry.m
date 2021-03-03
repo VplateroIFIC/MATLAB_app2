@@ -42,3 +42,4 @@ focus = FOCUS(gantry, cam,1);
 laser = OPTONCDT2300;
 laser.SetupConnect;
 laser.LoadParameters(1);
+laser.PowerOff;
