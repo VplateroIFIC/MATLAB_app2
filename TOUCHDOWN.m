@@ -39,7 +39,7 @@ classdef TOUCHDOWN < handle
             % gantry: STAGES object
             % careLevel: char array object.
             % 'sensor' means touchdown carefully
-            % 'tool' means just touchdown
+            % 'hard' means just touchdown
             % carefully
             % output:
             % this: instance of this class
@@ -58,7 +58,7 @@ classdef TOUCHDOWN < handle
                 this.thresholdSlope=0.025;
                 this.thresholdCurrent=2.5;
                 this.lowVelocity = -0.05;
-            case 'tool'
+            case 'hard'
                 this.thresholdSlope=0.12;
                 this.thresholdCurrent=2.5;
                 this.lowVelocity = -0.5;
@@ -100,12 +100,12 @@ classdef TOUCHDOWN < handle
             this.sampleSize=0.1;
             this.principalTrigger=0;
             this.secondaryTrigger=0;
-%             this.thresholdSlope=0.025;    %(tools)
+%             this.thresholdSlope=0.025;    %(hards)
 %            this.thresholdSlope=0.12;       %(sensors)
             this.thresholdSlopeGradient=0.0;
 %             this.thresholdCurrent=1;      %(sensors)
 %             this.thresholdCurrent=1.8;    % Sin muelle.
-%            this.thresholdCurrent=2.5;     %(Tools)
+%            this.thresholdCurrent=2.5;     %(Hards)
             
             % initialize vectors
             this.currentVector=0;

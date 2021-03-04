@@ -56,6 +56,8 @@ classdef LOADING < handle
         PickPos
         SensorMiddle
         petal
+        tool;   % Tool we are working with
+        module; % Module we are working with
         
         vectorX;
         vectorY;
@@ -154,15 +156,15 @@ classdef LOADING < handle
             
         switch module
         case 'R0'
-            tool = 'Tool0'
+            this.tool = 'Tool0'
         case 'R1'
-            tool = 'Tool0'
+            this.tool = 'Tool0'
         case 'R2'
-            tool = 'Tool0'
+            this.tool = 'Tool0'
         case 'R3S0'
-            tool = 'Tool1'
+            this.tool = 'Tool1'
         case 'R3S1'
-            tool = 'Tool2'
+            this.tool = 'Tool2'
         case 'R4S0'
         case 'R4S1'
         case 'R5S0'
@@ -235,6 +237,68 @@ classdef LOADING < handle
             y = this.gantry.GetPosition(this.gantry.Y) + Coordenadasmm(2);
         end
         
+        function alfa = calculateRotation(this,module)%, F1, F2, F3, F4)
+            
+            %Must be moved to the correct place
+            PetalLocator_1 = [133.1885 -358.8875         nan   13.3203         nan         nan];
+            PetalLocator_2 = [277.2484  224.5027       NaN   13.8901         nan         nan];
+            this.petal = PETALCS(0, PetalLocator_1, PetalLocator_2);
+            
+            %Loading theorical fiducials on sensor coordinates
+            for i=1:4
+                x(i) = (this.petal.fiducials_sensors.R0{i}(1));
+                y(i) = (this.petal.fiducials_sensors.R0{i}(2));
+            end
+
+            lowerLineX = [x(1),x(4)];
+            lowerLineY = [y(1),y(4)];
+            upperLineX = [x(2),x(3)];
+            upperLineY = [y(2),y(3)];
+
+            lowerLine = polyfit(lowerLineX,lowerLineY,1);
+            alfa.R0Lower = atand(lowerLine(1));
+
+            upperLine = polyfit(upperLineX,upperLineY,1);
+            alfa.R0Upper = atand(upperLine(1));
+
+
+            for i=1:4
+                x(i) = (this.petal.fiducials_gantry.R0{i}(1));
+                y(i) = (this.petal.fiducials_gantry.R0{i}(2));
+%                fiducialsOnSensor{i}(4) = -28;
+            end
+
+            lowerLineX = [x(1),x(4)];
+            lowerLineY = [y(1),y(4)];
+            upperLineX = [x(2),x(3)];
+            upperLineY = [y(2),y(3)];
+
+            lowerLine = polyfit(lowerLineX,lowerLineY,1);
+            alfa.PetalLower = atand(lowerLine(1));
+
+            upperLine = polyfit(upperLineX,upperLineY,1);
+            alfa.PetalUpper = atand(upperLine(1));
+
+            fiducials = this.Fid_GC.(module);
+            for i=1:4
+                x(i) = (fiducials{i}(1));
+                y(i) = (fiducials{i}(2));
+%                fiducialsOnSensor{i}(4) = -28;
+            end
+
+            lowerLineX = [x(1),x(4)];
+            lowerLineY = [y(1),y(4)];
+            upperLineX = [x(2),x(3)];
+            upperLineY = [y(2),y(3)];
+
+            lowerLine = polyfit(lowerLineX,lowerLineY,1);
+            alfa.LowerLine = atand(lowerLine(1));
+
+            upperLine = polyfit(upperLineX,upperLineY,1);
+            alfa.UpperLine = atand(upperLine(1));
+
+        end
+
         function intersection = CalculateCenter(this, F1, F2, F3, F4)
             % function CalculateCenter(this)
             % Arg: F1, F2, F3, F4
@@ -326,10 +390,11 @@ classdef LOADING < handle
             % Create Touchdown object for module
 %             module = this.module;
             touch = TOUCHDOWN(this.gantry);
-            fiducialsOnPetal(1) = this.petal.fiducials_petal.(module);
+            %fiducialsOnPetal(1) = this.petal.fiducials_petal.(module);
+            fiducialsOnPetal{1} = transpose(petal.fiducials_petal.(module){1});
             % Calculating center and creating ModulePickCoordinates
-            SensorOnPetal = this.petal.fiducials_petal(module);
-            this.SensorMiddle = this.CalculateCenter(this.fid_GC.(module){1}, this.Fid_GC.(module){2}, this.Fid_GC.(module){3}, this.Fid_GC.(module){4})
+%             SensorOnPetal = this.petal.fiducials_petal(module);
+            this.SensorMiddle = this.CalculateCenter(fiducialsOnPetal{1}, fiducialsOnPetal{2}, fiducialsOnPetal{3}, fiducialsOnPetal{4})
             SensorOnPetal.Middle = this.CalculateCenter(SensorOnPetal{1}, SensorOnPetal{2}, SensorOnPetal{3}, SensorOnPetal{4})
             ModuleDropPos = this.SensorMiddle + this.cam.deltaCamToPickup;
             
@@ -368,7 +433,8 @@ classdef LOADING < handle
             pause
         end
         
-        function DropPickup (this,module)
+        function DropTool (this)
+            module = this.tool;
             load ('TablePositions.mat','PickupPosition')
             this.PickPos = PickupPosition.(module);
             this.gantry.Move2Fast(this.PickPos,'Z1',this.PickPos(this.vectorZ1)+10, 'Z2', 20,'wait',true)
