@@ -453,8 +453,8 @@ classdef LOADING < handle
             ModulePickPos = this.SensorMiddle + this.cam.deltaCamToPickup;
             % Calculate rotation angle
             alfa = this.calculateRotation(module);
-            rotation = alfa.LowerLine;
-            ModulePickPos(this.gantry.vectorU) = rotation - 90 + PickupPosition.(this.tool)(this.gantry.vectorU)
+            rotation = alfa.LowerLine -90 + PickupPosition.(this.tool)(this.gantry.vectorU);
+            ModulePickPos(this.gantry.vectorU) = rotation;
 
             
             % Move to ModulePickCoordinates and drop the PickupTool on the module
