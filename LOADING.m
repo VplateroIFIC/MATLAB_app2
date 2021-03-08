@@ -93,6 +93,10 @@ classdef LOADING < handle
             addpath('Loading_config');
         end
         
+        function loadPositions (this)
+            load ('TablePositions.mat','PickupPosition')
+            this.PickPos = PickupPosition;
+        end
         
         function milimeters = pixel2mm(this,pixels)
             % Function pixel2mm
@@ -317,6 +321,7 @@ classdef LOADING < handle
             upperLine = polyfit(upperLineX,upperLineY,1);
             alfa.UpperLine = atand(upperLine(1));
             
+            disp (alfa)
             rotation = alfa.LowerLine;
         end
         
@@ -338,7 +343,12 @@ classdef LOADING < handle
             y_intersect = polyval(p1,x_intersect);
             
             Ft = [F1;F2;F3;F4];
-            z = mean(Ft(1:4,4));
+            try
+                z = mean(Ft(1:4,4));
+            catch 'Index in position 2 exceeds array bounds (must not exceed 3).'
+                z = NaN;
+            end
+            
             intersection = [x_intersect, y_intersect, nan, z, nan, nan];
         end
         
@@ -347,12 +357,12 @@ classdef LOADING < handle
             touch = TOUCHDOWN(this.gantry,'hard');
 %             this.PickPos = PickupPosition.(PickUpTool);
             
-            this.gantry.Move2Fast(this.PickupPosition.(PickupPosition.Tool),'Z1',+10, 'Z2', 30,'wait',true)
+            this.gantry.Move2Fast(PickupPosition.(Tool),'Z1',+10, 'Z2', 30,'wait',true)
             this.gantry.WaitForMotionAll;
             disp(" Please, check that gantry is in the correct position ");
             answer = questdlg('Please, check that gantry is in the correct position', ...
                 'Sento is asking something', ...
-                'No');
+                'Yes');
             disp([' Users answer ->' answer])
 
             % Handle response
@@ -364,7 +374,7 @@ classdef LOADING < handle
                     return
             end
             
-            contact = touch.runTouchdown(this.gantry.Z1,this.PickPos(this.gantry.vectorZ1));
+            contact = touch.runTouchdown(this.gantry.Z1,PickupPosition.(Tool)(this.gantry.vectorZ1));
             if ~contact.contact
                 disp ("Contact not reached")
                 return
@@ -442,7 +452,8 @@ classdef LOADING < handle
             this.SensorMiddle = this.CalculateCenter(this.Fid_GC.(module){1}, this.Fid_GC.(module){2}, this.Fid_GC.(module){3}, this.Fid_GC.(module){4})
             ModulePickPos = this.SensorMiddle + this.cam.deltaCamToPickup;
             % Calculate rotation angle
-            rotation = this.calculateRotation(module);
+            alfa = this.calculateRotation(module);
+            rotation = alfa.LowerLine;
             ModulePickPos(this.gantry.vectorU) = rotation - 90 + PickupPosition.(this.tool)(this.gantry.vectorU)
 
             
@@ -471,7 +482,7 @@ classdef LOADING < handle
             disp(' Please, close vaccum 2 and wait about 15s until vacuum tube is empty');
             answer = questdlg(' Please, close vaccum 2 and wait until pickup drops ', ...
                 'Sento is asking something', ...
-                'Continue', 'Skip', 'Skip');
+                'Continue', 'Skip', 'Continue');
             disp([' Users answer ->' answer])
             % Handle response
             switch answer
@@ -483,10 +494,10 @@ classdef LOADING < handle
             end
             % Move up Z1 axis and rotate U to align tool holes
             this.gantry.MoveTo(this.gantry.Z1,-10,1)
-            Rotation = PickupPosition.(this.tool)(gantry.vectorU));
-            this.gantry.MoveTo(this.gantry.U, PickupPosition.(this.tool),1)
+            this.gantry.WaitForMotionAll
+            this.gantry.MoveTo(this.gantry.U, rotation,10,1)
             
-            this.gantry.Move2Fast(ModulePickPos,'Z1',ModulePickPos(this.vectorZ1)+10,'wait',true)
+            this.gantry.Move2Fast(ModulePickPos,'Z1',ModulePickPos(this.vectorZ1)+10,'U',rotation, 'wait',true)
             this.gantry.WaitForMotionAll;
             disp(" Please, check that gantry is in the correct position ");
             answer = questdlg(' Please, check that gantry is in the correct position ');
@@ -541,15 +552,19 @@ classdef LOADING < handle
             %             module = this.module;
             touch = TOUCHDOWN(this.gantry);
             %fiducialsOnPetal(1) = this.petal.fiducials_petal.(module);
-            fiducialsOnPetal{1} = transpose(petal.fiducials_petal.(module){1});
+            for i=1:4
+                fiducialsOnPetal{i} = transpose(this.petal.fiducials_gantry.(module){i});
+            end
             % Calculating center and creating ModulePickCoordinates
-            %             SensorOnPetal = this.petal.fiducials_petal(module);
+%             SensorOnPetal = this.petal.fiducials_gantry.(module);
             this.SensorMiddle = this.CalculateCenter(fiducialsOnPetal{1}, fiducialsOnPetal{2}, fiducialsOnPetal{3}, fiducialsOnPetal{4})
-            SensorOnPetal.Middle = this.CalculateCenter(SensorOnPetal{1}, SensorOnPetal{2}, SensorOnPetal{3}, SensorOnPetal{4})
+%             this.SensorMiddle = this.CalculateCenter(SensorOnPetal{1}, SensorOnPetal{2}, SensorOnPetal{3}, SensorOnPetal{4})
+            rotation = this.calculateRotation(module) - 90;
             ModuleDropPos = this.SensorMiddle + this.cam.deltaCamToPickup;
+            ModuleDropPos(this.gantry.vectorU) = rotation;
             
             % Move to ModulePickCoordinates and drop the PickupTool on the module
-            this.gantry.Move2Fast(ModulePickPos,'Z1',ModulePickPos(this.vectorZ1)+10,'wait',true)
+            this.gantry.Move2Fast(ModuleDropPos,'Z1',ModuleDropPos(this.vectorZ1)+10,'wait',true)
             %             this.gantry.WaitForMotionAll;
             disp(" Please, check that gantry is in the correct position ");
             pause
